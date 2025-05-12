@@ -51,7 +51,7 @@ const SettingsModule = (function() {
       salesReps = JSON.parse(savedReps);
     } else {
       // Default sales reps
-      salesReps = ['John Smith', 'Jane Doe', 'Mark Johnson'];
+      salesReps = ['test'];
       saveSalesReps();
     }
   }
@@ -77,7 +77,56 @@ const SettingsModule = (function() {
   function openSettingsModal() {
     loadDefaultTasks();
     renderSalesReps();
+    loadApiConfig();
+    
+    // Initialize dark mode toggle
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    if (darkModeToggle) {
+      darkModeToggle.checked = localStorage.getItem('darkMode') === 'true';
+    }
+    
     elements.settingsModal.style.display = 'block';
+  }
+  
+  /**
+   * Load API configuration
+   */
+  async function loadApiConfig() {
+    try {
+      const config = await fetch('/api/config').then(res => res.json());
+      
+      const urlInput = document.getElementById('gasApiUrl');
+      const keyInput = document.getElementById('gasApiKey');
+      const spreadsheetInput = document.getElementById('defaultSpreadsheetId');
+      
+      if (urlInput) {
+        urlInput.value = config.gas_api_url || '';
+      }
+      
+      if (keyInput) {
+        // Don't populate the key for security, just show if it's set
+        keyInput.placeholder = config.gas_api_key_set ? 'API key is set' : 'Enter your API key';
+      }
+      
+      if (spreadsheetInput) {
+        spreadsheetInput.value = config.default_spreadsheet_id || '';
+      }
+    } catch (error) {
+      console.error('Failed to load API config:', error);
+    }
+  }
+  
+  /**
+   * Get API configuration
+   */
+  async function getApiConfig() {
+    try {
+      const config = await fetch('/api/config').then(res => res.json());
+      return config;
+    } catch (error) {
+      console.error('Failed to get API config:', error);
+      return {};
+    }
   }
   
   /**
@@ -360,10 +409,40 @@ const SettingsModule = (function() {
   }
   
   /**
-   * Handle saving settings (reordering tasks)
+   * Handle saving settings (reordering tasks and API config)
    */
   async function handleSaveSettings() {
     try {
+      // Save API configuration if changed
+      const urlInput = document.getElementById('gasApiUrl');
+      const keyInput = document.getElementById('gasApiKey');
+      const spreadsheetInput = document.getElementById('defaultSpreadsheetId');
+      
+      if (urlInput || keyInput || spreadsheetInput) {
+        const configData = {};
+        
+        if (urlInput && urlInput.value) {
+          configData.gas_api_url = urlInput.value;
+        }
+        
+        // Only send key if it was changed
+        if (keyInput && keyInput.value) {
+          configData.gas_api_key = keyInput.value;
+        }
+        
+        if (spreadsheetInput && spreadsheetInput.value) {
+          configData.default_spreadsheet_id = spreadsheetInput.value;
+        }
+        
+        if (Object.keys(configData).length > 0) {
+          await fetch('/api/config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(configData)
+          });
+        }
+      }
+      
       // Get all task IDs in current order
       const taskIds = Array.from(
         document.querySelectorAll('.default-task-item')
@@ -371,9 +450,9 @@ const SettingsModule = (function() {
       
       if (taskIds.length > 0) {
         await API.reorderDefaultTasks(taskIds);
-        showToast('Settings saved successfully', 'success');
       }
       
+      showToast('Settings saved successfully', 'success');
       closeModals();
     } catch (error) {
       showToast(`Failed to save settings: ${error.message}`, 'error');
@@ -385,6 +464,7 @@ const SettingsModule = (function() {
     init,
     getSalesReps,
     updateSalesRepDropdown,
-    handleAddSalesRep
+    handleAddSalesRep,
+    getApiConfig
   };
 })();

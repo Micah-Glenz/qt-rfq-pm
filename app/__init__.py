@@ -17,6 +17,12 @@ def create_app():
     def index():
         return render_template('index.html')
     
+    # Favicon route to prevent 405 errors
+    @app.route('/favicon.ico')
+    def favicon():
+        return send_from_directory(os.path.join(app.root_path, 'static'),
+                                   'favicon.ico', mimetype='image/vnd.microsoft.icon')
+    
     # Add CORS headers to all responses
     @app.after_request
     def add_cors_headers(response):

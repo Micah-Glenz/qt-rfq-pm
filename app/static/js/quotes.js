@@ -123,6 +123,9 @@ const QuotesModule = (function() {
     // Don't reload if it's the same quote, unless forced to reload
     if (!forceReload && currentQuote && currentQuote.id === quoteId) return;
     
+    // Clear stored task order when changing quotes
+    TasksModule.clearStoredOrder();
+    
     try {
       isLoading = true;
       
@@ -179,83 +182,118 @@ const QuotesModule = (function() {
     `;
     
     elements.quoteDetail.innerHTML = `
-      <!-- Quote Info Card -->
-      <div class="quote-card">
-        <div class="card-header">
-          <h3 id="quoteNoDisplay" class="editable" data-field="quote_no" data-original="${currentQuote.quote_no}">${currentQuote.quote_no}</h3>
-          <div class="quote-actions">
-            <button class="btn small" id="editModeBtn">Edit</button>
-            <button class="btn small primary" id="saveQuoteBtn" style="display: none;">Save</button>
-            <button class="btn small" id="cancelEditBtn" style="display: none;">Cancel</button>
-          </div>
-        </div>
-        
-        <div class="card-content" id="quoteInfoCardContent">
-          <div class="quote-info">
-            <div class="info-group">
-              <div class="info-label">Customer</div>
-              <div class="info-value">
-                <span id="customerDisplay" class="editable" data-field="customer" data-original="${currentQuote.customer}">${currentQuote.customer}</span>
-              </div>
-            </div>
-            <div class="info-group">
-              <div class="info-label">Sales Rep</div>
-              <div class="info-value">${salesRepDropdownHTML}</div>
-            </div>
-            <div class="info-group">
-              <div class="info-label">Created</div>
-              <div class="info-value">${formatDate(currentQuote.created_at)}</div>
-            </div>
-            <div class="info-group">
-              <div class="info-label">Last Updated</div>
-              <div class="info-value">${formatDate(currentQuote.updated_at)}</div>
+      <div class="left-column">
+        <!-- Quote Info Card -->
+        <div class="quote-card details-card">
+          <div class="card-header">
+            <h3 id="quoteNoDisplay" class="editable" data-field="quote_no" data-original="${currentQuote.quote_no}">${currentQuote.quote_no}</h3>
+            <div class="quote-actions">
+              <button class="btn small" id="editModeBtn">Edit</button>
+              <button class="btn small primary" id="saveQuoteBtn" style="display: none;">Save</button>
+              <button class="btn small" id="cancelEditBtn" style="display: none;">Cancel</button>
             </div>
           </div>
           
-          <div class="info-group" style="margin-top: 0.5rem;">
-            <div class="info-label">Description</div>
-            <div class="info-value">
-              <span id="descriptionDisplay" class="editable" data-field="description" data-original="${currentQuote.description || ''}">${currentQuote.description || 'No description'}</span>
+          <div class="card-content" id="quoteInfoCardContent">
+            <div class="quote-info">
+              <div class="info-group">
+                <div class="info-label">Customer</div>
+                <div class="info-value">
+                  <span id="customerDisplay" class="editable" data-field="customer" data-original="${currentQuote.customer}">${currentQuote.customer}</span>
+                </div>
+              </div>
+              <div class="info-group">
+                <div class="info-label">Sales Rep</div>
+                <div class="info-value">
+                  <span id="salesRepDisplay" class="editable" data-field="sales_rep" data-original="${currentQuote.sales_rep || ''}">${currentQuote.sales_rep || 'No sales rep assigned'}</span>
+                </div>
+              </div>
+              <div class="info-group">
+                <div class="info-label">Created</div>
+                <div class="info-value">${formatDate(currentQuote.created_at)}</div>
+              </div>
+              <div class="info-group">
+                <div class="info-label">Last Updated</div>
+                <div class="info-value">${formatDate(currentQuote.updated_at)}</div>
+              </div>
+            </div>
+            
+            <div class="info-group" style="margin-top: 0.5rem;">
+              <div class="info-label">Description</div>
+              <div class="info-value">
+                <span id="descriptionDisplay" class="editable" data-field="description" data-original="${currentQuote.description || ''}">${currentQuote.description || 'No description'}</span>
+              </div>
+            </div>
+            
+            ${currentQuote.project_sheet_url || currentQuote.mpsf_link || currentQuote.folder_link ? `
+              <div class="project-links" style="margin-top: 1rem; padding-top: 0.5rem; border-top: 1px solid var(--border-color);">
+                <div class="info-label">Project Links</div>
+                <div class="project-links-container">
+                  ${currentQuote.project_sheet_url ? `
+                    <div class="project-link">
+                      <a href="${currentQuote.project_sheet_url}" target="_blank" class="link-button">
+                        Open Project Sheet 📊
+                      </a>
+                    </div>
+                  ` : ''}
+                  ${currentQuote.mpsf_link ? `
+                    <div class="project-link">
+                      <a href="${currentQuote.mpsf_link}" target="_blank" class="link-button">
+                        Open MPSF 📄
+                      </a>
+                    </div>
+                  ` : ''}
+                  ${currentQuote.folder_link ? `
+                    <div class="project-link">
+                      <a href="${currentQuote.folder_link}" target="_blank" class="link-button">
+                        Open Drive Folder 📁
+                      </a>
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+        
+        <!-- Vendor Quotes Card -->
+        <div class="quote-card vendor-quotes-card">
+          <div class="card-header">
+            <h3>Vendor Quotes</h3>
+            <button class="btn small" id="addVendorQuoteBtn">Add Vendor Quote</button>
+          </div>
+          <div class="card-content" id="vendorQuotesCardContent">
+            <div id="vendorQuotesList" class="vendor-quotes-list">
+              ${vendorQuotesHtml}
+            </div>
+          </div>
+        </div>
+        
+        <!-- Notes Card -->
+        <div class="quote-card notes-card">
+          <div class="card-header">
+            <h3>Notes</h3>
+            <button class="btn small" id="addNoteBtn">Add Note</button>
+          </div>
+          <div class="card-content" id="notesCardContent">
+            <div id="notesList" class="notes-list">
+              ${notesHtml}
             </div>
           </div>
         </div>
       </div>
       
-      <!-- Tasks Card -->
-      <div class="quote-card">
-        <div class="card-header">
-          <h3>Tasks</h3>
-          <button class="btn small" id="addTaskBtn">Add Task</button>
-        </div>
-        <div class="card-content" id="tasksCardContent">
-          <div id="tasksList">
-            ${tasksHtml}
+      <div class="right-column">
+        <!-- Tasks Card -->
+        <div class="quote-card tasks-card">
+          <div class="card-header">
+            <h3>Tasks</h3>
+            <button class="btn small" id="addTaskBtn">Add Task</button>
           </div>
-        </div>
-      </div>
-      
-      <!-- Vendor Quotes Card -->
-      <div class="quote-card">
-        <div class="card-header">
-          <h3>Vendor Quotes</h3>
-          <button class="btn small" id="addVendorQuoteBtn">Add Vendor Quote</button>
-        </div>
-        <div class="card-content" id="vendorQuotesCardContent">
-          <div id="vendorQuotesList" class="vendor-quotes-list">
-            ${vendorQuotesHtml}
-          </div>
-        </div>
-      </div>
-      
-      <!-- Notes Card -->
-      <div class="quote-card">
-        <div class="card-header">
-          <h3>Notes</h3>
-          <button class="btn small" id="addNoteBtn">Add Note</button>
-        </div>
-        <div class="card-content" id="notesCardContent">
-          <div id="notesList" class="notes-list">
-            ${notesHtml}
+          <div class="card-content" id="tasksCardContent">
+            <div id="tasksList">
+              ${tasksHtml}
+            </div>
           </div>
         </div>
       </div>
@@ -269,9 +307,6 @@ const QuotesModule = (function() {
     document.getElementById('addVendorQuoteBtn').addEventListener('click', () => VendorQuotesModule.openAddVendorQuoteModal(currentQuote.id));
     document.getElementById('addNoteBtn').addEventListener('click', () => NotesModule.openAddNoteModal(currentQuote.id));
     
-    // Add event listener for sales rep dropdown
-    document.getElementById('salesRepSelect').addEventListener('change', handleSalesRepChange);
-    
     // Initialize task checkboxes
     TasksModule.initTaskCheckboxes();
     
@@ -280,12 +315,6 @@ const QuotesModule = (function() {
     
     // Initialize note controls
     NotesModule.initNoteControls();
-    
-    // Update layout based on current container width
-    updateDetailLayout();
-    
-    // Update scroll indicators after rendering
-    setTimeout(updateScrollIndicators, 100);
     
     // Add scroll event listeners to all scrollable content areas
     document.querySelectorAll('.card-content').forEach(content => {
@@ -352,6 +381,27 @@ const QuotesModule = (function() {
   }
   
   /**
+   * Handle project checkbox change
+   */
+  function handleProjectCheckboxChange(event) {
+    const projectOptions = document.getElementById('projectOptions');
+    const isChecked = event.target.checked;
+    
+    if (projectOptions) {
+      projectOptions.style.display = isChecked ? 'block' : 'none';
+      
+      // If checked, populate project description with quote description
+      if (isChecked) {
+        const descriptionValue = document.getElementById('description').value;
+        const projectDescInput = document.getElementById('projectDescription');
+        if (projectDescInput && descriptionValue) {
+          projectDescInput.value = descriptionValue;
+        }
+      }
+    }
+  }
+  
+  /**
    * Open new quote modal
    */
   function openNewQuoteModal() {
@@ -366,6 +416,12 @@ const QuotesModule = (function() {
       if (salesReps && salesReps.length > 0) {
         SettingsModule.updateSalesRepDropdown(salesRepSelect);
       }
+    }
+    
+    // Set create project checkbox to checked by default
+    const createProjectCheckbox = document.getElementById('createProject');
+    if (createProjectCheckbox) {
+      createProjectCheckbox.checked = true;
     }
     
     document.getElementById('customer').focus();
@@ -392,6 +448,17 @@ const QuotesModule = (function() {
       // Replace with appropriate input
       if (field === 'description') {
         element.innerHTML = `<textarea class="inline-edit-input" data-field="${field}">${originalValue}</textarea>`;
+      } else if (field === 'sales_rep') {
+        // Replace with dropdown for sales rep
+        const salesReps = SettingsModule.getSalesReps();
+        element.innerHTML = `
+          <select id="salesRepSelect" class="inline-edit-input sales-rep-select" data-field="${field}">
+            <option value="">Select a sales rep</option>
+            ${salesReps.map(rep => `
+              <option value="${rep}" ${originalValue === rep ? 'selected' : ''}>${rep}</option>
+            `).join('')}
+          </select>
+        `;
       } else {
         element.innerHTML = `<input type="text" class="inline-edit-input" data-field="${field}" value="${originalValue}">`;
       }
@@ -415,9 +482,6 @@ const QuotesModule = (function() {
     inputs.forEach(input => {
       formData[input.dataset.field] = input.value.trim();
     });
-    
-    // Add the current sales rep
-    formData.sales_rep = document.getElementById('salesRepSelect').value;
     
     try {
       // Validate required fields
@@ -489,9 +553,28 @@ const QuotesModule = (function() {
       sales_rep: document.getElementById('salesRepDropdown').value
     };
     
+    const createProject = document.getElementById('createProject').checked;
+    
+    // Get spreadsheet ID from settings
+    const config = await SettingsModule.getApiConfig();
+    const spreadsheetId = config.default_spreadsheet_id;
+    
+    // Add project creation data if checked and we have the necessary data
+    if (createProject && formData.sales_rep && spreadsheetId) {
+      formData.create_project = true;
+      formData.project_description = formData.description;
+      formData.spreadsheet_id = spreadsheetId;
+    }
+    
     try {
       const result = await API.createQuote(formData);
-      showToast('Quote created successfully', 'success');
+      
+      if (result.project_error) {
+        showToast(`Quote created, but project creation failed: ${result.project_error}`, 'warning');
+      } else {
+        showToast('Quote created successfully', 'success');
+      }
+      
       closeModals();
       loadQuotes();
       loadQuoteDetail(result.id);

@@ -9,7 +9,7 @@ const NotesModule = (function() {
    */
   function renderNotes(notes) {
     if (!notes || notes.length === 0) {
-      return '<div class="empty-state">No notes</div>';
+      return '<div class="empty-state no-notes">No notes</div>';
     }
     
     let html = '';
@@ -21,7 +21,10 @@ const NotesModule = (function() {
             <div>${formatDate(note.created_at)}</div>
             <span class="note-delete-btn" data-id="${note.id}">×</span>
           </div>
-          <div class="note-content">${note.content}</div>
+          <div class="note-content editable-note" 
+               contenteditable="true" 
+               data-id="${note.id}"
+               data-original="${note.content}">${note.content}</div>
         </div>
       `;
     });
@@ -36,51 +39,60 @@ const NotesModule = (function() {
     document.querySelectorAll('.note-delete-btn').forEach(btn => {
       btn.addEventListener('click', handleDeleteNote);
     });
+    
+    // Add event listeners for inline editable notes
+    document.querySelectorAll('.note-content.editable-note').forEach(note => {
+      note.addEventListener('blur', handleNoteBlur);
+    });
   }
   
   /**
-   * Open add note modal
-   * @param {number} quoteId - The quote ID
+   * Handle inline note blur (save changes)
    */
-  function openAddNoteModal(quoteId) {
-    // Create modal HTML
-    const modalHtml = `
-      <div id="noteModal" class="modal">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h2>Add Note</h2>
-            <span class="close-modal">&times;</span>
-          </div>
-          <div class="modal-body">
-            <form id="noteForm">
-              <div class="form-group">
-                <label for="noteContent">Note</label>
-                <textarea id="noteContent" name="content" required rows="5"></textarea>
-              </div>
-              <div class="form-actions">
-                <button type="button" class="btn cancel-modal">Cancel</button>
-                <button type="submit" class="btn primary">Save</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    `;
+  async function handleNoteBlur(event) {
+    const noteElement = event.target;
+    const noteId = parseInt(noteElement.dataset.id, 10);
+    const originalValue = noteElement.dataset.original;
+    const newValue = noteElement.innerText.trim();
     
-    // Inject the modal if it doesn't exist
-    if (!document.getElementById('noteModal')) {
-      document.body.insertAdjacentHTML('beforeend', modalHtml);
-      
-      // Add event listeners
-      document.querySelector('#noteModal .close-modal').addEventListener('click', closeNoteModal);
-      document.querySelector('#noteModal .cancel-modal').addEventListener('click', closeNoteModal);
-      document.getElementById('noteForm').addEventListener('submit', e => handleNoteSubmit(e, quoteId));
+    // If value hasn't changed, skip update
+    if (newValue === originalValue) {
+      return;
     }
     
-    // Reset form and show modal
-    document.getElementById('noteForm').reset();
-    document.getElementById('noteModal').style.display = 'block';
-    document.getElementById('noteContent').focus();
+    try {
+      // Update note via API
+      await API.updateNote(noteId, { content: newValue });
+      
+      // Update the data attribute
+      noteElement.dataset.original = newValue;
+      
+      // Update in current quote data
+      const currentQuote = QuotesModule.getCurrentQuote();
+      const note = currentQuote.notes.find(n => n.id === noteId);
+      if (note) {
+        note.content = newValue;
+      }
+    } catch (error) {
+      // Revert to original value on error
+      noteElement.innerText = originalValue;
+      showToast(`Failed to update note: ${error.message}`, 'error');
+    }
+  }
+  
+  /**
+   * Open add note modal - now creates an empty note directly
+   * @param {number} quoteId - The quote ID
+   */
+  async function openAddNoteModal(quoteId) {
+    try {
+      // Create an empty note directly
+      await API.createNote(quoteId, { content: '' });
+      showToast('Note added successfully', 'success');
+      QuotesModule.refreshCurrentQuote();
+    } catch (error) {
+      showToast(`Failed to add note: ${error.message}`, 'error');
+    }
   }
   
   /**

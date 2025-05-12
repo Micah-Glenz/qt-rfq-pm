@@ -3,24 +3,31 @@ from app.db import DatabaseContext
 
 class Quote:
     def __init__(self, id=None, customer=None, quote_no=None, description=None, 
-                 sales_rep=None, created_at=None, updated_at=None):
+                 sales_rep=None, project_sheet_url=None, mpsf_link=None, 
+                 folder_link=None, created_at=None, updated_at=None):
         self.id = id
         self.customer = customer
         self.quote_no = quote_no
         self.description = description
         self.sales_rep = sales_rep
+        self.project_sheet_url = project_sheet_url
+        self.mpsf_link = mpsf_link
+        self.folder_link = folder_link
         self.created_at = created_at
         self.updated_at = updated_at
     
     @staticmethod
-    def create(customer, quote_no, description=None, sales_rep=None):
+    def create(customer, quote_no, description=None, sales_rep=None, 
+               project_sheet_url=None, mpsf_link=None, folder_link=None):
         """Create a new quote in the database"""
         with DatabaseContext() as conn:
             cursor = conn.cursor()
             cursor.execute('''
-                INSERT INTO quotes (customer, quote_no, description, sales_rep)
-                VALUES (?, ?, ?, ?)
-            ''', (customer, quote_no, description, sales_rep))
+                INSERT INTO quotes (customer, quote_no, description, sales_rep,
+                                  project_sheet_url, mpsf_link, folder_link)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', (customer, quote_no, description, sales_rep, 
+                  project_sheet_url, mpsf_link, folder_link))
             
             quote_id = cursor.lastrowid
             conn.commit()
@@ -49,6 +56,7 @@ class Quote:
             cursor = conn.cursor()
             cursor.execute('''
                 SELECT id, customer, quote_no, description, sales_rep, 
+                       project_sheet_url, mpsf_link, folder_link,
                        created_at, updated_at
                 FROM quotes
                 WHERE id = ?
@@ -62,6 +70,9 @@ class Quote:
                     quote_no=row['quote_no'],
                     description=row['description'],
                     sales_rep=row['sales_rep'],
+                    project_sheet_url=row['project_sheet_url'],
+                    mpsf_link=row['mpsf_link'],
+                    folder_link=row['folder_link'],
                     created_at=row['created_at'],
                     updated_at=row['updated_at']
                 )
@@ -131,7 +142,8 @@ class Quote:
             return quotes
     
     @staticmethod
-    def update(quote_id, customer, quote_no, description, sales_rep):
+    def update(quote_id, customer, quote_no, description, sales_rep,
+               project_sheet_url=None, mpsf_link=None, folder_link=None):
         """Update a quote"""
         with DatabaseContext() as conn:
             cursor = conn.cursor()
@@ -141,9 +153,13 @@ class Quote:
                     quote_no = ?,
                     description = ?,
                     sales_rep = ?,
+                    project_sheet_url = ?,
+                    mpsf_link = ?,
+                    folder_link = ?,
                     updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?
-            ''', (customer, quote_no, description, sales_rep, quote_id))
+            ''', (customer, quote_no, description, sales_rep, 
+                  project_sheet_url, mpsf_link, folder_link, quote_id))
             conn.commit()
             return cursor.rowcount > 0
     

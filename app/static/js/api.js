@@ -183,6 +183,19 @@ const API = {
   },
 
   /**
+   * Update a note
+   * @param {number} noteId - The note ID
+   * @param {Object} noteData - The updated note data
+   * @returns {Promise<Object>} - Response message
+   */
+  async updateNote(noteId, noteData) {
+    return this.fetch(`${this.baseUrl}/notes/${noteId}`, {
+      method: 'PUT',
+      body: JSON.stringify(noteData)
+    });
+  },
+
+  /**
    * Delete a note
    * @param {number} noteId - The note ID
    * @returns {Promise<Object>} - Response message
@@ -246,6 +259,19 @@ const API = {
     return this.fetch(`${this.baseUrl}/default-tasks/reorder`, {
       method: 'POST',
       body: JSON.stringify(taskIds)
+    });
+  },
+
+  /**
+   * Update task order for a quote
+   * @param {number} quoteId - The quote ID
+   * @param {Array<number>} taskIds - Ordered array of task IDs
+   * @returns {Promise<Object>} - Response message
+   */
+  async updateTaskOrder(quoteId, taskIds) {
+    return this.fetch(`${this.baseUrl}/quotes/${quoteId}/tasks/reorder`, {
+      method: 'POST',
+      body: JSON.stringify({ taskIds })
     });
   }
 };

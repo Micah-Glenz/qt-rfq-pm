@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.models import Quote, Task, VendorQuote, Note
+from app.services.config_service import ConfigService
 
 quotes_bp = Blueprint('quotes', __name__, url_prefix='/api')
 
@@ -25,6 +26,9 @@ def get_quote(quote_id):
         'quote_no': quote.quote_no,
         'description': quote.description,
         'sales_rep': quote.sales_rep,
+        'project_sheet_url': quote.project_sheet_url,
+        'mpsf_link': quote.mpsf_link,
+        'folder_link': quote.folder_link,
         'created_at': quote.created_at,
         'updated_at': quote.updated_at,
         'tasks': tasks,
@@ -50,7 +54,39 @@ def create_quote():
         return jsonify({'error': 'Customer and quote number are required'}), 400
     
     try:
-        quote_id = Quote.create(customer, quote_no, description, sales_rep)
+        # Create the quote with empty project fields
+        quote_id = Quote.create(customer, quote_no, description, sales_rep, 
+                                None, None, None)
+        
+        # If create_project flag is set, handle project creation
+        if data.get('create_project') and sales_rep and data.get('spreadsheet_id'):
+            try:
+                gas_api = ConfigService.get_gas_api()
+                
+                # Make the API call to create the project
+                project_result = gas_api.create_project({
+                    'customerName': customer,
+                    'projectDescription': data.get('project_description', description),
+                    'estimateNumber': quote_no,
+                    'salesRep': sales_rep,
+                    'spreadsheetId': data.get('spreadsheet_id')
+                })
+                
+                # Update the quote with project links
+                Quote.update(quote_id, customer, quote_no, description, sales_rep,
+                             project_result.get('sheetUrl'),
+                             project_result.get('mpsfLink'),
+                             project_result.get('folderLink'))
+                             
+            except Exception as e:
+                # Don't fail quote creation if project creation fails
+                print(f"Project creation failed: {e}")
+                return jsonify({
+                    'id': quote_id, 
+                    'message': 'Quote created, but project creation failed',
+                    'project_error': str(e)
+                }), 201
+        
         return jsonify({'id': quote_id, 'message': 'Quote created successfully'}), 201
     except Exception as e:
         return jsonify({'error': str(e)}), 400
@@ -66,11 +102,15 @@ def update_quote(quote_id):
     quote_no = data.get('quote_no')
     description = data.get('description')
     sales_rep = data.get('sales_rep')
+    project_sheet_url = data.get('project_sheet_url')
+    mpsf_link = data.get('mpsf_link')
+    folder_link = data.get('folder_link')
     
     if not customer or not quote_no:
         return jsonify({'error': 'Customer and quote number are required'}), 400
     
-    if Quote.update(quote_id, customer, quote_no, description, sales_rep):
+    if Quote.update(quote_id, customer, quote_no, description, sales_rep,
+                    project_sheet_url, mpsf_link, folder_link):
         return jsonify({'message': 'Quote updated successfully'})
     else:
         return jsonify({'error': 'Quote not found or no changes made'}), 404

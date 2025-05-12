@@ -55,3 +55,16 @@ class Note:
             cursor.execute('DELETE FROM notes WHERE id = ?', (note_id,))
             conn.commit()
             return cursor.rowcount > 0
+    
+    @staticmethod
+    def update(note_id, content):
+        """Update a note's content"""
+        with DatabaseContext() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                UPDATE notes
+                SET content = ?
+                WHERE id = ?
+            ''', (content, note_id))
+            conn.commit()
+            return cursor.rowcount > 0

@@ -28,13 +28,16 @@ class DatabaseManager:
                 # Create quotes table
                 cursor.execute('''
                 CREATE TABLE IF NOT EXISTS quotes (
-                    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-                    customer    TEXT NOT NULL,
-                    quote_no    TEXT NOT NULL UNIQUE,
-                    description TEXT,
-                    sales_rep   TEXT,
-                    created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+                    id                INTEGER PRIMARY KEY AUTOINCREMENT,
+                    customer          TEXT NOT NULL,
+                    quote_no          TEXT NOT NULL UNIQUE,
+                    description       TEXT,
+                    sales_rep         TEXT,
+                    project_sheet_url TEXT,
+                    mpsf_link         TEXT,
+                    folder_link       TEXT,
+                    created_at        DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    updated_at        DATETIME DEFAULT CURRENT_TIMESTAMP
                 )
                 ''')
                 

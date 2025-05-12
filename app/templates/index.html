@@ -5,14 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quote Tracker</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/masonry-grid.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/project-links.css') }}">
 </head>
 <body>
     <div class="app-container">
         <header>
             <h1>Quote Tracker</h1>
             <div class="header-actions">
-                <button id="newQuoteBtn" class="btn primary">New Quote</button>
-                <button id="settingsBtn" class="btn">Settings</button>
+                <button id="settingsBtn" class="btn icon-btn" title="Settings">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.08a2 2 0 0 1 1 1.72v.52a2 2 0 0 1-1 1.72l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.72v-.52a2 2 0 0 1 1-1.72l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                </button>
             </div>
         </header>
         
@@ -23,6 +29,12 @@
                     <div class="search-container">
                         <input type="text" id="searchInput" placeholder="Search quotes...">
                         <button id="clearSearchBtn">×</button>
+                        <button id="newQuoteBtn" class="icon-btn" title="New Quote">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                        </button>
                     </div>
                     <div id="quotesList" class="quotes-list">
                         <!-- Quotes will be loaded here -->
@@ -73,6 +85,12 @@
                             <label for="description">Description</label>
                             <textarea id="description" name="description"></textarea>
                         </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="createProject" name="createProject" checked>
+                                Create Google Drive Project
+                            </label>
+                        </div>
                         <div class="form-actions">
                             <button type="button" class="btn cancel-modal">Cancel</button>
                             <button type="submit" class="btn primary">Create Quote</button>
@@ -89,6 +107,15 @@
                     <span class="close-modal">&times;</span>
                 </div>
                 <div class="modal-body">
+                    <!-- Dark Mode Section -->
+                    <div class="settings-section">
+                        <h3>Appearance</h3>
+                        <label class="dark-mode-toggle">
+                            <input type="checkbox" id="darkModeToggle">
+                            <span>Dark Mode</span>
+                        </label>
+                    </div>
+                    
                     <!-- Sales Reps Section -->
                     <div class="settings-section">
                         <h3>Sales Representatives</h3>
@@ -122,6 +149,24 @@
                         </div>
                     </div>
                     
+                    <!-- API Configuration Section -->
+                    <div class="settings-section">
+                        <h3>Google Drive Integration</h3>
+                        <p>Configure the connection for creating Google Drive projects.</p>
+                        <div class="form-group">
+                            <label for="gasApiUrl">API URL</label>
+                            <input type="url" id="gasApiUrl" placeholder="https://script.google.com/macros/s/.../exec">
+                        </div>
+                        <div class="form-group">
+                            <label for="gasApiKey">API Key</label>
+                            <input type="password" id="gasApiKey" placeholder="Enter your API key">
+                        </div>
+                        <div class="form-group">
+                            <label for="defaultSpreadsheetId">Default Spreadsheet ID</label>
+                            <input type="text" id="defaultSpreadsheetId" placeholder="Enter Google Sheets ID">
+                        </div>
+                    </div>
+                    
                     <div class="form-actions">
                         <button type="button" class="btn cancel-modal">Cancel</button>
                         <button id="saveSettingsBtn" class="btn primary">Save Settings</button>
@@ -135,7 +180,9 @@
     </div>
     
     <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/gas-api.js') }}"></script>
     <script src="{{ url_for('static', filename='js/tasks.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor-quotes.js') }}"></script>
     <script src="{{ url_for('static', filename='js/notes.js') }}"></script>

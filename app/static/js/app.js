@@ -2,20 +2,20 @@
  * Main application entry point
  */
 document.addEventListener('DOMContentLoaded', function() {
+  // Initialize dark mode
+  initDarkMode();
+  
   // Initialize toast notifications
   initToasts();
   
   // Initialize the resizable panes
   initResizablePanes();
   
-  // Initialize the responsive layout
-  initResponsiveLayout();
-  
-  // Initialize the modules - Settings first to make sure sales reps are loaded
+  // Initialize the modules
   SettingsModule.init();
   QuotesModule.init();
   
-  // Initialize dropdown in the new quote modal (if it exists)
+  // Initialize dropdown in the new quote modal
   const salesRepDropdown = document.getElementById('salesRepDropdown');
   if (salesRepDropdown) {
     SettingsModule.updateSalesRepDropdown(salesRepDropdown);
@@ -56,7 +56,6 @@ function initResizablePanes() {
     
     if (newWidth >= minWidth && newWidth <= maxWidth) {
       leftPane.style.width = newWidth + 'px';
-      updateDetailLayout();
     }
   });
   
@@ -66,97 +65,6 @@ function initResizablePanes() {
       document.body.classList.remove('resizing');
     }
   });
-}
-
-/**
- * Initialize responsive layout
- */
-function initResponsiveLayout() {
-  // Check on load
-  updateDetailLayout();
-  updateScrollIndicators();
-  
-  // Check on window resize
-  window.addEventListener('resize', function() {
-    updateDetailLayout();
-    updateScrollIndicators();
-  });
-  
-  // Check when content changes might have occurred
-  document.addEventListener('DOMContentLoaded', updateScrollIndicators);
-  window.addEventListener('load', updateScrollIndicators);
-}
-
-/**
- * Update scroll indicators on cards that have overflowing content
- */
-function updateScrollIndicators() {
-  const cardContents = document.querySelectorAll('.card-content');
-  
-  cardContents.forEach(content => {
-    // Clear any existing indicators
-    const existingIndicator = content.querySelector('.scroll-indicator');
-    if (existingIndicator) {
-      existingIndicator.remove();
-    }
-    
-    // Check if content area has scrollable content
-    const hasOverflow = content.scrollHeight > content.clientHeight;
-    
-    if (hasOverflow) {
-      // Create and append a container for the indicator at the end
-      const container = document.createElement('div');
-      container.className = 'scroll-indicator-container';
-      container.style.position = 'relative';
-      content.appendChild(container);
-      
-      // Create and append scroll indicator
-      const indicator = document.createElement('div');
-      indicator.className = 'scroll-indicator';
-      container.appendChild(indicator);
-      
-      // Add scroll event listener to hide indicator when at bottom
-      content.addEventListener('scroll', function() {
-        const atBottom = Math.abs(this.scrollHeight - this.clientHeight - this.scrollTop) < 5;
-        indicator.style.opacity = atBottom ? '0' : '1';
-      });
-      
-      // Initial check - hide if already at bottom
-      const atBottom = Math.abs(content.scrollHeight - content.clientHeight - content.scrollTop) < 5;
-      indicator.style.opacity = atBottom ? '0' : '1';
-    }
-  });
-}
-
-/**
- * Update detail layout based on container width
- */
-function updateDetailLayout() {
-  const detailContainer = document.getElementById('quoteDetail');
-  const rightPane = document.getElementById('rightPane');
-  
-  if (!detailContainer || !rightPane) return;
-  
-  const containerWidth = rightPane.offsetWidth;
-  
-  // If width is less than threshold, switch to single column
-  if (containerWidth < 768) {
-    detailContainer.style.gridTemplateColumns = '1fr';
-    
-    // Make all cards full width in narrow layout
-    document.querySelectorAll('.quote-card').forEach(card => {
-      card.style.maxWidth = '100%';
-      card.style.maxHeight = '45vh';
-    });
-  } else {
-    detailContainer.style.gridTemplateColumns = 'repeat(2, 1fr)';
-    
-    // Set max width for all cards
-    document.querySelectorAll('.quote-card').forEach(card => {
-      card.style.maxWidth = '30vw';
-      card.style.maxHeight = '45vh';
-    });
-  }
 }
 
 /**
@@ -193,4 +101,33 @@ function showToast(message, type = 'success') {
       toast.remove();
     }, 300);
   }, 3000);
+}
+
+/**
+ * Initialize dark mode
+ */
+function initDarkMode() {
+  // Check for saved dark mode preference
+  const darkModeEnabled = localStorage.getItem('darkMode') === 'true';
+  
+  // Apply dark mode if enabled
+  if (darkModeEnabled) {
+    document.body.classList.add('dark-mode');
+  }
+  
+  // Set up toggle
+  const darkModeToggle = document.getElementById('darkModeToggle');
+  if (darkModeToggle) {
+    darkModeToggle.checked = darkModeEnabled;
+    
+    darkModeToggle.addEventListener('change', function() {
+      if (this.checked) {
+        document.body.classList.add('dark-mode');
+        localStorage.setItem('darkMode', 'true');
+      } else {
+        document.body.classList.remove('dark-mode');
+        localStorage.setItem('darkMode', 'false');
+      }
+    });
+  }
 }

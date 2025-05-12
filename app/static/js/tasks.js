@@ -2,6 +2,9 @@
  * Tasks module for managing tasks
  */
 const TasksModule = (function() {
+  let sortableInstance = null;
+  let tasksOrder = []; // Store the current order of tasks
+  
   /**
    * Initialize task-related event listeners
    */
@@ -13,6 +16,90 @@ const TasksModule = (function() {
     document.querySelectorAll('.task-delete-btn').forEach(btn => {
       btn.addEventListener('click', handleDeleteTask);
     });
+    
+    // Initialize sortable for tasks
+    initTaskSortable();
+    
+    // Store initial order
+    storeCurrentOrder();
+  }
+  
+  /**
+   * Store the current order of tasks
+   */
+  function storeCurrentOrder() {
+    const tasksList = document.querySelector('#tasksList .tasks-list');
+    if (!tasksList) return;
+    
+    const taskElements = tasksList.querySelectorAll('.task-row, .task-separator');
+    tasksOrder = Array.from(taskElements).map(el => {
+      const deleteBtn = el.querySelector('.task-delete-btn');
+      return deleteBtn ? parseInt(deleteBtn.dataset.id, 10) : null;
+    }).filter(id => id !== null);
+  }
+  
+  /**
+   * Initialize sortable functionality for tasks
+   */
+  function initTaskSortable() {
+    const tasksList = document.querySelector('#tasksList .tasks-list');
+    if (!tasksList) return;
+    
+    // Destroy existing instance if it exists
+    if (sortableInstance) {
+      sortableInstance.destroy();
+    }
+    
+    sortableInstance = new Sortable(tasksList, {
+      animation: 150,
+      handle: '.task-label-cell',
+      draggable: '.task-row, .task-separator',
+      ghostClass: 'sortable-ghost',
+      dragClass: 'sortable-drag',
+      
+      onEnd: async function(evt) {
+        // Store the new order
+        storeCurrentOrder();
+        
+        try {
+          // Update task order in backend (just for persistence)
+          await API.updateTaskOrder(QuotesModule.getCurrentQuote().id, tasksOrder);
+          // No refresh needed - the visual order is already correct
+        } catch (error) {
+          showToast('Failed to save task order', 'error');
+          // Revert to previous order on error
+          renderTasksInOrder(tasksOrder);
+        }
+      }
+    });
+  }
+  
+  /**
+   * Render tasks in a specific order
+   */
+  function renderTasksInOrder(orderedTaskIds) {
+    const tasksList = document.querySelector('#tasksList .tasks-list');
+    if (!tasksList) return;
+    
+    // Create a map of task elements by ID
+    const taskElements = {};
+    tasksList.querySelectorAll('.task-row, .task-separator').forEach(el => {
+      const deleteBtn = el.querySelector('.task-delete-btn');
+      if (deleteBtn) {
+        const id = parseInt(deleteBtn.dataset.id, 10);
+        taskElements[id] = el;
+      }
+    });
+    
+    // Clear the list
+    tasksList.innerHTML = '';
+    
+    // Add tasks back in the specified order
+    orderedTaskIds.forEach(id => {
+      if (taskElements[id]) {
+        tasksList.appendChild(taskElements[id]);
+      }
+    });
   }
   
   /**
@@ -23,6 +110,27 @@ const TasksModule = (function() {
   function renderTasks(tasks) {
     if (!tasks || tasks.length === 0) {
       return '<div class="empty-state">No tasks</div>';
+    }
+    
+    // If we have a stored order, use it
+    if (tasksOrder.length > 0) {
+      // Sort tasks based on stored order
+      const orderedTasks = [];
+      tasksOrder.forEach(id => {
+        const task = tasks.find(t => t.id === id);
+        if (task) {
+          orderedTasks.push(task);
+        }
+      });
+      
+      // Add any new tasks that aren't in the stored order
+      tasks.forEach(task => {
+        if (!tasksOrder.includes(task.id)) {
+          orderedTasks.push(task);
+        }
+      });
+      
+      tasks = orderedTasks;
     }
     
     // Group tasks by separator
@@ -59,7 +167,7 @@ const TasksModule = (function() {
     groups.forEach(group => {
       if (group.separator) {
         html += `
-          <div class="task-separator">
+          <div class="task-separator" data-task-id="${group.separator.id}">
             <span class="task-separator-text">${group.separator.label}</span>
             <span class="task-delete-btn" data-id="${group.separator.id}">×</span>
           </div>
@@ -68,7 +176,7 @@ const TasksModule = (function() {
       
       group.tasks.forEach(task => {
         html += `
-          <div class="task-row ${task.done ? 'completed' : ''}">
+          <div class="task-row ${task.done ? 'completed' : ''}" data-task-id="${task.id}">
             <div class="task-checkbox-cell">
               <input type="checkbox" class="task-checkbox" data-id="${task.id}" ${task.done ? 'checked' : ''}>
             </div>
@@ -229,6 +337,10 @@ const TasksModule = (function() {
   return {
     initTaskCheckboxes,
     renderTasks,
-    openAddTaskModal
+    openAddTaskModal,
+    // Clear stored order when changing quotes
+    clearStoredOrder: function() {
+      tasksOrder = [];
+    }
   };
 })();

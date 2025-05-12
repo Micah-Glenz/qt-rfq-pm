@@ -9,7 +9,7 @@ const VendorQuotesModule = (function() {
    */
   function renderVendorQuotes(vendorQuotes) {
     if (!vendorQuotes || vendorQuotes.length === 0) {
-      return '<div class="empty-state">No vendor quotes</div>';
+      return '<div class="empty-state no-vendor-quotes">No vendor quotes</div>';
     }
     
     let html = '';
@@ -26,32 +26,47 @@ const VendorQuotesModule = (function() {
       // Determine if the vendor quote is fully complete (has both checkboxes checked)
       const isFullyComplete = vq.requested && vq.entered;
       
+      // Format the date nicely
+      let formattedDate = '';
+      if (vq.date) {
+        const dateObj = new Date(vq.date);
+        formattedDate = dateObj.toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric', 
+          year: 'numeric' 
+        });
+      }
+      
       html += `
         <div class="vendor-quote-item ${isFullyComplete ? 'fully-complete' : ''}" data-id="${vq.id}">
-          <div class="vendor-quote-content">
-            <div class="vendor-quote-header ${typeClass}">
-              ${vq.type.toUpperCase()}: ${vq.vendor}
-            </div>
-            <div class="vendor-quote-subtext">
-              ${vq.date ? `Date: ${vq.date}` : ''}
-              ${vq.notes ? `<div>${vq.notes}</div>` : ''}
-            </div>
-            <div class="vendor-quote-status">
-              <div class="status-item">
-                <input type="checkbox" class="status-check vendor-requested-checkbox" 
-                  data-id="${vq.id}" ${vq.requested ? 'checked' : ''}>
-                Requested
-              </div>
-              <div class="status-item">
-                <input type="checkbox" class="status-check vendor-entered-checkbox" 
-                  data-id="${vq.id}" ${vq.entered ? 'checked' : ''}>
-                Entered
-              </div>
-            </div>
+          <div class="vendor-quote-header ${typeClass}">
+            ${vq.type.toUpperCase()}
+          </div>
+          <div class="vendor-quote-details">
+            <div class="vendor-name">${vq.vendor}</div>
+            ${formattedDate ? `<div class="vendor-date">${formattedDate}</div>` : ''}
+          </div>
+          <div class="vendor-quote-notes">
+            <div class="editable-note" 
+                 contenteditable="true" 
+                 data-id="${vq.id}"
+                 data-original="${vq.notes || ''}"
+                 placeholder="Add notes...">${vq.notes || ''}</div>
+          </div>
+          <div class="vendor-quote-status">
+            <label class="status-checkbox">
+              <input type="checkbox" class="status-check vendor-requested-checkbox" 
+                data-id="${vq.id}" ${vq.requested ? 'checked' : ''}>
+              <span>Requested</span>
+            </label>
+            <label class="status-checkbox">
+              <input type="checkbox" class="status-check vendor-entered-checkbox" 
+                data-id="${vq.id}" ${vq.entered ? 'checked' : ''}>
+              <span>Entered</span>
+            </label>
           </div>
           <div class="vendor-quote-actions">
-            <button class="btn small edit-vendor-quote" data-id="${vq.id}">Edit</button>
-            <button class="btn small delete-vendor-quote" data-id="${vq.id}">Delete</button>
+            <button class="btn small delete-vendor-quote" data-id="${vq.id}">×</button>
           </div>
         </div>
       `;
@@ -80,6 +95,68 @@ const VendorQuotesModule = (function() {
     document.querySelectorAll('.vendor-entered-checkbox').forEach(checkbox => {
       checkbox.addEventListener('change', handleEnteredChange);
     });
+    
+    // Add event listeners for inline editable notes
+    document.querySelectorAll('.editable-note').forEach(note => {
+      note.addEventListener('blur', handleNoteBlur);
+      note.addEventListener('input', handleNoteInput);
+    });
+  }
+  
+  /**
+   * Handle inline note input
+   */
+  function handleNoteInput(event) {
+    const noteElement = event.target;
+    // Show placeholder when empty
+    if (noteElement.innerText.trim() === '') {
+      noteElement.classList.add('empty');
+    } else {
+      noteElement.classList.remove('empty');
+    }
+  }
+  
+  /**
+   * Handle inline note blur (save changes)
+   */
+  async function handleNoteBlur(event) {
+    const noteElement = event.target;
+    const vendorQuoteId = parseInt(noteElement.dataset.id, 10);
+    const originalValue = noteElement.dataset.original;
+    const newValue = noteElement.innerText.trim();
+    
+    // If value hasn't changed, skip update
+    if (newValue === originalValue) {
+      return;
+    }
+    
+    try {
+      // Get current vendor quote data
+      const currentQuote = QuotesModule.getCurrentQuote();
+      const vendorQuote = currentQuote.vendor_quotes.find(vq => vq.id === vendorQuoteId);
+      
+      if (vendorQuote) {
+        // Update with new notes
+        await API.updateVendorQuote(vendorQuoteId, {
+          type: vendorQuote.type,
+          vendor: vendorQuote.vendor,
+          date: vendorQuote.date,
+          notes: newValue,
+          requested: vendorQuote.requested,
+          entered: vendorQuote.entered
+        });
+        
+        // Update the data attribute
+        noteElement.dataset.original = newValue;
+        
+        // Update in current quote data
+        vendorQuote.notes = newValue;
+      }
+    } catch (error) {
+      // Revert to original value on error
+      noteElement.innerText = originalValue;
+      showToast(`Failed to update notes: ${error.message}`, 'error');
+    }
   }
   
   /**
