@@ -15,15 +15,29 @@
   gap: 0.75rem;
 }
 
+/* Right column specific - allow variable height for tasks */
+.right-column {
+  align-items: flex-start; /* Don't stretch children */
+  justify-content: flex-start; /* Align to top */
+}
+
 /* Base card styling */
 .quote-card {
   background-color: white;
   border-radius: 0.35rem;
   box-shadow: var(--card-shadow);
-  padding: 0.75rem 0 0.75rem 0.75rem;
+  padding: 0.75rem;
   display: flex;
   flex-direction: column;
   height: fit-content;
+}
+
+/* Tasks card specific - height adjusts to content */
+.quote-card.tasks-card {
+  max-height: calc(100vh - 100px); /* Maximum height is viewport minus 100px */
+  height: auto; /* Let height adjust to content */
+  overflow: hidden; /* Prevent card overflow */
+  flex: 0 0 auto; /* Don't stretch to fill space */
 }
 
 /* Card content area - scrolls when needed */
@@ -36,8 +50,16 @@
   border-radius: 4px;
   padding: 0.5rem;
   margin-top: 8px;
-  margin-right: 0.75rem;
   max-height: 500px; /* Maximum height before scrolling */
+}
+
+/* Tasks card content - flexible height */
+.tasks-card .card-content {
+  max-height: calc(100vh - 200px); /* Account for header and padding */
+  min-height: 0; /* No minimum height */
+  height: auto; /* Let height adjust to content */
+  overflow-y: auto; /* Scroll if content exceeds max height */
+  flex: 1 1 auto; /* Allow content to grow/shrink */
 }
 
 /* Details card doesn't need max height */
@@ -60,7 +82,6 @@
   align-items: center;
   margin-bottom: 0.5rem;
   padding-bottom: 0.4rem;
-  padding-right: 0.75rem;
   border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
 }

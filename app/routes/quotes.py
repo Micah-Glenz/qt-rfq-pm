@@ -7,7 +7,8 @@ quotes_bp = Blueprint('quotes', __name__, url_prefix='/api')
 @quotes_bp.route('/quotes', methods=['GET'])
 def get_quotes():
     search = request.args.get('search', '')
-    quotes = Quote.get_all(search)
+    include_hidden = request.args.get('include_hidden', 'false').lower() == 'true'
+    quotes = Quote.get_all(search, include_hidden)
     return jsonify(quotes)
 
 @quotes_bp.route('/quotes/<int:quote_id>', methods=['GET'])
@@ -29,6 +30,8 @@ def get_quote(quote_id):
         'project_sheet_url': quote.project_sheet_url,
         'mpsf_link': quote.mpsf_link,
         'folder_link': quote.folder_link,
+        'method_link': quote.method_link,
+        'hidden': quote.hidden,
         'created_at': quote.created_at,
         'updated_at': quote.updated_at,
         'tasks': tasks,
@@ -78,6 +81,8 @@ def create_quote():
                              project_result.get('mpsfLink'),
                              project_result.get('folderLink'))
                              
+                print(f"Project creation result: {project_result}")  # Debug logging
+                             
             except Exception as e:
                 # Don't fail quote creation if project creation fails
                 print(f"Project creation failed: {e}")
@@ -105,12 +110,14 @@ def update_quote(quote_id):
     project_sheet_url = data.get('project_sheet_url')
     mpsf_link = data.get('mpsf_link')
     folder_link = data.get('folder_link')
+    method_link = data.get('method_link')
+    hidden = data.get('hidden')  # Can be None, in which case it won't be updated
     
     if not customer or not quote_no:
         return jsonify({'error': 'Customer and quote number are required'}), 400
     
     if Quote.update(quote_id, customer, quote_no, description, sales_rep,
-                    project_sheet_url, mpsf_link, folder_link):
+                    project_sheet_url, mpsf_link, folder_link, method_link, hidden):
         return jsonify({'message': 'Quote updated successfully'})
     else:
         return jsonify({'error': 'Quote not found or no changes made'}), 404

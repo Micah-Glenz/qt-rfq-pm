@@ -36,10 +36,22 @@ class DatabaseManager:
                     project_sheet_url TEXT,
                     mpsf_link         TEXT,
                     folder_link       TEXT,
+                    method_link       TEXT,
+                    hidden            BOOLEAN DEFAULT 0,
                     created_at        DATETIME DEFAULT CURRENT_TIMESTAMP,
                     updated_at        DATETIME DEFAULT CURRENT_TIMESTAMP
                 )
                 ''')
+                
+                # Add hidden column if it doesn't exist
+                cursor.execute("PRAGMA table_info(quotes)")
+                columns = [column[1] for column in cursor.fetchall()]
+                if 'hidden' not in columns:
+                    cursor.execute("ALTER TABLE quotes ADD COLUMN hidden BOOLEAN DEFAULT 0")
+                
+                # Add method_link column if it doesn't exist
+                if 'method_link' not in columns:
+                    cursor.execute("ALTER TABLE quotes ADD COLUMN method_link TEXT")
                 
                 # Create tasks table
                 cursor.execute('''

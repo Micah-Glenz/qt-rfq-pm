@@ -2,18 +2,19 @@
  * Main application entry point
  */
 document.addEventListener('DOMContentLoaded', function() {
-  // Initialize dark mode
-  initDarkMode();
+  // Initialize theme
+  SettingsModule.initTheme();
   
   // Initialize toast notifications
   initToasts();
   
-  // Initialize the resizable panes
-  initResizablePanes();
+  // Initialize the resizable panes - DISABLED
+  // initResizablePanes();
   
   // Initialize the modules
   SettingsModule.init();
   QuotesModule.init();
+  TabsModule.init();
   
   // Initialize dropdown in the new quote modal
   const salesRepDropdown = document.getElementById('salesRepDropdown');
@@ -26,9 +27,12 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /**
- * Initialize the resizable panes functionality
+ * Initialize the resizable panes functionality - DISABLED
  */
 function initResizablePanes() {
+  // Functionality disabled - no resizing between panes
+  return;
+  
   const leftPane = document.getElementById('leftPane');
   const resizer = document.getElementById('resizer');
   const rightPane = document.getElementById('rightPane');
@@ -101,33 +105,4 @@ function showToast(message, type = 'success') {
       toast.remove();
     }, 300);
   }, 3000);
-}
-
-/**
- * Initialize dark mode
- */
-function initDarkMode() {
-  // Check for saved dark mode preference
-  const darkModeEnabled = localStorage.getItem('darkMode') === 'true';
-  
-  // Apply dark mode if enabled
-  if (darkModeEnabled) {
-    document.body.classList.add('dark-mode');
-  }
-  
-  // Set up toggle
-  const darkModeToggle = document.getElementById('darkModeToggle');
-  if (darkModeToggle) {
-    darkModeToggle.checked = darkModeEnabled;
-    
-    darkModeToggle.addEventListener('change', function() {
-      if (this.checked) {
-        document.body.classList.add('dark-mode');
-        localStorage.setItem('darkMode', 'true');
-      } else {
-        document.body.classList.remove('dark-mode');
-        localStorage.setItem('darkMode', 'false');
-      }
-    });
-  }
 }

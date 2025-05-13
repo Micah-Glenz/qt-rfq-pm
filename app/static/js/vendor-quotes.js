@@ -54,16 +54,18 @@ const VendorQuotesModule = (function() {
                  placeholder="Add notes...">${vq.notes || ''}</div>
           </div>
           <div class="vendor-quote-status">
-            <label class="status-checkbox">
-              <input type="checkbox" class="status-check vendor-requested-checkbox" 
-                data-id="${vq.id}" ${vq.requested ? 'checked' : ''}>
-              <span>Requested</span>
-            </label>
-            <label class="status-checkbox">
-              <input type="checkbox" class="status-check vendor-entered-checkbox" 
-                data-id="${vq.id}" ${vq.entered ? 'checked' : ''}>
-              <span>Entered</span>
-            </label>
+            <div class="status-checkbox-stack">
+              <label class="status-checkbox">
+                <input type="checkbox" class="status-check vendor-requested-checkbox" 
+                  data-id="${vq.id}" ${vq.requested ? 'checked' : ''}>
+                <span>Requested</span>
+              </label>
+              <label class="status-checkbox">
+                <input type="checkbox" class="status-check vendor-entered-checkbox" 
+                  data-id="${vq.id}" ${vq.entered ? 'checked' : ''}>
+                <span>Entered</span>
+              </label>
+            </div>
           </div>
           <div class="vendor-quote-actions">
             <button class="btn small delete-vendor-quote" data-id="${vq.id}">×</button>

@@ -1,0 +1,43 @@
+/* Scrollbar colors for all themes */
+
+/* Sunset Glow Theme */
+.sunset-glow {
+  --scrollbar-thumb-bg: rgba(255, 107, 53, 0.3);
+  --scrollbar-thumb-hover-bg: rgba(255, 107, 53, 0.4);
+  --scrollbar-thumb-active-bg: rgba(255, 107, 53, 0.5);
+}
+
+/* Forest Mist Theme */
+.forest-mist {
+  --scrollbar-thumb-bg: rgba(46, 125, 50, 0.3);
+  --scrollbar-thumb-hover-bg: rgba(46, 125, 50, 0.4);
+  --scrollbar-thumb-active-bg: rgba(46, 125, 50, 0.5);
+}
+
+/* Cherry Blossom Theme */
+.cherry-blossom {
+  --scrollbar-thumb-bg: rgba(233, 30, 99, 0.3);
+  --scrollbar-thumb-hover-bg: rgba(233, 30, 99, 0.4);
+  --scrollbar-thumb-active-bg: rgba(233, 30, 99, 0.5);
+}
+
+/* Midnight Purple Theme */
+.midnight-purple {
+  --scrollbar-thumb-bg: rgba(186, 104, 200, 0.3);
+  --scrollbar-thumb-hover-bg: rgba(186, 104, 200, 0.4);
+  --scrollbar-thumb-active-bg: rgba(186, 104, 200, 0.5);
+}
+
+/* Cyberpunk Theme */
+.cyberpunk {
+  --scrollbar-thumb-bg: rgba(0, 255, 255, 0.3);
+  --scrollbar-thumb-hover-bg: rgba(0, 255, 255, 0.4);
+  --scrollbar-thumb-active-bg: rgba(255, 0, 255, 0.5);
+}
+
+/* Dingy Dank Theme */
+.dingy-dank {
+  --scrollbar-thumb-bg: rgba(124, 179, 66, 0.3);
+  --scrollbar-thumb-hover-bg: rgba(124, 179, 66, 0.4);
+  --scrollbar-thumb-active-bg: rgba(124, 179, 66, 0.5);
+}

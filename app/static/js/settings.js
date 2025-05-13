@@ -79,10 +79,32 @@ const SettingsModule = (function() {
     renderSalesReps();
     loadApiConfig();
     
-    // Initialize dark mode toggle
-    const darkModeToggle = document.getElementById('darkModeToggle');
-    if (darkModeToggle) {
-      darkModeToggle.checked = localStorage.getItem('darkMode') === 'true';
+    // Initialize theme selector
+    const themeSelect = document.getElementById('themeSelect');
+    if (themeSelect) {
+      const currentTheme = localStorage.getItem('theme') || 'default';
+      themeSelect.value = currentTheme;
+      
+      // Add event listener for theme changes
+      themeSelect.addEventListener('change', function() {
+        const selectedTheme = this.value;
+        applyTheme(selectedTheme);
+        localStorage.setItem('theme', selectedTheme);
+      });
+    }
+    
+    // Initialize show hidden quotes toggle
+    const showHiddenToggle = document.getElementById('showHiddenToggle');
+    if (showHiddenToggle) {
+      showHiddenToggle.checked = localStorage.getItem('showHiddenQuotes') === 'true';
+      
+      // Add event listener for show hidden toggle
+      showHiddenToggle.addEventListener('change', function() {
+        const showHidden = this.checked;
+        localStorage.setItem('showHiddenQuotes', showHidden);
+        // Reload quotes with new hidden setting
+        QuotesModule.reloadQuotes();
+      });
     }
     
     elements.settingsModal.style.display = 'block';
@@ -459,12 +481,47 @@ const SettingsModule = (function() {
     }
   }
   
+  /**
+   * Get the show hidden quotes setting
+   * @returns {boolean} - Whether to show hidden quotes
+   */
+  function getShowHiddenQuotes() {
+    return localStorage.getItem('showHiddenQuotes') === 'true';
+  }
+  
+  /**
+   * Apply a theme to the application
+   * @param {string} themeName - The name of the theme to apply
+   */
+  function applyTheme(themeName) {
+    const body = document.body;
+    
+    // Remove all theme classes
+    const themeClasses = ['dark-mode', 'chill-coffee', 'ocean-breeze', 'sunset-glow', 'forest-mist', 'cherry-blossom', 'midnight-purple', 'cyberpunk', 'dingy-dank'];
+    themeClasses.forEach(theme => body.classList.remove(theme));
+    
+    // Add new theme class (if not default)
+    if (themeName !== 'default') {
+      body.classList.add(themeName);
+    }
+  }
+  
+  /**
+   * Initialize theme on page load
+   */
+  function initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'default';
+    applyTheme(savedTheme);
+  }
+  
   // Public API
   return {
     init,
     getSalesReps,
     updateSalesRepDropdown,
     handleAddSalesRep,
-    getApiConfig
+    getApiConfig,
+    getShowHiddenQuotes,
+    initTheme
   };
 })();

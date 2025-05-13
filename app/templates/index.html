@@ -93,7 +93,13 @@
                         </div>
                         <div class="form-actions">
                             <button type="button" class="btn cancel-modal">Cancel</button>
-                            <button type="submit" class="btn primary">Create Quote</button>
+                            <button type="submit" class="btn primary" id="createQuoteBtn">
+                                <span class="btn-text">Create Quote</span>
+                                <span class="btn-loading" style="display: none;">
+                                    <span class="loading-spinner"></span>
+                                    Creating...
+                                </span>
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -107,12 +113,27 @@
                     <span class="close-modal">&times;</span>
                 </div>
                 <div class="modal-body">
-                    <!-- Dark Mode Section -->
+                    <!-- Appearance Section -->
                     <div class="settings-section">
                         <h3>Appearance</h3>
+                        <div class="form-group">
+                            <label for="themeSelect">Theme</label>
+                            <select id="themeSelect" class="theme-select">
+                                <option value="default">Default Light</option>
+                                <option value="dark-mode">Dark Mode</option>
+                                <option value="chill-coffee">Chill Coffee</option>
+                                <option value="ocean-breeze">Ocean Breeze</option>
+                                <option value="sunset-glow">Sunset Glow</option>
+                                <option value="forest-mist">Forest Mist</option>
+                                <option value="cherry-blossom">Cherry Blossom</option>
+                                <option value="midnight-purple">Midnight Purple</option>
+                                <option value="cyberpunk">Cyberpunk</option>
+                                <option value="dingy-dank">Dingy Dank</option>
+                            </select>
+                        </div>
                         <label class="dark-mode-toggle">
-                            <input type="checkbox" id="darkModeToggle">
-                            <span>Dark Mode</span>
+                            <input type="checkbox" id="showHiddenToggle">
+                            <span>Show Hidden Quotes</span>
                         </label>
                     </div>
                     
@@ -177,6 +198,28 @@
         
         <!-- Toast Notifications -->
         <div id="toastContainer" class="toast-container"></div>
+        
+        <!-- Tab Bar -->
+        <div id="tabBar" class="tab-bar collapsed">
+            <div id="tabResizer" class="tab-resizer"></div>
+            <div class="tab-header">
+                <div class="tabs">
+                    <button class="tab-button active" data-tab="mpsf">
+                        MPSF
+                    </button>
+                </div>
+                <button id="tabToggle" class="tab-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="18 15 12 9 6 15"></polyline>
+                    </svg>
+                </button>
+            </div>
+            <div class="tab-content">
+                <div id="mpsfTab" class="tab-panel active">
+                    <iframe id="mpsfFrame" class="tab-iframe" src="about:blank" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+                </div>
+            </div>
+        </div>
     </div>
     
     <!-- Scripts -->
@@ -188,6 +231,7 @@
     <script src="{{ url_for('static', filename='js/notes.js') }}"></script>
     <script src="{{ url_for('static', filename='js/settings.js') }}"></script>
     <script src="{{ url_for('static', filename='js/quotes.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/tabs.js') }}"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html>

@@ -1,0 +1,51 @@
+Structure of: C:\Users\piper\Documents\PORTABLE\Projects\qt_hope_missing
+a.py
+[app]
+    __init__.py
+    config.json
+    db.py
+    [models]
+        __init__.py
+        default_task.py
+        note.py
+        quote.py
+        task.py
+        vendor_quote.py
+    quote_tracker.db
+    [routes]
+        __init__.py
+        config.py
+        default_tasks.py
+        notes.py
+        quotes.py
+        tasks.py
+        vendor_quotes.py
+    [services]
+        config_service.py
+        gas_api.py
+    [static]
+        [css]
+            masonry-grid.css
+            project-links.css
+            styles.css
+        favicon-16x16.png
+        favicon-32x32.png
+        favicon.ico
+        [js]
+            api.js
+            app.js
+            gas-api.js
+            masonry.js
+            notes.js
+            quotes.js
+            settings.js
+            tabs.js
+            tasks.js
+            vendor-quotes.js
+    [templates]
+        index.html
+folder_structure.txt
+qtDesignDoc.txt
+requirements.txt
+run.py
+test_tabs.html

@@ -40,10 +40,19 @@ const API = {
   /**
    * Get all quotes with optional search
    * @param {string} search - Optional search string
+   * @param {boolean} includeHidden - Whether to include hidden quotes
    * @returns {Promise<Array>} - Array of quotes
    */
-  async getQuotes(search = '') {
-    const url = `${this.baseUrl}/quotes${search ? `?search=${encodeURIComponent(search)}` : ''}`;
+  async getQuotes(search = '', includeHidden = false) {
+    const params = new URLSearchParams();
+    if (search) {
+      params.append('search', search);
+    }
+    if (includeHidden) {
+      params.append('include_hidden', 'true');
+    }
+    
+    const url = `${this.baseUrl}/quotes${params.toString() ? `?${params.toString()}` : ''}`;
     return this.fetch(url);
   },
 

@@ -15,16 +15,20 @@ const NotesModule = (function() {
     let html = '';
     
     notes.forEach(note => {
+      const datetime = formatDate(note.created_at);
       html += `
         <div class="note-item" data-id="${note.id}">
-          <div class="note-header">
-            <div>${formatDate(note.created_at)}</div>
+          <div class="note-single-line">
+            <div class="note-content editable-note" 
+                 contenteditable="true" 
+                 data-id="${note.id}"
+                 data-original="${note.content}">${note.content}</div>
+            <div class="note-datetime">
+              <span class="note-time">${datetime.time}</span>
+              <span class="note-date">${datetime.date}</span>
+            </div>
             <span class="note-delete-btn" data-id="${note.id}">×</span>
           </div>
-          <div class="note-content editable-note" 
-               contenteditable="true" 
-               data-id="${note.id}"
-               data-original="${note.content}">${note.content}</div>
         </div>
       `;
     });
@@ -147,13 +151,36 @@ const NotesModule = (function() {
   /**
    * Format a date string
    * @param {string} dateString - The date string
-   * @returns {string} - Formatted date
+   * @returns {object} - Object with formatted time and date
    */
   function formatDate(dateString) {
-    if (!dateString) return 'N/A';
+    if (!dateString) return { time: 'N/A', date: 'N/A' };
     
     const date = new Date(dateString);
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+    
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      return { time: 'Invalid', date: 'Invalid' };
+    }
+    
+    // Format time
+    const timeOptions = {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    };
+    
+    // Format date
+    const dateOptions = {
+      month: '2-digit',
+      day: '2-digit',
+      year: 'numeric'
+    };
+    
+    return {
+      time: date.toLocaleString(undefined, timeOptions),
+      date: date.toLocaleString(undefined, dateOptions)
+    };
   }
   
   // Public API
