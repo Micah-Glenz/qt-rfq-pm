@@ -280,15 +280,18 @@ const VendorQuotesModule = (function() {
     // Inject the modal if it doesn't exist
     if (!document.getElementById('vendorQuoteModal')) {
       document.body.insertAdjacentHTML('beforeend', modalHtml);
-      
-      // Add event listeners
+
+      // Add event listeners for closing
       document.querySelector('#vendorQuoteModal .close-modal').addEventListener('click', closeVendorQuoteModal);
       document.querySelector('#vendorQuoteModal .cancel-modal').addEventListener('click', closeVendorQuoteModal);
-      document.getElementById('vendorQuoteForm').addEventListener('submit', e => handleVendorQuoteSubmit(e, quoteId));
     } else {
       // Just update the date value if the modal already exists
       document.getElementById('vendorQuoteDate').value = today;
     }
+
+    // Always bind the submit handler with the latest quoteId
+    const form = document.getElementById('vendorQuoteForm');
+    form.onsubmit = e => handleVendorQuoteSubmit(e, quoteId);
     
     // Reset form and show modal
     document.getElementById('vendorQuoteForm').reset();
@@ -409,10 +412,9 @@ const VendorQuotesModule = (function() {
     // Update modal title
     document.querySelector('#vendorQuoteModal .modal-header h2').textContent = 'Edit Vendor Quote';
     
-    // Update form submit handler
+    // Update form submit handler with the current quote and vendor quote id
     const form = document.getElementById('vendorQuoteForm');
-    form.removeEventListener('submit', form.onsubmit);
-    form.addEventListener('submit', e => handleVendorQuoteSubmit(e, currentQuote.id, vendorQuoteId));
+    form.onsubmit = e => handleVendorQuoteSubmit(e, currentQuote.id, vendorQuoteId);
   }
   
   /**
