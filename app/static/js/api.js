@@ -216,6 +216,30 @@ const API = {
   },
 
   /**
+   * Create a new event for a quote
+   * @param {number} quoteId - The quote ID
+   * @param {Object} eventData - The event data
+   * @returns {Promise<Object>} - The created event
+   */
+  async createEvent(quoteId, eventData) {
+    return this.fetch(`${this.baseUrl}/events`, {
+      method: 'POST',
+      body: JSON.stringify({ ...eventData, quote_id: quoteId })
+    });
+  },
+
+  /**
+   * Delete an event
+   * @param {number} eventId - The event ID
+   * @returns {Promise<Object>} - Response message
+   */
+  async deleteEvent(eventId) {
+    return this.fetch(`${this.baseUrl}/events/${eventId}`, {
+      method: 'DELETE'
+    });
+  },
+
+  /**
    * Get all default tasks
    * @returns {Promise<Array>} - Array of default tasks
    */

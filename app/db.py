@@ -90,6 +90,24 @@ class DatabaseManager:
                     FOREIGN KEY(quote_id) REFERENCES quotes(id) ON DELETE CASCADE
                 )
                 ''')
+
+                # Create events table
+                cursor.execute('''
+                CREATE TABLE IF NOT EXISTS events (
+                    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                    quote_id   INTEGER NOT NULL,
+                    description TEXT NOT NULL,
+                    past        TEXT,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY(quote_id) REFERENCES quotes(id) ON DELETE CASCADE
+                )
+                ''')
+
+                # Add past column if it doesn't exist
+                cursor.execute("PRAGMA table_info(events)")
+                event_columns = [column[1] for column in cursor.fetchall()]
+                if 'past' not in event_columns:
+                    cursor.execute("ALTER TABLE events ADD COLUMN past TEXT")
                 
                 # Create default_tasks table
                 cursor.execute('''
