@@ -113,78 +113,103 @@
                     <span class="close-modal">&times;</span>
                 </div>
                 <div class="modal-body">
-                    <!-- Appearance Section -->
-                    <div class="settings-section">
-                        <h3>Appearance</h3>
-                        <div class="form-group">
-                            <label for="themeSelect">Theme</label>
-                            <select id="themeSelect" class="theme-select">
-                                <option value="default">Default Light</option>
-                                <option value="dark-mode">Dark Mode</option>
-                                <option value="chill-coffee">Chill Coffee</option>
-                                <option value="ocean-breeze">Ocean Breeze</option>
-                                <option value="sunset-glow">Sunset Glow</option>
-                                <option value="forest-mist">Forest Mist</option>
-                                <option value="cherry-blossom">Cherry Blossom</option>
-                                <option value="midnight-purple">Midnight Purple</option>
-                                <option value="cyberpunk">Cyberpunk</option>
-                                <option value="dingy-dank">Dingy Dank</option>
-                            </select>
-                        </div>
-                        <label class="dark-mode-toggle">
-                            <input type="checkbox" id="showHiddenToggle">
-                            <span>Show Hidden Quotes</span>
-                        </label>
+                    <!-- Settings tabs -->
+                    <div class="settings-tabs">
+                        <button class="settings-tab active" data-tab="appearance">Appearance</button>
+                        <button class="settings-tab" data-tab="sales-reps">Sales Reps</button>
+                        <button class="settings-tab" data-tab="tasks">Default Tasks</button>
+                        <button class="settings-tab" data-tab="integration">Integration</button>
                     </div>
                     
-                    <!-- Sales Reps Section -->
-                    <div class="settings-section">
-                        <h3>Sales Representatives</h3>
-                        <p>Manage the list of sales representatives available in the dropdown.</p>
-                        <div id="salesRepsList" class="sales-reps-list">
-                            <!-- Sales reps will be loaded here -->
-                            <div class="loading">Loading sales reps...</div>
+                    <!-- Appearance Tab -->
+                    <div id="appearanceTab" class="settings-content active">
+                        <div class="settings-section">
+                            <h3>Theme</h3>
+                            <div class="form-group">
+                                <label for="themeSelect">Color Theme</label>
+                                <select id="themeSelect" class="theme-select">
+                                    <option value="default">Default Light</option>
+                                    <option value="dark-mode">Dark Mode</option>
+                                    <option value="chill-coffee">Chill Coffee</option>
+                                    <option value="ocean-breeze">Ocean Breeze</option>
+                                    <option value="sunset-glow">Sunset Glow</option>
+                                    <option value="forest-mist">Forest Mist</option>
+                                    <option value="cherry-blossom">Cherry Blossom</option>
+                                    <option value="midnight-purple">Midnight Purple</option>
+                                    <option value="cyberpunk">Cyberpunk</option>
+                                    <option value="dingy-dank">Dingy Dank</option>
+                                </select>
+                            </div>
+                            
+                            <div class="font-size-control">
+                                <label for="fontSizeSlider">Font Size</label>
+                                <input type="range" id="fontSizeSlider" class="font-size-slider" min="12" max="20" value="14" step="1">
+                                <div class="font-size-preview">
+                                    <span id="fontSizeValue">14px</span> - Preview: The quick brown fox jumps over the lazy dog
+                                </div>
+                            </div>
+                            
+                            <label class="dark-mode-toggle">
+                                <input type="checkbox" id="showHiddenToggle">
+                                <span>Show Hidden Quotes</span>
+                            </label>
                         </div>
-                        <div class="form-group">
-                            <div style="display: flex; gap: 0.5rem;">
-                                <input type="text" id="newSalesRepInput" placeholder="Add new sales rep...">
-                                <button id="addSalesRepBtn" class="btn small" onclick="SettingsModule.handleAddSalesRep()">Add</button>
+                    </div>
+                    
+                    <!-- Sales Reps Tab -->
+                    <div id="sales-repsTab" class="settings-content">
+                        <div class="settings-section">
+                            <h3>Sales Representatives</h3>
+                            <p>Manage the list of sales representatives available in the dropdown.</p>
+                            <div id="salesRepsList" class="sales-reps-list">
+                                <!-- Sales reps will be loaded here -->
+                                <div class="loading">Loading sales reps...</div>
+                            </div>
+                            <div class="form-group">
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <input type="text" id="newSalesRepInput" placeholder="Add new sales rep...">
+                                    <button id="addSalesRepBtn" class="btn small" onclick="SettingsModule.handleAddSalesRep()">Add</button>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Default Tasks Section -->
-                    <div class="settings-section">
-                        <h3>Default Tasks</h3>
-                        <p>These tasks will be automatically added to new quotes.</p>
-                        <div id="defaultTasksList" class="default-tasks-list">
-                            <!-- Default tasks will be loaded here -->
-                            <div class="loading">Loading default tasks...</div>
-                        </div>
-                        <div class="form-group">
-                            <div style="display: flex; gap: 0.5rem;">
-                                <input type="text" id="newTaskInput" placeholder="Add new task...">
-                                <button id="addTaskBtn" class="btn small">Add Task</button>
-                                <button id="addSeparatorBtn" class="btn small">Add Separator</button>
+                    <!-- Default Tasks Tab -->
+                    <div id="tasksTab" class="settings-content">
+                        <div class="settings-section">
+                            <h3>Default Tasks</h3>
+                            <p>These tasks will be automatically added to new quotes.</p>
+                            <div id="defaultTasksList" class="default-tasks-list">
+                                <!-- Default tasks will be loaded here -->
+                                <div class="loading">Loading default tasks...</div>
+                            </div>
+                            <div class="form-group">
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <input type="text" id="newTaskInput" placeholder="Add new task...">
+                                    <button id="addTaskBtn" class="btn small">Add Task</button>
+                                    <button id="addSeparatorBtn" class="btn small">Add Separator</button>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- API Configuration Section -->
-                    <div class="settings-section">
-                        <h3>Google Drive Integration</h3>
-                        <p>Configure the connection for creating Google Drive projects.</p>
-                        <div class="form-group">
-                            <label for="gasApiUrl">API URL</label>
-                            <input type="url" id="gasApiUrl" placeholder="https://script.google.com/macros/s/.../exec">
-                        </div>
-                        <div class="form-group">
-                            <label for="gasApiKey">API Key</label>
-                            <input type="password" id="gasApiKey" placeholder="Enter your API key">
-                        </div>
-                        <div class="form-group">
-                            <label for="defaultSpreadsheetId">Default Spreadsheet ID</label>
-                            <input type="text" id="defaultSpreadsheetId" placeholder="Enter Google Sheets ID">
+                    <!-- API Configuration Tab -->
+                    <div id="integrationTab" class="settings-content">
+                        <div class="settings-section">
+                            <h3>Google Drive Integration</h3>
+                            <p>Configure the connection for creating Google Drive projects.</p>
+                            <div class="form-group">
+                                <label for="gasApiUrl">API URL</label>
+                                <input type="url" id="gasApiUrl" placeholder="https://script.google.com/macros/s/.../exec">
+                            </div>
+                            <div class="form-group">
+                                <label for="gasApiKey">API Key</label>
+                                <input type="password" id="gasApiKey" placeholder="Enter your API key">
+                            </div>
+                            <div class="form-group">
+                                <label for="defaultSpreadsheetId">Default Spreadsheet ID</label>
+                                <input type="text" id="defaultSpreadsheetId" placeholder="Enter Google Sheets ID">
+                            </div>
                         </div>
                     </div>
                     

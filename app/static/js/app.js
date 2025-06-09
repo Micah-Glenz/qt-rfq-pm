@@ -5,6 +5,9 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initialize theme
   SettingsModule.initTheme();
   
+  // Initialize font size
+  SettingsModule.initFontSize();
+  
   // Initialize toast notifications
   initToasts();
   

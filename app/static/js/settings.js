@@ -39,6 +39,12 @@ const SettingsModule = (function() {
     if (salesRepDropdown) {
       updateSalesRepDropdown(salesRepDropdown);
     }
+    
+    // Initialize settings tabs
+    initSettingsTabs();
+    
+    // Initialize font size
+    initFontSize();
   }
   
   /**
@@ -507,6 +513,70 @@ const SettingsModule = (function() {
   }
   
   /**
+   * Initialize settings tabs
+   */
+  function initSettingsTabs() {
+    const tabs = document.querySelectorAll('.settings-tab');
+    const contents = document.querySelectorAll('.settings-content');
+    
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabName = tab.dataset.tab;
+        
+        // Remove active class from all tabs and contents
+        tabs.forEach(t => t.classList.remove('active'));
+        contents.forEach(c => c.classList.remove('active'));
+        
+        // Add active class to clicked tab and corresponding content
+        tab.classList.add('active');
+        const content = document.getElementById(`${tabName}Tab`);
+        if (content) {
+          content.classList.add('active');
+        }
+      });
+    });
+  }
+  
+  /**
+   * Initialize font size control
+   */
+  function initFontSize() {
+    const savedFontSize = localStorage.getItem('fontSize') || '14';
+    applyFontSize(savedFontSize);
+    
+    const fontSizeSlider = document.getElementById('fontSizeSlider');
+    const fontSizeValue = document.getElementById('fontSizeValue');
+    
+    if (fontSizeSlider && fontSizeValue) {
+      fontSizeSlider.value = savedFontSize;
+      fontSizeValue.textContent = `${savedFontSize}px`;
+      
+      fontSizeSlider.addEventListener('input', (e) => {
+        const size = e.target.value;
+        fontSizeValue.textContent = `${size}px`;
+        applyFontSize(size);
+        localStorage.setItem('fontSize', size);
+      });
+    }
+  }
+  
+  /**
+   * Apply font size to the application
+   * @param {string} size - Font size in pixels
+   */
+  function applyFontSize(size) {
+    document.documentElement.style.setProperty('--font-size-base', `${size}px`);
+  }
+  
+  /**
+   * Apply font size to the application
+   * @param {string} size - Font size in pixels
+   */
+  function applyFontSize(size) {
+    document.documentElement.style.setProperty('--font-size-base', `${size}px`);
+  }
+  
+  /**
    * Initialize theme on page load
    */
   function initTheme() {
@@ -522,6 +592,8 @@ const SettingsModule = (function() {
     handleAddSalesRep,
     getApiConfig,
     getShowHiddenQuotes,
-    initTheme
+    initTheme,
+    initFontSize,
+    applyFontSize
   };
 })();
