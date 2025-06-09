@@ -1,5 +1,7 @@
 from datetime import datetime
 from app.db import DatabaseContext
+from app.models.event import Event
+import json
 
 class Quote:
     def __init__(self, id=None, customer=None, quote_no=None, description=None, 
@@ -153,10 +155,12 @@ class Quote:
     @staticmethod
     def update(quote_id, customer, quote_no, description, sales_rep,
                project_sheet_url=None, mpsf_link=None, folder_link=None, method_link=None, hidden=None):
-        """Update a quote"""
+        """Update a quote and log changes as an event"""
+        old_quote = Quote.get_by_id(quote_id)
+
         with DatabaseContext() as conn:
             cursor = conn.cursor()
-            # If hidden is None, don't update it
+
             if hidden is None:
                 cursor.execute('''
                     UPDATE quotes
@@ -170,7 +174,7 @@ class Quote:
                         method_link = ?,
                         updated_at = CURRENT_TIMESTAMP
                     WHERE id = ?
-                ''', (customer, quote_no, description, sales_rep, 
+                ''', (customer, quote_no, description, sales_rep,
                       project_sheet_url, mpsf_link, folder_link, method_link, quote_id))
             else:
                 cursor.execute('''
@@ -186,10 +190,36 @@ class Quote:
                         hidden = ?,
                         updated_at = CURRENT_TIMESTAMP
                     WHERE id = ?
-                ''', (customer, quote_no, description, sales_rep, 
+                ''', (customer, quote_no, description, sales_rep,
                       project_sheet_url, mpsf_link, folder_link, method_link, hidden, quote_id))
+
             conn.commit()
-            return cursor.rowcount > 0
+            success = cursor.rowcount > 0
+
+        if success and old_quote:
+            old_values = {}
+            fields = [
+                ('customer', customer),
+                ('quote_no', quote_no),
+                ('description', description),
+                ('sales_rep', sales_rep),
+                ('project_sheet_url', project_sheet_url),
+                ('mpsf_link', mpsf_link),
+                ('folder_link', folder_link),
+                ('method_link', method_link)
+            ]
+
+            for field, new_val in fields:
+                if getattr(old_quote, field) != new_val:
+                    old_values[field] = getattr(old_quote, field)
+
+            if hidden is not None and old_quote.hidden != hidden:
+                old_values['hidden'] = old_quote.hidden
+
+            if old_values:
+                Event.create(quote_id, 'Quote updated', json.dumps(old_values))
+
+        return success
     
     @staticmethod
     def delete(quote_id):

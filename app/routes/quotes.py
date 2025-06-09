@@ -1,6 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.models import Quote, Task, VendorQuote, Note, Event
-import json
+from app.models import Quote, Task, VendorQuote, Note
 from app.services.config_service import ConfigService
 
 quotes_bp = Blueprint('quotes', __name__, url_prefix='/api')
@@ -127,27 +126,6 @@ def update_quote(quote_id):
 
     if Quote.update(quote_id, customer, quote_no, description, sales_rep,
                     project_sheet_url, mpsf_link, folder_link, method_link, hidden):
-        # Determine what changed
-        old_values = {}
-        fields = [
-            ('customer', customer),
-            ('quote_no', quote_no),
-            ('description', description),
-            ('sales_rep', sales_rep),
-            ('project_sheet_url', project_sheet_url),
-            ('mpsf_link', mpsf_link),
-            ('folder_link', folder_link),
-            ('method_link', method_link)
-        ]
-        for field, new_value in fields:
-            if getattr(old_quote, field) != new_value:
-                old_values[field] = getattr(old_quote, field)
-        if hidden is not None and old_quote.hidden != hidden:
-            old_values['hidden'] = old_quote.hidden
-
-        if old_values:
-            Event.create(quote_id, 'Quote updated', json.dumps(old_values))
-
         return jsonify({'message': 'Quote updated successfully'})
     else:
         return jsonify({'error': 'Quote not found or no changes made'}), 404
