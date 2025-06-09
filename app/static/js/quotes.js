@@ -339,7 +339,22 @@ const QuotesModule = (function() {
         </div>
       </div>
 
-      <div class="middle-column">
+      <div class="tasks-column">
+        <!-- Tasks Card -->
+        <div class="quote-card tasks-card">
+          <div class="card-header">
+            <h3>Tasks</h3>
+            <button class="btn small" id="addTaskBtn">Add Task</button>
+          </div>
+          <div class="card-content" id="tasksCardContent">
+            <div id="tasksList">
+              ${tasksHtml}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="notes-column">
         <!-- Notes Card -->
         <div class="quote-card notes-card">
           <div class="card-header">
@@ -354,7 +369,7 @@ const QuotesModule = (function() {
         </div>
       </div>
 
-      <div class="right-column">
+      <div class="events-column">
         <!-- Events Card -->
         <div class="quote-card events-card">
           <div class="card-header">
@@ -368,18 +383,6 @@ const QuotesModule = (function() {
           </div>
         </div>
 
-        <!-- Tasks Card -->
-        <div class="quote-card tasks-card">
-          <div class="card-header">
-            <h3>Tasks</h3>
-            <button class="btn small" id="addTaskBtn">Add Task</button>
-          </div>
-          <div class="card-content" id="tasksCardContent">
-            <div id="tasksList">
-              ${tasksHtml}
-            </div>
-          </div>
-        </div>
       </div>
     `;
     
