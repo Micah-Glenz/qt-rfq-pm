@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
-from app.models import Quote, Task, VendorQuote, Note
+from app.models import Quote, Task, VendorQuote, Note, Event
+
 from app.services.config_service import ConfigService
 
 quotes_bp = Blueprint('quotes', __name__, url_prefix='/api')
