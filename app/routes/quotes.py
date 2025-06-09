@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
-from app.models import Quote, Task, VendorQuote, Note
+from app.models import Quote, Task, VendorQuote, Note, Event
+import json
 from app.services.config_service import ConfigService
 
 quotes_bp = Blueprint('quotes', __name__, url_prefix='/api')
@@ -20,6 +21,7 @@ def get_quote(quote_id):
     tasks = Task.get_by_quote_id(quote_id)
     vendor_quotes = VendorQuote.get_by_quote_id(quote_id)
     notes = Note.get_by_quote_id(quote_id)
+    events = Event.get_by_quote_id(quote_id)
     
     result = {
         'id': quote.id,
@@ -36,7 +38,8 @@ def get_quote(quote_id):
         'updated_at': quote.updated_at,
         'tasks': tasks,
         'vendor_quotes': vendor_quotes,
-        'notes': notes
+        'notes': notes,
+        'events': events
     }
     
     return jsonify(result)
@@ -58,8 +61,10 @@ def create_quote():
     
     try:
         # Create the quote with empty project fields
-        quote_id = Quote.create(customer, quote_no, description, sales_rep, 
+        quote_id = Quote.create(customer, quote_no, description, sales_rep,
                                 None, None, None)
+        # Log creation event
+        Event.create(quote_id, 'Quote created')
         
         # If create_project flag is set, handle project creation
         if data.get('create_project') and sales_rep and data.get('spreadsheet_id'):
@@ -116,8 +121,33 @@ def update_quote(quote_id):
     if not customer or not quote_no:
         return jsonify({'error': 'Customer and quote number are required'}), 400
     
+    old_quote = Quote.get_by_id(quote_id)
+    if not old_quote:
+        return jsonify({'error': 'Quote not found'}), 404
+
     if Quote.update(quote_id, customer, quote_no, description, sales_rep,
                     project_sheet_url, mpsf_link, folder_link, method_link, hidden):
+        # Determine what changed
+        old_values = {}
+        fields = [
+            ('customer', customer),
+            ('quote_no', quote_no),
+            ('description', description),
+            ('sales_rep', sales_rep),
+            ('project_sheet_url', project_sheet_url),
+            ('mpsf_link', mpsf_link),
+            ('folder_link', folder_link),
+            ('method_link', method_link)
+        ]
+        for field, new_value in fields:
+            if getattr(old_quote, field) != new_value:
+                old_values[field] = getattr(old_quote, field)
+        if hidden is not None and old_quote.hidden != hidden:
+            old_values['hidden'] = old_quote.hidden
+
+        if old_values:
+            Event.create(quote_id, 'Quote updated', json.dumps(old_values))
+
         return jsonify({'message': 'Quote updated successfully'})
     else:
         return jsonify({'error': 'Quote not found or no changes made'}), 404
