@@ -1,0 +1,61 @@
+/* Layout with independent columns */
+.quote-detail {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 1200px;
+  align-items: flex-start;
+}
+
+/* Column containers */
+.left-column,
+.tasks-column,
+.notes-column,
+.events-column {
+  flex: 1;
+  min-width: 400px;
+  max-width: 550px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Column alignment */
+.tasks-column,
+.notes-column,
+.events-column {
+  align-items: flex-start; /* Don't stretch children */
+  justify-content: flex-start; /* Align to top */
+}
+
+/* Base card styling */
+.quote-card {
+  background-color: white;
+  border-radius: 0.35rem;
+  box-shadow: var(--card-shadow);
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+}
+
+/* Tasks card specific - height adjusts to content */
+.quote-card.tasks-card {
+  max-height: calc(100vh - 100px); /* Maximum height is viewport minus 100px */
+  height: auto; /* Let height adjust to content */
+  overflow: hidden; /* Prevent card overflow */
+  flex: 0 0 auto; /* Don't stretch to fill space */
+}
+
+/* Details card doesn't need max height */
+.quote-card.details-card .card-content {
+  max-height: none;
+  overflow-y: visible;
+}
+
+/* Responsive layout - stack columns on mobile */
+@media (max-width: 767px) {
+  .quote-detail {
+    flex-direction: column;
+  }
+}

@@ -25,7 +25,7 @@ a.py
         gas_api.py
     [static]
         [css]
-            masonry-grid.css
+            quote-detail-layout.css
             project-links.css
             styles.css
         favicon-16x16.png
