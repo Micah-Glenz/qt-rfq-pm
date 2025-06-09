@@ -15,6 +15,8 @@ const EventsModule = (function() {
     let html = '';
     events.forEach(ev => {
       const datetime = formatDate(ev.created_at);
+      const pastDetails = parsePast(ev.past);
+
       html += `
         <div class="event-item" data-id="${ev.id}">
           <div class="event-single-line">
@@ -25,7 +27,9 @@ const EventsModule = (function() {
             </div>
             <span class="event-delete-btn" data-id="${ev.id}">×</span>
           </div>
-          ${ev.past ? `<div class="event-past">Before: ${ev.past}</div>` : ''}
+
+          ${pastDetails ? `<div class="event-past">${pastDetails}</div>` : ''}
+
         </div>
       `;
     });
@@ -40,6 +44,11 @@ const EventsModule = (function() {
     document.querySelectorAll('.event-delete-btn').forEach(btn => {
       btn.addEventListener('click', handleDeleteEvent);
     });
+
+    document.querySelectorAll('.event-item').forEach(item => {
+      item.addEventListener('click', handleViewEvent);
+    });
+
   }
 
   /**
@@ -61,6 +70,17 @@ const EventsModule = (function() {
   }
 
   /**
+
+   * Handle click to view event details
+   */
+  function handleViewEvent(e) {
+    const id = parseInt(e.currentTarget.dataset.id, 10);
+    const eventObj = QuotesModule.getCurrentQuote().events.find(ev => ev.id === id);
+    if (eventObj) openEventDetailModal(eventObj);
+  }
+
+  /**
+
    * Open add event modal
    * @param {number} quoteId - The quote ID
    */
@@ -78,6 +98,12 @@ const EventsModule = (function() {
                 <label for="eventDescription">Description</label>
                 <textarea id="eventDescription" required></textarea>
               </div>
+
+              <div class="form-group">
+                <label for="eventPast">Past Details (optional)</label>
+                <textarea id="eventPast" placeholder="e.g. previous values"></textarea>
+              </div>
+
               <div class="form-actions">
                 <button type="button" class="btn cancel-modal">Cancel</button>
                 <button type="submit" class="btn primary">Add Event</button>
@@ -119,10 +145,14 @@ const EventsModule = (function() {
   async function handleEventSubmit(e, quoteId) {
     e.preventDefault();
     const description = document.getElementById('eventDescription').value.trim();
+
+    const past = document.getElementById('eventPast').value.trim();
     if (!description) return;
 
     try {
-      await API.createEvent(quoteId, { description });
+      const payload = past ? { description, past } : { description };
+      await API.createEvent(quoteId, payload);
+
       showToast('Event added successfully', 'success');
       closeEventModal();
       QuotesModule.refreshCurrentQuote();
@@ -147,6 +177,54 @@ const EventsModule = (function() {
       time: date.toLocaleString(undefined, timeOptions),
       date: date.toLocaleString(undefined, dateOptions)
     };
+  }
+
+
+  /**
+   * Parse past JSON and render as list
+   */
+  function parsePast(pastStr) {
+    if (!pastStr) return '';
+    try {
+      const obj = JSON.parse(pastStr);
+      const items = Object.entries(obj)
+        .map(([k, v]) => `<li><strong>${k}</strong>: ${v}</li>`)
+        .join('');
+      return `<ul>${items}</ul>`;
+    } catch {
+      return pastStr;
+    }
+  }
+
+  function openEventDetailModal(eventObj) {
+    const datetime = formatDate(eventObj.created_at);
+    const pastDetails = parsePast(eventObj.past);
+    const modalHtml = `
+      <div id="viewEventModal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>Event Details</h2>
+            <span class="close-modal">&times;</span>
+          </div>
+          <div class="modal-body">
+            <p><strong>Description:</strong> ${eventObj.description}</p>
+            <p><strong>Date:</strong> ${datetime.date} ${datetime.time}</p>
+            ${pastDetails ? `<div><strong>Past:</strong>${pastDetails}</div>` : ''}
+          </div>
+        </div>
+      </div>`;
+
+    if (!document.getElementById('viewEventModal')) {
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+      document.querySelector('#viewEventModal .close-modal').addEventListener('click', closeEventDetailModal);
+    }
+
+    document.getElementById('viewEventModal').style.display = 'block';
+  }
+
+  function closeEventDetailModal() {
+    const modal = document.getElementById('viewEventModal');
+    if (modal) modal.remove();
   }
 
   return {

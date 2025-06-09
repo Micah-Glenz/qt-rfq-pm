@@ -337,7 +337,9 @@ const QuotesModule = (function() {
             </div>
           </div>
         </div>
-        
+      </div>
+
+      <div class="middle-column">
         <!-- Notes Card -->
         <div class="quote-card notes-card">
           <div class="card-header">
