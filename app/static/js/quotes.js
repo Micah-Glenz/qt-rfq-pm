@@ -191,6 +191,7 @@ const QuotesModule = (function() {
     const tasksHtml = TasksModule.renderTasks(currentQuote.tasks);
     const vendorQuotesHtml = VendorQuotesModule.renderVendorQuotes(currentQuote.vendor_quotes);
     const notesHtml = NotesModule.renderNotes(currentQuote.notes);
+    const eventsHtml = EventsModule.renderEvents(currentQuote.events);
     
     // Create sales rep dropdown HTML
     const salesReps = SettingsModule.getSalesReps();
@@ -336,7 +337,9 @@ const QuotesModule = (function() {
             </div>
           </div>
         </div>
-        
+      </div>
+
+      <div class="middle-column">
         <!-- Notes Card -->
         <div class="quote-card notes-card">
           <div class="card-header">
@@ -350,8 +353,21 @@ const QuotesModule = (function() {
           </div>
         </div>
       </div>
-      
+
       <div class="right-column">
+        <!-- Events Card -->
+        <div class="quote-card events-card">
+          <div class="card-header">
+            <h3>Events</h3>
+            <button class="btn small" id="addEventBtn">Add Event</button>
+          </div>
+          <div class="card-content" id="eventsCardContent">
+            <div id="eventsList" class="events-list">
+              ${eventsHtml}
+            </div>
+          </div>
+        </div>
+
         <!-- Tasks Card -->
         <div class="quote-card tasks-card">
           <div class="card-header">
@@ -375,6 +391,7 @@ const QuotesModule = (function() {
     document.getElementById('addTaskBtn').addEventListener('click', () => TasksModule.openAddTaskModal(currentQuote.id));
     document.getElementById('addVendorQuoteBtn').addEventListener('click', () => VendorQuotesModule.openAddVendorQuoteModal(currentQuote.id));
     document.getElementById('addNoteBtn').addEventListener('click', () => NotesModule.openAddNoteModal(currentQuote.id));
+    document.getElementById('addEventBtn').addEventListener('click', () => EventsModule.openAddEventModal(currentQuote.id));
     
     // Add click-to-copy functionality for view mode
     document.querySelectorAll('.clickable-copy').forEach(element => {
@@ -386,9 +403,11 @@ const QuotesModule = (function() {
     
     // Initialize vendor quote controls
     VendorQuotesModule.initVendorQuoteControls();
-    
+
     // Initialize note controls
     NotesModule.initNoteControls();
+    // Initialize event controls
+    EventsModule.initEventControls();
     
     // Add scroll event listeners to all scrollable content areas
     document.querySelectorAll('.card-content').forEach(content => {
