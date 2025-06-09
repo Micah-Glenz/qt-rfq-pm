@@ -16,6 +16,7 @@ const EventsModule = (function() {
     events.forEach(ev => {
       const datetime = formatDate(ev.created_at);
       const pastDetails = parsePast(ev.past);
+
       html += `
         <div class="event-item" data-id="${ev.id}">
           <div class="event-single-line">
@@ -26,7 +27,9 @@ const EventsModule = (function() {
             </div>
             <span class="event-delete-btn" data-id="${ev.id}">×</span>
           </div>
+
           ${pastDetails ? `<div class="event-past">${pastDetails}</div>` : ''}
+
         </div>
       `;
     });
@@ -41,9 +44,11 @@ const EventsModule = (function() {
     document.querySelectorAll('.event-delete-btn').forEach(btn => {
       btn.addEventListener('click', handleDeleteEvent);
     });
+
     document.querySelectorAll('.event-item').forEach(item => {
       item.addEventListener('click', handleViewEvent);
     });
+
   }
 
   /**
@@ -65,6 +70,7 @@ const EventsModule = (function() {
   }
 
   /**
+
    * Handle click to view event details
    */
   function handleViewEvent(e) {
@@ -74,6 +80,7 @@ const EventsModule = (function() {
   }
 
   /**
+
    * Open add event modal
    * @param {number} quoteId - The quote ID
    */
@@ -91,10 +98,12 @@ const EventsModule = (function() {
                 <label for="eventDescription">Description</label>
                 <textarea id="eventDescription" required></textarea>
               </div>
+
               <div class="form-group">
                 <label for="eventPast">Past Details (optional)</label>
                 <textarea id="eventPast" placeholder="e.g. previous values"></textarea>
               </div>
+
               <div class="form-actions">
                 <button type="button" class="btn cancel-modal">Cancel</button>
                 <button type="submit" class="btn primary">Add Event</button>
@@ -136,12 +145,14 @@ const EventsModule = (function() {
   async function handleEventSubmit(e, quoteId) {
     e.preventDefault();
     const description = document.getElementById('eventDescription').value.trim();
+
     const past = document.getElementById('eventPast').value.trim();
     if (!description) return;
 
     try {
       const payload = past ? { description, past } : { description };
       await API.createEvent(quoteId, payload);
+
       showToast('Event added successfully', 'success');
       closeEventModal();
       QuotesModule.refreshCurrentQuote();
@@ -167,6 +178,7 @@ const EventsModule = (function() {
       date: date.toLocaleString(undefined, dateOptions)
     };
   }
+
 
   /**
    * Parse past JSON and render as list
