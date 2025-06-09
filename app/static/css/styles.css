@@ -873,8 +873,8 @@ main {
   background: rgba(255, 255, 255, 0.12);
 }
 
-/* Quote Detail - Import masonry layout */
-@import url("masonry-grid.css");
+/* Quote Detail - Import layout styles */
+@import url("quote-detail-layout.css");
 
 /* Card content area that will scroll */
 .card-content {
