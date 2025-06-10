@@ -1,4 +1,6 @@
 from app.db import DatabaseContext
+from app.models.event import Event
+import json
 
 class Note:
     def __init__(self, id=None, quote_id=None, content=None, created_at=None):
@@ -58,13 +60,33 @@ class Note:
     
     @staticmethod
     def update(note_id, content):
-        """Update a note's content"""
+        """Update a note's content and log changes as an event"""
         with DatabaseContext() as conn:
             cursor = conn.cursor()
-            cursor.execute('''
+            cursor.execute(
+                "SELECT quote_id, content FROM notes WHERE id = ?",
+                (note_id,),
+            )
+            old_row = cursor.fetchone()
+            if not old_row:
+                return False
+
+            cursor.execute(
+                '''
                 UPDATE notes
                 SET content = ?
                 WHERE id = ?
-            ''', (content, note_id))
+            ''',
+                (content, note_id),
+            )
             conn.commit()
-            return cursor.rowcount > 0
+            success = cursor.rowcount > 0
+
+        if success and old_row["content"] != content:
+            Event.create(
+                old_row["quote_id"],
+                "Note updated",
+                json.dumps({"content": old_row["content"]}),
+            )
+
+        return success
