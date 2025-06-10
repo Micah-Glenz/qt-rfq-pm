@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
-from app.models import Task
+from app.models import Task, Event
+import json
 
 tasks_bp = Blueprint('tasks', __name__, url_prefix='/api')
 
@@ -51,24 +52,36 @@ def toggle_task(task_id):
         from app.db import DatabaseContext
         with DatabaseContext() as conn:
             cursor = conn.cursor()
-            cursor.execute('''
+            cursor.execute(
+                'SELECT quote_id, done FROM tasks WHERE id = ?',
+                (task_id,)
+            )
+            row = cursor.fetchone()
+            if not row:
+                return jsonify({'error': 'Task not found'}), 404
+
+            cursor.execute(
+                '''
                 UPDATE tasks
                 SET done = CASE WHEN done = 1 THEN 0 ELSE 1 END
                 WHERE id = ?
-            ''', (task_id,))
+            ''',
+                (task_id,)
+            )
             conn.commit()
-            
+
             if cursor.rowcount > 0:
-                # Get the updated task to return the new status
-                cursor.execute('''
-                    SELECT done FROM tasks WHERE id = ?
-                ''', (task_id,))
-                
-                row = cursor.fetchone()
-                if row:
+                cursor.execute('SELECT done FROM tasks WHERE id = ?', (task_id,))
+                new_row = cursor.fetchone()
+                if new_row:
+                    Event.create(
+                        row['quote_id'],
+                        'Task toggled',
+                        json.dumps({'done': bool(row['done'])}),
+                    )
                     return jsonify({
                         'message': 'Task status toggled',
-                        'done': bool(row['done'])
+                        'done': bool(new_row['done'])
                     })
             
             return jsonify({'error': 'Task not found'}), 404

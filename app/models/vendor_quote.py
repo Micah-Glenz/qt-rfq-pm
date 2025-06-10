@@ -1,4 +1,6 @@
 from app.db import DatabaseContext
+from app.models.event import Event
+import json
 
 class VendorQuote:
     def __init__(self, id=None, quote_id=None, type=None, vendor=None,
@@ -57,11 +59,30 @@ class VendorQuote:
             return vendor_quote_id
     
     @staticmethod
-    def update(vendor_quote_id, type=None, vendor=None, requested=None, entered=None, notes=None, date=None):
-        """Update a vendor quote"""
+    def update(
+        vendor_quote_id,
+        type=None,
+        vendor=None,
+        requested=None,
+        entered=None,
+        notes=None,
+        date=None,
+    ):
+        """Update a vendor quote and log changes as an event"""
         with DatabaseContext() as conn:
             cursor = conn.cursor()
-            
+
+            cursor.execute(
+                """
+                SELECT quote_id, type, vendor, requested, entered, notes, date
+                FROM vendor_quotes WHERE id = ?
+            """,
+                (vendor_quote_id,),
+            )
+            old_row = cursor.fetchone()
+            if not old_row:
+                return False
+
             # Build update query based on provided parameters
             query_parts = []
             params = []
@@ -95,10 +116,34 @@ class VendorQuote:
             
             query = f"UPDATE vendor_quotes SET {', '.join(query_parts)} WHERE id = ?"
             params.append(vendor_quote_id)
-            
+
             cursor.execute(query, params)
             conn.commit()
-            return cursor.rowcount > 0
+            success = cursor.rowcount > 0
+
+        if success:
+            old_values = {}
+            if type is not None and old_row["type"] != type:
+                old_values["type"] = old_row["type"]
+            if vendor is not None and old_row["vendor"] != vendor:
+                old_values["vendor"] = old_row["vendor"]
+            if requested is not None and bool(old_row["requested"]) != bool(requested):
+                old_values["requested"] = bool(old_row["requested"])
+            if entered is not None and bool(old_row["entered"]) != bool(entered):
+                old_values["entered"] = bool(old_row["entered"])
+            if notes is not None and (old_row["notes"] or "") != (notes or ""):
+                old_values["notes"] = old_row["notes"]
+            if date is not None and (old_row["date"] or "") != (date or ""):
+                old_values["date"] = old_row["date"]
+
+            if old_values:
+                Event.create(
+                    old_row["quote_id"],
+                    "Vendor quote updated",
+                    json.dumps(old_values),
+                )
+
+        return success
     
     @staticmethod
     def delete(vendor_quote_id):

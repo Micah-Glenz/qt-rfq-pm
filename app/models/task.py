@@ -1,4 +1,6 @@
 from app.db import DatabaseContext
+from app.models.event import Event
+import json
 
 class Task:
     def __init__(self, id=None, quote_id=None, label=None, done=False, is_separator=False):
@@ -51,35 +53,64 @@ class Task:
     
     @staticmethod
     def update(task_id, label=None, done=None, is_separator=None):
-        """Update a task"""
+        """Update a task and log changes as an event"""
         with DatabaseContext() as conn:
             cursor = conn.cursor()
-            
+
+            cursor.execute(
+                "SELECT quote_id, label, done, is_separator FROM tasks WHERE id = ?",
+                (task_id,),
+            )
+            old_task = cursor.fetchone()
+            if not old_task:
+                return False
+
             # Build update query based on provided parameters
             query_parts = []
             params = []
-            
+
             if label is not None:
                 query_parts.append("label = ?")
                 params.append(label)
-            
+
             if done is not None:
                 query_parts.append("done = ?")
                 params.append(1 if done else 0)
-            
+
             if is_separator is not None:
                 query_parts.append("is_separator = ?")
                 params.append(1 if is_separator else 0)
-            
+
             if not query_parts:
                 return False
-            
+
             query = f"UPDATE tasks SET {', '.join(query_parts)} WHERE id = ?"
             params.append(task_id)
-            
+
             cursor.execute(query, params)
             conn.commit()
-            return cursor.rowcount > 0
+            success = cursor.rowcount > 0
+
+        if success:
+            old_values = {}
+            if label is not None and old_task["label"] != label:
+                old_values["label"] = old_task["label"]
+            if done is not None and bool(old_task["done"]) != bool(done):
+                old_values["done"] = bool(old_task["done"])
+            if (
+                is_separator is not None
+                and bool(old_task["is_separator"]) != bool(is_separator)
+            ):
+                old_values["is_separator"] = bool(old_task["is_separator"])
+
+            if old_values:
+                Event.create(
+                    old_task["quote_id"],
+                    "Task updated",
+                    json.dumps(old_values),
+                )
+
+        return success
     
     @staticmethod
     def delete(task_id):
