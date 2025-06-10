@@ -1,11 +1,13 @@
 from app.db import DatabaseContext
 
 class Event:
-    def __init__(self, id=None, quote_id=None, description=None, past=None, created_at=None):
+    def __init__(self, id=None, quote_id=None, description=None, past=None,
+                 present=None, created_at=None):
         self.id = id
         self.quote_id = quote_id
         self.description = description
         self.past = past
+        self.present = present
         self.created_at = created_at
 
     @staticmethod
@@ -14,7 +16,7 @@ class Event:
         with DatabaseContext() as conn:
             cursor = conn.cursor()
             cursor.execute('''
-                SELECT id, quote_id, description, past, created_at
+                SELECT id, quote_id, description, past, present, created_at
                 FROM events
                 WHERE quote_id = ?
                 ORDER BY created_at DESC
@@ -27,19 +29,20 @@ class Event:
                     'quote_id': row['quote_id'],
                     'description': row['description'],
                     'past': row['past'],
+                    'present': row['present'],
                     'created_at': row['created_at']
                 })
             return events
 
     @staticmethod
-    def create(quote_id, description, past=None):
+    def create(quote_id, description, past=None, present=None):
         """Create a new event"""
         with DatabaseContext() as conn:
             cursor = conn.cursor()
             cursor.execute('''
-                INSERT INTO events (quote_id, description, past)
-                VALUES (?, ?, ?)
-            ''', (quote_id, description, past))
+                INSERT INTO events (quote_id, description, past, present)
+                VALUES (?, ?, ?, ?)
+            ''', (quote_id, description, past, present))
             event_id = cursor.lastrowid
             conn.commit()
             return event_id

@@ -212,6 +212,7 @@ const TasksModule = (function() {
     
     try {
       await API.updateTask(taskId, { done });
+      QuotesModule.refreshCurrentQuote();
       // No need for toast on simple checkbox toggle
     } catch (error) {
       // Revert the checkbox if the update fails

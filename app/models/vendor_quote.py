@@ -123,24 +123,32 @@ class VendorQuote:
 
         if success:
             old_values = {}
+            new_values = {}
             if type is not None and old_row["type"] != type:
                 old_values["type"] = old_row["type"]
+                new_values["type"] = type
             if vendor is not None and old_row["vendor"] != vendor:
                 old_values["vendor"] = old_row["vendor"]
+                new_values["vendor"] = vendor
             if requested is not None and bool(old_row["requested"]) != bool(requested):
                 old_values["requested"] = bool(old_row["requested"])
+                new_values["requested"] = bool(requested)
             if entered is not None and bool(old_row["entered"]) != bool(entered):
                 old_values["entered"] = bool(old_row["entered"])
+                new_values["entered"] = bool(entered)
             if notes is not None and (old_row["notes"] or "") != (notes or ""):
                 old_values["notes"] = old_row["notes"]
+                new_values["notes"] = notes
             if date is not None and (old_row["date"] or "") != (date or ""):
                 old_values["date"] = old_row["date"]
+                new_values["date"] = date
 
             if old_values:
                 Event.create(
                     old_row["quote_id"],
                     "Vendor quote updated",
                     json.dumps(old_values),
+                    json.dumps(new_values),
                 )
 
         return success

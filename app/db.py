@@ -98,16 +98,19 @@ class DatabaseManager:
                     quote_id   INTEGER NOT NULL,
                     description TEXT NOT NULL,
                     past        TEXT,
+                    present     TEXT,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY(quote_id) REFERENCES quotes(id) ON DELETE CASCADE
                 )
                 ''')
 
-                # Add past column if it doesn't exist
+                # Add past/present columns if they don't exist
                 cursor.execute("PRAGMA table_info(events)")
                 event_columns = [column[1] for column in cursor.fetchall()]
                 if 'past' not in event_columns:
                     cursor.execute("ALTER TABLE events ADD COLUMN past TEXT")
+                if 'present' not in event_columns:
+                    cursor.execute("ALTER TABLE events ADD COLUMN present TEXT")
                 
                 # Create default_tasks table
                 cursor.execute('''

@@ -87,6 +87,7 @@ class Note:
                 old_row["quote_id"],
                 "Note updated",
                 json.dumps({"content": old_row["content"]}),
+                json.dumps({"content": content}),
             )
 
         return success

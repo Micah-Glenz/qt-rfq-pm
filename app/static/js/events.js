@@ -15,7 +15,7 @@ const EventsModule = (function() {
     let html = '';
     events.forEach(ev => {
       const datetime = formatDate(ev.created_at);
-      const pastDetails = parsePast(ev.past);
+      const pastDetails = parseDetails(ev.past, ev.present);
 
       html += `
         <div class="event-item" data-id="${ev.id}">
@@ -103,6 +103,10 @@ const EventsModule = (function() {
                 <label for="eventPast">Past Details (optional)</label>
                 <textarea id="eventPast" placeholder="e.g. previous values"></textarea>
               </div>
+              <div class="form-group">
+                <label for="eventPresent">Present Details (optional)</label>
+                <textarea id="eventPresent" placeholder="e.g. new values"></textarea>
+              </div>
 
               <div class="form-actions">
                 <button type="button" class="btn cancel-modal">Cancel</button>
@@ -147,10 +151,13 @@ const EventsModule = (function() {
     const description = document.getElementById('eventDescription').value.trim();
 
     const past = document.getElementById('eventPast').value.trim();
+    const present = document.getElementById('eventPresent').value.trim();
     if (!description) return;
 
     try {
-      const payload = past ? { description, past } : { description };
+      const payload = { description };
+      if (past) payload.past = past;
+      if (present) payload.present = present;
       await API.createEvent(quoteId, payload);
 
       showToast('Event added successfully', 'success');
@@ -181,24 +188,40 @@ const EventsModule = (function() {
 
 
   /**
-   * Parse past JSON and render as list
+   * Parse past/present JSON and render as list of changes
    */
-  function parsePast(pastStr) {
-    if (!pastStr) return '';
+  function parseDetails(pastStr, presentStr) {
+    if (!pastStr && !presentStr) return '';
     try {
-      const obj = JSON.parse(pastStr);
-      const items = Object.entries(obj)
-        .map(([k, v]) => `<li><strong>${k}</strong>: ${v}</li>`)
+      const past = pastStr ? JSON.parse(pastStr) : {};
+      const present = presentStr ? JSON.parse(presentStr) : {};
+      const keys = new Set([...Object.keys(past), ...Object.keys(present)]);
+      const items = Array.from(keys)
+        .map(k => {
+          const fromVal = past[k];
+          const toVal = present[k];
+          if (fromVal !== undefined && toVal !== undefined) {
+            return `<li><strong>${k}</strong>: ${fromVal} → ${toVal}</li>`;
+          }
+          if (fromVal !== undefined) {
+            return `<li><strong>${k}</strong>: ${fromVal}</li>`;
+          }
+          return `<li><strong>${k}</strong>: ${toVal}</li>`;
+        })
         .join('');
       return `<ul>${items}</ul>`;
     } catch {
-      return pastStr;
+      let text = pastStr || '';
+      if (presentStr) {
+        text += text ? ` → ${presentStr}` : presentStr;
+      }
+      return text;
     }
   }
 
   function openEventDetailModal(eventObj) {
     const datetime = formatDate(eventObj.created_at);
-    const pastDetails = parsePast(eventObj.past);
+    const pastDetails = parseDetails(eventObj.past, eventObj.present);
     const modalHtml = `
       <div id="viewEventModal" class="modal">
         <div class="modal-content">
@@ -209,7 +232,7 @@ const EventsModule = (function() {
           <div class="modal-body">
             <p><strong>Description:</strong> ${eventObj.description}</p>
             <p><strong>Date:</strong> ${datetime.date} ${datetime.time}</p>
-            ${pastDetails ? `<div><strong>Past:</strong>${pastDetails}</div>` : ''}
+            ${pastDetails ? `<div><strong>Changes:</strong>${pastDetails}</div>` : ''}
           </div>
         </div>
       </div>`;

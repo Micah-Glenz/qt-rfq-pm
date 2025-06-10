@@ -93,21 +93,26 @@ class Task:
 
         if success:
             old_values = {}
+            new_values = {}
             if label is not None and old_task["label"] != label:
                 old_values["label"] = old_task["label"]
+                new_values["label"] = label
             if done is not None and bool(old_task["done"]) != bool(done):
                 old_values["done"] = bool(old_task["done"])
+                new_values["done"] = bool(done)
             if (
                 is_separator is not None
                 and bool(old_task["is_separator"]) != bool(is_separator)
             ):
                 old_values["is_separator"] = bool(old_task["is_separator"])
+                new_values["is_separator"] = bool(is_separator)
 
             if old_values:
                 Event.create(
                     old_task["quote_id"],
                     "Task updated",
                     json.dumps(old_values),
+                    json.dumps(new_values),
                 )
 
         return success
