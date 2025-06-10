@@ -483,6 +483,9 @@ body.resizing-tab {
   -moz-user-select: none;
   -ms-user-select: none;
   overflow: hidden; /* Prevent scrolling during resize */
+
+  /* Prevent layout recalculations during resize */
+  pointer-events: none;
 }
 
 body.resizing-tab * {
@@ -525,12 +528,20 @@ body.resizing-tab * {
   background-color: white;
   border-radius: 0.25rem;
   transform: translateZ(0); /* Force GPU acceleration */
+  position: relative;
 }
 
-.app-container { 
-  display: flex; 
-  flex-direction: column; 
-  height: 100vh; 
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+  padding-bottom: 40px; /* Height of collapsed tab bar */
+}
+
+/* Apply transition only when toggling the tab bar */
+.app-container.tab-transitioning {
   transition: padding-bottom 0.3s ease;
 }
 
@@ -540,12 +551,20 @@ header {
   align-items: center;
   padding: 0.5rem 1rem;
   background-color: var(--header-bg);
+
+  /* Prevent header shifts */
+  flex-shrink: 0;
+  min-height: 60px;
 }
 
 header h1 { font-size: var(--font-size-header-h1); }
 main {
   flex: 1;
   overflow: hidden;
+
+  /* Prevent content from shifting */
+  position: relative;
+  min-height: 0;
 }
 
 /* Button Styles */
@@ -594,7 +613,13 @@ main {
 }
 
 /* Split Pane Layout */
-.split-pane { display: flex; height: 100%; }
+.split-pane {
+  display: flex;
+  height: 100%;
+  /* Prevent flex children from shifting */
+  min-height: 0;
+  overflow: hidden;
+}
 
 
 
@@ -606,6 +631,10 @@ main {
   background-color: var(--bg-color);
   padding: 0.75rem;
   padding-bottom: 2rem; /* Extra padding to ensure content isn't hidden behind tab bar */
+
+  /* Prevent layout shifting */
+  min-width: 0;
+  width: 0;
 }
 
 .resizer {
@@ -620,6 +649,10 @@ main {
   align-items: center;
   gap: 0.5rem;
   border-bottom: 1px solid var(--border-color);
+
+  /* Stabilize container */
+  flex-shrink: 0;
+  min-height: 60px;
 }
 
 .dark-mode .search-container {
@@ -650,10 +683,13 @@ main {
 }
 
 /* Quotes List - Simplified 3-line layout */
-.quotes-list { 
-  flex: 1; 
-  overflow-y: auto; 
+.quotes-list {
+  flex: 1;
+  overflow-y: auto;
   background-color: var(--list-bg);
+
+  /* Stabilize scrollbar */
+  scrollbar-gutter: stable;
 }
 
 /* Dark mode specific */
@@ -772,9 +808,12 @@ main {
   background-color: var(--card-bg);
   border-right: none; /* Remove border */
   width: 320px; /* Fixed width matching screenshot */
+  flex-shrink: 0;
+  flex-grow: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative;
 }
 
 .dark-mode .left-pane {
@@ -892,6 +931,9 @@ main {
   /* Dynamic height based on content with max limit */
   min-height: 100px;
   max-height: 300px;
+
+  /* Stabilize scrollbar area */
+  scrollbar-gutter: stable;
 }
 
 /* Tasks card content - overrides general card-content */
@@ -2026,11 +2068,24 @@ textarea.inline-edit-input {
   border-top: 1px solid var(--border-color);
   z-index: 50;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+
+  /* Prevent the tab bar itself from shifting */
+  transform: translateZ(0);
 }
 
 /* Add transition only when not switching quotes */
 .tab-bar.animated {
   transition: height 0.3s ease;
+  transition-property: height;
+}
+
+/* Force hardware acceleration for smooth updates */
+.right-pane,
+.split-pane,
+.quote-detail,
+.quote-card {
+  transform: translateZ(0);
+  will-change: auto;
 }
 
 /* Resize handle for tab bar - now a clickable button */
@@ -2090,14 +2145,12 @@ textarea.inline-edit-input {
 /* Ensure tab bar doesn't cover main content */
 .app-container {
   padding-bottom: 40px; /* Height of collapsed tab bar */
-  transition: padding-bottom 0.3s ease;
   overflow: hidden; /* Prevent content from scrolling under tab bar */
 }
 
 /* Dynamic padding based on tab bar height */
 .app-container.tab-expanded {
   /* Padding will be set dynamically by JavaScript */
-  transition: padding-bottom 0.3s ease;
 }
 
 .tab-bar.collapsed {
@@ -2196,6 +2249,7 @@ textarea.inline-edit-input {
   border: none;
   background-color: white;
   border-radius: 0.25rem;
+  position: relative;
 }
 
 /* Empty state for iframes */
