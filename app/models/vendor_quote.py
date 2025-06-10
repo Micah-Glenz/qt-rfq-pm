@@ -53,10 +53,25 @@ class VendorQuote:
                 INSERT INTO vendor_quotes (quote_id, type, vendor, requested, entered, notes, date)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             ''', (quote_id, type, vendor, requested, entered, notes, date))
-            
+
             vendor_quote_id = cursor.lastrowid
             conn.commit()
-            return vendor_quote_id
+        new_values = {
+            "type": type,
+            "vendor": vendor,
+            "requested": bool(requested),
+            "entered": bool(entered),
+            "notes": notes,
+            "date": date,
+        }
+        Event.create(
+            quote_id,
+            f"Vendor quote created ({type} - {vendor})",
+            None,
+            json.dumps(new_values),
+        )
+
+        return vendor_quote_id
     
     @staticmethod
     def update(
@@ -144,9 +159,12 @@ class VendorQuote:
                 new_values["date"] = date
 
             if old_values:
+                new_type = type if type is not None else old_row["type"]
+                new_vendor = vendor if vendor is not None else old_row["vendor"]
+                description = f"Vendor quote updated ({new_type} - {new_vendor})"
                 Event.create(
                     old_row["quote_id"],
-                    "Vendor quote updated",
+                    description,
                     json.dumps(old_values),
                     json.dumps(new_values),
                 )
@@ -155,9 +173,22 @@ class VendorQuote:
     
     @staticmethod
     def delete(vendor_quote_id):
-        """Delete a vendor quote"""
+        """Delete a vendor quote and log the removal"""
         with DatabaseContext() as conn:
             cursor = conn.cursor()
+            cursor.execute(
+                'SELECT quote_id, type, vendor FROM vendor_quotes WHERE id = ?',
+                (vendor_quote_id,)
+            )
+            row = cursor.fetchone()
             cursor.execute('DELETE FROM vendor_quotes WHERE id = ?', (vendor_quote_id,))
             conn.commit()
-            return cursor.rowcount > 0
+            success = cursor.rowcount > 0
+
+        if success and row:
+            Event.create(
+                row['quote_id'],
+                f"Vendor quote deleted ({row['type']} - {row['vendor']})",
+            )
+
+        return success
