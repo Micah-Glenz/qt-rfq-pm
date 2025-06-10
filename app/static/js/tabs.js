@@ -77,14 +77,9 @@ const TabsModule = (function() {
         
         const tabBar = document.getElementById('tabBar');
         const appContainer = document.querySelector('.app-container');
-
-        // Animate padding change
-        appContainer.classList.add('tab-transitioning');
-
+        
         tabBar.style.height = newHeight + 'px';
         appContainer.style.paddingBottom = newHeight + 'px';
-
-        setTimeout(() => appContainer.classList.remove('tab-transitioning'), 300);
         
         // Save the current size index
         sessionStorage.setItem('tabBarSizeIndex', currentSizeIndex);
@@ -116,7 +111,6 @@ const TabsModule = (function() {
         
         // Add animation class for smooth transitions
         tabBar.classList.add('animated');
-        appContainer.classList.add('tab-transitioning');
         
         isExpanded = !isExpanded;
         
@@ -147,7 +141,6 @@ const TabsModule = (function() {
         // Remove animation class after transition
         setTimeout(() => {
             tabBar.classList.remove('animated');
-            appContainer.classList.remove('tab-transitioning');
         }, 300);
     }
     
