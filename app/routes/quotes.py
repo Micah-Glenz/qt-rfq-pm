@@ -61,10 +61,27 @@ def create_quote():
     
     try:
         # Create the quote with empty project fields
-        quote_id = Quote.create(customer, quote_no, description, sales_rep,
-                                None, None, None)
-        # Log creation event
-        Event.create(quote_id, 'Quote created')
+        quote_id = Quote.create(
+            customer,
+            quote_no,
+            description,
+            sales_rep,
+            None,
+            None,
+            None
+        )
+        # Log creation event with present state
+        Event.create(
+            quote_id,
+            'Quote created',
+            None,
+            json.dumps({
+                'customer': customer,
+                'quote_no': quote_no,
+                'description': description,
+                'sales_rep': sales_rep
+            })
+        )
         
         # If create_project flag is set, handle project creation
         if data.get('create_project') and sales_rep and data.get('spreadsheet_id'):

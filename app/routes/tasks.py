@@ -78,6 +78,7 @@ def toggle_task(task_id):
                         row['quote_id'],
                         'Task toggled',
                         json.dumps({'done': bool(row['done'])}),
+                        json.dumps({'done': bool(new_row['done'])})
                     )
                     return jsonify({
                         'message': 'Task status toggled',

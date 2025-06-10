@@ -67,16 +67,18 @@ const NotesModule = (function() {
     try {
       // Update note via API
       await API.updateNote(noteId, { content: newValue });
-      
+
       // Update the data attribute
       noteElement.dataset.original = newValue;
-      
+
       // Update in current quote data
       const currentQuote = QuotesModule.getCurrentQuote();
       const note = currentQuote.notes.find(n => n.id === noteId);
       if (note) {
         note.content = newValue;
       }
+
+      QuotesModule.refreshCurrentQuote();
     } catch (error) {
       // Revert to original value on error
       noteElement.innerText = originalValue;

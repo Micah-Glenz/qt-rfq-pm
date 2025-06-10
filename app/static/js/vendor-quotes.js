@@ -153,6 +153,8 @@ const VendorQuotesModule = (function() {
         
         // Update in current quote data
         vendorQuote.notes = newValue;
+
+        QuotesModule.refreshCurrentQuote();
       }
     } catch (error) {
       // Revert to original value on error
@@ -188,6 +190,8 @@ const VendorQuotesModule = (function() {
           }
         }
       }
+
+      QuotesModule.refreshCurrentQuote();
     } catch (error) {
       // Revert the checkbox if the update fails
       checkbox.checked = !requested;
@@ -222,6 +226,8 @@ const VendorQuotesModule = (function() {
           }
         }
       }
+
+      QuotesModule.refreshCurrentQuote();
     } catch (error) {
       // Revert the checkbox if the update fails
       checkbox.checked = !entered;

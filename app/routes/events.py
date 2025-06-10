@@ -16,10 +16,11 @@ def create_event():
     quote_id = data.get('quote_id')
     description = data.get('description', '')
     past = data.get('past')
+    present = data.get('present')
     if not quote_id or description is None:
         return jsonify({'error': 'Quote ID and description are required'}), 400
     try:
-        event_id = Event.create(quote_id, description, past)
+        event_id = Event.create(quote_id, description, past, present)
         return jsonify({'id': event_id, 'message': 'Event created successfully'}), 201
     except Exception as e:
         return jsonify({'error': str(e)}), 400

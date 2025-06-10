@@ -198,6 +198,7 @@ class Quote:
 
         if success and old_quote:
             old_values = {}
+            new_values = {}
             fields = [
                 ('customer', customer),
                 ('quote_no', quote_no),
@@ -212,12 +213,19 @@ class Quote:
             for field, new_val in fields:
                 if getattr(old_quote, field) != new_val:
                     old_values[field] = getattr(old_quote, field)
+                    new_values[field] = new_val
 
             if hidden is not None and old_quote.hidden != hidden:
                 old_values['hidden'] = old_quote.hidden
+                new_values['hidden'] = hidden
 
             if old_values:
-                Event.create(quote_id, 'Quote updated', json.dumps(old_values))
+                Event.create(
+                    quote_id,
+                    'Quote updated',
+                    json.dumps(old_values),
+                    json.dumps(new_values)
+                )
 
         return success
     
