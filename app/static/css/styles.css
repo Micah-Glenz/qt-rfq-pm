@@ -625,8 +625,9 @@ main {
 
 .right-pane {
   flex: 1;
-  /* Reserve scrollbar space to prevent layout shift */
-  overflow-y: scroll;
+  /* Always reserve space for the scrollbar to avoid horizontal and vertical shift */
+  overflow-y: auto;
+  scrollbar-gutter: stable;
   background-color: var(--bg-color);
   padding: 0.75rem;
   padding-bottom: 2rem; /* Extra padding to ensure content isn't hidden behind tab bar */
