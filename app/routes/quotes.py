@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.models import Quote, Task, VendorQuote, Note, Event
+import json
 
 from app.services.config_service import ConfigService
 
