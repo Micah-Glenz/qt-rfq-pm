@@ -196,6 +196,44 @@ const TasksModule = (function() {
   }
   
   /**
+   * Update task count statistics optimistically in the quotes list
+   * @param {number} quoteId - The quote ID
+   * @param {boolean} taskCompleted - Whether the task was completed (true) or uncompleted (false)
+   */
+  function updateTaskCountsOptimistically(quoteId, taskCompleted) {
+    // Find the quote item in the list and update its task count display
+    const quoteItem = document.querySelector(`.quote-item[data-id="${quoteId}"]`);
+    if (!quoteItem) return;
+    
+    const taskIcon = quoteItem.querySelector('.quote-icon[title="Tasks"]');
+    if (!taskIcon) return;
+    
+    // Extract current counts from the display text
+    const taskCountText = taskIcon.textContent.trim();
+    const match = taskCountText.match(/(\d+)\/(\d+)/);
+    if (!match) return;
+    
+    let completedTasks = parseInt(match[1], 10);
+    const totalTasks = parseInt(match[2], 10);
+    
+    // Update completed count based on the change
+    if (taskCompleted) {
+      completedTasks = Math.min(completedTasks + 1, totalTasks);
+    } else {
+      completedTasks = Math.max(completedTasks - 1, 0);
+    }
+    
+    // Update the display
+    taskIcon.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 11l3 3L22 4"></path>
+        <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+      </svg>
+      ${completedTasks}/${totalTasks}
+    `;
+  }
+  
+  /**
    * Handle task status change
    * @param {Event} event - Change event
    */
@@ -210,16 +248,28 @@ const TasksModule = (function() {
       taskRow.classList.toggle('completed', done);
     }
     
+    // Update task count statistics optimistically in the quotes list
+    const currentQuote = QuotesModule.getCurrentQuote();
+    if (currentQuote) {
+      updateTaskCountsOptimistically(currentQuote.id, done);
+    }
+    
     try {
       await API.updateTask(taskId, { done });
-      QuotesModule.refreshCurrentQuote();
       // No need for toast on simple checkbox toggle
+      // No full refresh needed - optimistic updates are already applied
     } catch (error) {
       // Revert the checkbox if the update fails
       checkbox.checked = !done;
       if (taskRow) {
         taskRow.classList.toggle('completed', !done);
       }
+      
+      // Revert the optimistic task count update
+      if (currentQuote) {
+        updateTaskCountsOptimistically(currentQuote.id, !done);
+      }
+      
       showToast(`Failed to update task: ${error.message}`, 'error');
     }
   }
