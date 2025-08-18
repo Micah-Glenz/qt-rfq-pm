@@ -2565,6 +2565,36 @@ textarea.inline-edit-input {
   to { transform: rotate(360deg); }
 }
 
+/* Quote detail updating state */
+.quote-detail.updating {
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+  position: relative;
+}
+
+.quote-detail.updating::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.1), transparent);
+  animation: shimmer 1.5s infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Dark mode updating state */
+.dark-mode .quote-detail.updating::before {
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.15), transparent);
+}
+
 .btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;

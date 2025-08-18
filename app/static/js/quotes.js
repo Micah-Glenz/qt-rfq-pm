@@ -77,6 +77,7 @@ const QuotesModule = (function() {
           <span class="quote-number">${quote.quote_no}</span>
           ${quote.sales_rep ? `<span class="quote-sales-rep">${quote.sales_rep}</span>` : ''}
         </div>
+        ${quote.description ? `<div class="quote-line-description">${quote.description}</div>` : ''}
         <div class="quote-line-3">
           ${quote.task_count > 0 ? `
             <span class="quote-icon" title="Tasks">
@@ -137,17 +138,19 @@ const QuotesModule = (function() {
     try {
       isLoading = true;
       
-      // Add loading state with transition
-      if (elements.quoteDetail.innerHTML) {
-        elements.quoteDetail.classList.add('loading');
-        
-        // Small delay for the fade out animation
-        await new Promise(resolve => setTimeout(resolve, 150));
-      } else {
+      // Check if we need to create the initial structure or just update content
+      const needsInitialRender = !elements.quoteDetail.innerHTML || elements.quoteDetail.innerHTML.includes('empty-state') || elements.quoteDetail.innerHTML.includes('Loading');
+      
+      if (needsInitialRender) {
+        // First time loading or error state - show loading message
         elements.quoteDetail.innerHTML = '<div class="loading">Loading quote details...</div>';
+      } else {
+        // Add subtle loading indicator for content updates
+        elements.quoteDetail.classList.add('updating');
       }
       
       const quote = await API.getQuoteById(quoteId);
+      const previousQuote = currentQuote;
       currentQuote = quote;
       
       // Log all Google-related data
@@ -169,16 +172,261 @@ const QuotesModule = (function() {
         item.classList.toggle('selected', parseInt(item.dataset.id, 10) === quoteId);
       });
       
-      renderQuoteDetail();
+      if (needsInitialRender) {
+        // Full render for initial load
+        renderQuoteDetail();
+      } else {
+        // Efficient update for quote switching
+        updateQuoteDetailContent(previousQuote, quote);
+      }
     } catch (error) {
       showToast(`Error loading quote details: ${error.message}`, 'error');
       elements.quoteDetail.innerHTML = '<div class="empty-state">Failed to load quote details</div>';
     } finally {
       isLoading = false;
       elements.quoteDetail.classList.remove('loading');
+      elements.quoteDetail.classList.remove('updating');
     }
   }
   
+  /**
+   * Update quote detail content without full re-render
+   * @param {Object} previousQuote - The previously loaded quote
+   * @param {Object} newQuote - The new quote to display
+   */
+  function updateQuoteDetailContent(previousQuote, newQuote) {
+    // Update quote information section
+    updateQuoteInfoSection(newQuote);
+    
+    // Update tasks section
+    const tasksHtml = TasksModule.renderTasks(newQuote.tasks);
+    const tasksList = document.getElementById('tasksList');
+    if (tasksList) {
+      tasksList.innerHTML = tasksHtml;
+      TasksModule.initTaskCheckboxes();
+    }
+    
+    // Update vendor quotes section
+    const vendorQuotesHtml = VendorQuotesModule.renderVendorQuotes(newQuote.vendor_quotes);
+    const vendorQuotesList = document.getElementById('vendorQuotesList');
+    if (vendorQuotesList) {
+      vendorQuotesList.innerHTML = vendorQuotesHtml;
+      VendorQuotesModule.initVendorQuoteControls();
+    }
+    
+    // Update notes section
+    const notesHtml = NotesModule.renderNotes(newQuote.notes);
+    const notesList = document.getElementById('notesList');
+    if (notesList) {
+      notesList.innerHTML = notesHtml;
+      NotesModule.initNoteControls();
+    }
+    
+    // Update events section
+    const eventsHtml = EventsModule.renderEvents(newQuote.events);
+    const eventsList = document.getElementById('eventsList');
+    if (eventsList) {
+      eventsList.innerHTML = eventsHtml;
+      EventsModule.initEventControls();
+    }
+    
+    // Update event listeners for the new quote
+    updateDetailEventListeners();
+  }
+  
+  /**
+   * Update the quote information section
+   * @param {Object} quote - The quote object
+   */
+  function updateQuoteInfoSection(quote) {
+    // Update quote number
+    const quoteNoDisplay = document.getElementById('quoteNoDisplay');
+    if (quoteNoDisplay) {
+      quoteNoDisplay.textContent = quote.quote_no;
+      quoteNoDisplay.dataset.original = quote.quote_no;
+    }
+    
+    // Update customer
+    const customerDisplay = document.getElementById('customerDisplay');
+    if (customerDisplay) {
+      customerDisplay.textContent = quote.customer;
+      customerDisplay.dataset.original = quote.customer;
+    }
+    
+    // Update sales rep
+    const salesRepDisplay = document.getElementById('salesRepDisplay');
+    if (salesRepDisplay) {
+      salesRepDisplay.textContent = quote.sales_rep || 'No sales rep assigned';
+      salesRepDisplay.dataset.original = quote.sales_rep || '';
+    }
+    
+    // Update description
+    const descriptionDisplay = document.getElementById('descriptionDisplay');
+    if (descriptionDisplay) {
+      descriptionDisplay.textContent = quote.description || 'No description';
+      descriptionDisplay.dataset.original = quote.description || '';
+    }
+    
+    // Update project links
+    updateProjectLinksSection(quote);
+    
+    // Update timestamps
+    updateTimestamps(quote);
+    
+    // Update hide button text
+    const hideBtn = document.getElementById('hideQuoteBtn');
+    if (hideBtn) {
+      hideBtn.textContent = quote.hidden ? 'Unhide' : 'Hide';
+    }
+  }
+  
+  /**
+   * Update project links section
+   * @param {Object} quote - The quote object
+   */
+  function updateProjectLinksSection(quote) {
+    const projectLinksContainer = document.querySelector('.project-links');
+    
+    // Check if any project links exist
+    const hasLinks = quote.project_sheet_url || quote.mpsf_link || quote.folder_link || quote.method_link;
+    
+    if (hasLinks) {
+      const projectLinksHTML = `
+        <div class="info-label">Project Links</div>
+        <div class="project-links-container">
+          ${quote.project_sheet_url ? `
+            <div class="project-link">
+              <a href="${quote.project_sheet_url}" target="_blank" class="link-button">
+                Open Project Sheet 📊
+              </a>
+            </div>
+          ` : ''}
+          ${quote.mpsf_link ? `
+            <div class="project-link">
+              <a href="${quote.mpsf_link}" target="_blank" class="link-button">
+                Open MPSF 📄
+              </a>
+            </div>
+          ` : ''}
+          ${quote.folder_link ? `
+            <div class="project-link">
+              <a href="${quote.folder_link}" target="_blank" class="link-button">
+                Open Drive Folder 📁
+              </a>
+            </div>
+          ` : ''}
+          ${quote.method_link ? `
+            <div class="project-link">
+              <a href="${quote.method_link}" target="_blank" class="link-button">
+                Open Method 🔧
+              </a>
+            </div>
+          ` : ''}
+        </div>
+      `;
+      
+      if (projectLinksContainer) {
+        projectLinksContainer.innerHTML = projectLinksHTML;
+        projectLinksContainer.style.display = 'block';
+      } else {
+        // Create project links section if it doesn't exist
+        const infoGroup = document.querySelector('.quote-info-dates');
+        if (infoGroup) {
+          const projectLinksDiv = document.createElement('div');
+          projectLinksDiv.className = 'project-links';
+          projectLinksDiv.style.marginTop = '1rem';
+          projectLinksDiv.style.paddingTop = '0.5rem';
+          projectLinksDiv.style.borderTop = '1px solid var(--border-color)';
+          projectLinksDiv.innerHTML = projectLinksHTML;
+          infoGroup.parentNode.insertBefore(projectLinksDiv, infoGroup.nextSibling);
+        }
+      }
+    } else if (projectLinksContainer) {
+      projectLinksContainer.style.display = 'none';
+    }
+    
+    // Update editable link fields
+    updateEditableLinkFields(quote);
+  }
+  
+  /**
+   * Update editable link fields
+   * @param {Object} quote - The quote object
+   */
+  function updateEditableLinkFields(quote) {
+    const linkFields = [
+      { id: 'projectSheetUrlDisplay', field: 'project_sheet_url', defaultText: 'No project sheet URL' },
+      { id: 'mpsfLinkDisplay', field: 'mpsf_link', defaultText: 'No MPSF link' },
+      { id: 'folderLinkDisplay', field: 'folder_link', defaultText: 'No folder link' },
+      { id: 'methodLinkDisplay', field: 'method_link', defaultText: 'No method link' }
+    ];
+    
+    linkFields.forEach(({ id, field, defaultText }) => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.textContent = quote[field] || defaultText;
+        element.dataset.original = quote[field] || '';
+      }
+    });
+  }
+  
+  /**
+   * Update timestamps section
+   * @param {Object} quote - The quote object
+   */
+  function updateTimestamps(quote) {
+    const infoGroups = document.querySelectorAll('.quote-info-dates .info-group');
+    if (infoGroups.length >= 2) {
+      // Update created timestamp
+      const createdValue = infoGroups[0].querySelector('.info-value');
+      if (createdValue) {
+        createdValue.textContent = formatDate(quote.created_at);
+      }
+      
+      // Update updated timestamp
+      const updatedValue = infoGroups[1].querySelector('.info-value');
+      if (updatedValue) {
+        updatedValue.textContent = formatDate(quote.updated_at);
+      }
+    }
+  }
+  
+  /**
+   * Update event listeners for detail page
+   */
+  function updateDetailEventListeners() {
+    // Remove existing listeners and add new ones
+    const addTaskBtn = document.getElementById('addTaskBtn');
+    const addVendorQuoteBtn = document.getElementById('addVendorQuoteBtn');
+    const addNoteBtn = document.getElementById('addNoteBtn');
+    const addEventBtn = document.getElementById('addEventBtn');
+    
+    if (addTaskBtn) {
+      addTaskBtn.replaceWith(addTaskBtn.cloneNode(true));
+      document.getElementById('addTaskBtn').addEventListener('click', () => TasksModule.openAddTaskModal(currentQuote.id));
+    }
+    
+    if (addVendorQuoteBtn) {
+      addVendorQuoteBtn.replaceWith(addVendorQuoteBtn.cloneNode(true));
+      document.getElementById('addVendorQuoteBtn').addEventListener('click', () => VendorQuotesModule.openAddVendorQuoteModal(currentQuote.id));
+    }
+    
+    if (addNoteBtn) {
+      addNoteBtn.replaceWith(addNoteBtn.cloneNode(true));
+      document.getElementById('addNoteBtn').addEventListener('click', () => NotesModule.openAddNoteModal(currentQuote.id));
+    }
+    
+    if (addEventBtn) {
+      addEventBtn.replaceWith(addEventBtn.cloneNode(true));
+      document.getElementById('addEventBtn').addEventListener('click', () => EventsModule.openAddEventModal(currentQuote.id));
+    }
+    
+    // Re-add click-to-copy functionality for view mode
+    document.querySelectorAll('.clickable-copy').forEach(element => {
+      element.addEventListener('click', handleClickToCopy);
+    });
+  }
+
   /**
    * Render quote details
    */
