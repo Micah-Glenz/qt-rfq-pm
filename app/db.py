@@ -3,7 +3,17 @@ import os
 from sqlite3 import Error
 from datetime import datetime
 
-DATABASE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'quote_tracker.db')
+# Default database path for local development
+default_db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'quote_tracker.db')
+
+# Use DATABASE_PATH from environment variable if available, otherwise use default.
+# On Render, you'll set DATABASE_PATH to something like /var/data/quote_tracker.db
+DATABASE_PATH = os.environ.get('DATABASE_PATH', default_db_path)
+
+# Ensure the directory for the database exists, especially for persistent disks
+db_dir = os.path.dirname(DATABASE_PATH)
+if not os.path.exists(db_dir):
+    os.makedirs(db_dir)
 
 class DatabaseManager:
     @staticmethod
