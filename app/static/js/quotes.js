@@ -61,23 +61,92 @@ const QuotesModule = (function() {
   }
   
   /**
+   * Update header status indicator
+   */
+  function updateHeaderStatus() {
+    const statusIndicator = document.getElementById('statusIndicator');
+    const statusText = document.getElementById('statusText');
+    
+    if (!statusIndicator || !statusText || quotesList.length === 0) {
+      if (statusText) statusText.textContent = 'No quotes';
+      return;
+    }
+    
+    // Calculate quote completion statistics
+    let totalQuotes = quotesList.length;
+    let finishedQuotes = 0;
+    let quotesWithTasks = 0;
+    
+    quotesList.forEach(quote => {
+      if (quote.task_count > 0) {
+        quotesWithTasks++;
+        // A quote is finished if all its tasks are completed
+        if (quote.completed_tasks === quote.task_count) {
+          finishedQuotes++;
+        }
+      }
+    });
+    
+    // Determine status message and class
+    let statusClass = 'info';
+    let statusMessage = '';
+    
+    if (quotesWithTasks === 0) {
+      statusMessage = `${totalQuotes} quotes`;
+      statusClass = 'info';
+    } else {
+      const notFinishedQuotes = quotesWithTasks - finishedQuotes;
+      
+      if (finishedQuotes === quotesWithTasks) {
+        statusMessage = `All quotes finished (${finishedQuotes}/${quotesWithTasks})`;
+        statusClass = 'success';
+      } else {
+        statusMessage = `${finishedQuotes} finished / ${notFinishedQuotes} not finished`;
+        statusClass = finishedQuotes > notFinishedQuotes ? 'success' : notFinishedQuotes > finishedQuotes * 2 ? 'warning' : 'info';
+      }
+    }
+    
+    // Update UI
+    statusIndicator.className = `status-indicator ${statusClass}`;
+    statusText.textContent = statusMessage;
+  }
+
+  /**
    * Render the quotes list
    */
   function renderQuotesList() {
     if (quotesList.length === 0) {
       elements.quotesList.innerHTML = '<div class="empty-state">No quotes found</div>';
+      updateHeaderStatus();
       return;
     }
     
-    elements.quotesList.innerHTML = quotesList.map(quote => `
+    elements.quotesList.innerHTML = quotesList.map(quote => {
+      // Determine task completion status
+      const hasAllTasksCompleted = quote.task_count > 0 && quote.completed_tasks === quote.task_count;
+      const hasAnyTasks = quote.task_count > 0;
+      
+      return `
       <div class="quote-item ${currentQuote && quote.id === currentQuote.id ? 'selected' : ''} ${quote.hidden ? 'hidden' : ''}" 
            data-id="${quote.id}">
-        <div class="quote-line-1">${quote.customer}</div>
-        <div class="quote-line-2">
-          <span class="quote-number">${quote.quote_no}</span>
-          ${quote.sales_rep ? `<span class="quote-sales-rep">${quote.sales_rep}</span>` : ''}
+        <div class="quote-customer-row">
+          <div class="quote-line-1">${quote.customer}</div>
+          <div class="quote-completion-status">
+            ${hasAnyTasks ? `
+              <div class="completion-indicator ${hasAllTasksCompleted ? 'all-completed' : 'incomplete'}" 
+                   title="${hasAllTasksCompleted ? 'All tasks completed' : 'Tasks remaining'}">
+                <div class="completion-dot"></div>
+              </div>
+            ` : ''}
+          </div>
         </div>
-        ${quote.description ? `<div class="quote-line-description">${quote.description}</div>` : ''}
+        <div class="quote-details">
+          <div class="quote-line-2">
+            <span class="quote-number">${quote.quote_no}</span>
+            ${quote.sales_rep ? `<span class="quote-sales-rep">${quote.sales_rep}</span>` : ''}
+          </div>
+          ${quote.description ? `<div class="quote-line-description">${quote.description}</div>` : ''}
+        </div>
         <div class="quote-line-3">
           ${quote.task_count > 0 ? `
             <span class="quote-icon" title="Tasks">
@@ -111,8 +180,11 @@ const QuotesModule = (function() {
             </span>
           ` : ''}
         </div>
+          </div>
+        </div>
       </div>
-    `).join('');
+    `;
+    }).join('');
     
     // Add click event listeners
     document.querySelectorAll('.quote-item').forEach(item => {
@@ -121,6 +193,9 @@ const QuotesModule = (function() {
         loadQuoteDetail(parseInt(item.dataset.id, 10));
       });
     });
+    
+    // Update header status
+    updateHeaderStatus();
   }
   
   /**
@@ -453,7 +528,12 @@ const QuotesModule = (function() {
     `;
     
     elements.quoteDetail.innerHTML = `
-      <div class="left-column">
+      <div class="quote-title">
+        <h2 class="quote-title-main">${currentQuote.customer}</h2>
+        ${currentQuote.description ? `<p class="quote-title-description">${currentQuote.description}</p>` : ''}
+      </div>
+      <div class="quote-columns-container">
+        <div class="left-column">
         <!-- Quote Info Card -->
         <div class="quote-card details-card">
           <div class="card-header">
@@ -631,6 +711,7 @@ const QuotesModule = (function() {
           </div>
         </div>
 
+      </div>
       </div>
     `;
     

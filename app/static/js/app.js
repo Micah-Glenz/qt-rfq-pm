@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
   SettingsModule.init();
   QuotesModule.init();
   TabsModule.init();
+  DashboardModule.init();
   
   // Initialize dropdown in the new quote modal
   const salesRepDropdown = document.getElementById('salesRepDropdown');

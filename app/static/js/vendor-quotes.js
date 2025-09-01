@@ -154,12 +154,59 @@ const VendorQuotesModule = (function() {
         // Update in current quote data
         vendorQuote.notes = newValue;
 
-        QuotesModule.refreshCurrentQuote();
+        // No full refresh needed - optimistic update already applied
       }
     } catch (error) {
       // Revert to original value on error
       noteElement.innerText = originalValue;
       showToast(`Failed to update notes: ${error.message}`, 'error');
+    }
+  }
+  
+  /**
+   * Update vendor quote completion statistics optimistically in the quotes list
+   * @param {number} quoteId - The quote ID
+   * @param {number} vendorQuoteId - The vendor quote ID that changed
+   * @param {boolean} isFullyComplete - Whether the vendor quote is now fully complete
+   */
+  function updateVendorQuoteCompletionOptimistically(quoteId, vendorQuoteId, isFullyComplete) {
+    // Find the quote item in the list
+    const quoteItem = document.querySelector(`.quote-item[data-id="${quoteId}"]`);
+    if (!quoteItem) return;
+    
+    // Get the current quote data to calculate completion
+    const currentQuote = QuotesModule.getCurrentQuote();
+    if (!currentQuote) return;
+    
+    // Find the vendor quote and update its completion status
+    const vendorQuote = currentQuote.vendor_quotes.find(vq => vq.id === vendorQuoteId);
+    if (!vendorQuote) return;
+    
+    // Calculate how many vendor quotes are fully complete
+    let completedCount = 0;
+    currentQuote.vendor_quotes.forEach(vq => {
+      if (vq.id === vendorQuoteId) {
+        // Use the new completion status for this vendor quote
+        if (isFullyComplete) completedCount++;
+      } else {
+        // Use existing status for other vendor quotes
+        if (vq.requested && vq.entered) completedCount++;
+      }
+    });
+    
+    const totalCount = currentQuote.vendor_quotes.length;
+    
+    // Update the vendor quote icon display
+    const vendorQuoteIcon = quoteItem.querySelector('.quote-icon[title="Vendor Quotes"]');
+    if (vendorQuoteIcon) {
+      vendorQuoteIcon.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+          <line x1="12" y1="22.08" x2="12" y2="12"></line>
+        </svg>
+        ${completedCount}/${totalCount}
+      `;
     }
   }
   
@@ -172,29 +219,51 @@ const VendorQuotesModule = (function() {
     const vendorQuoteId = parseInt(checkbox.dataset.id, 10);
     const requested = checkbox.checked;
     
+    // Update UI immediately for responsive feel
+    const currentQuote = QuotesModule.getCurrentQuote();
+    let vendorQuote = null;
+    
+    if (currentQuote) {
+      vendorQuote = currentQuote.vendor_quotes.find(vq => vq.id === vendorQuoteId);
+      if (vendorQuote) {
+        // Update the data optimistically
+        vendorQuote.requested = requested;
+        
+        // Update the UI to reflect completion status
+        const item = checkbox.closest('.vendor-quote-item');
+        if (item) {
+          const isFullyComplete = vendorQuote.requested && vendorQuote.entered;
+          item.classList.toggle('fully-complete', isFullyComplete);
+        }
+        
+        // Update vendor quote counts optimistically in the quotes list
+        updateVendorQuoteCompletionOptimistically(currentQuote.id, vendorQuoteId, vendorQuote.requested && vendorQuote.entered);
+      }
+    }
+    
     try {
       await API.updateVendorQuote(vendorQuoteId, { requested });
-      
-      // Update the current quote data
-      const currentQuote = QuotesModule.getCurrentQuote();
-      if (currentQuote) {
-        const vendorQuote = currentQuote.vendor_quotes.find(vq => vq.id === vendorQuoteId);
-        if (vendorQuote) {
-          vendorQuote.requested = requested;
-          
-          // Update the UI to reflect completion status
-          const item = checkbox.closest('.vendor-quote-item');
-          if (item) {
-            const isFullyComplete = vendorQuote.requested && vendorQuote.entered;
-            item.classList.toggle('fully-complete', isFullyComplete);
-          }
-        }
-      }
-
-      QuotesModule.refreshCurrentQuote();
+      // No need for toast on simple checkbox toggle
+      // No full refresh needed - optimistic updates are already applied
     } catch (error) {
-      // Revert the checkbox if the update fails
+      // Revert the checkbox and UI if the update fails
       checkbox.checked = !requested;
+      
+      if (vendorQuote) {
+        // Revert the data
+        vendorQuote.requested = !requested;
+        
+        // Revert the UI
+        const item = checkbox.closest('.vendor-quote-item');
+        if (item) {
+          const isFullyComplete = vendorQuote.requested && vendorQuote.entered;
+          item.classList.toggle('fully-complete', isFullyComplete);
+        }
+        
+        // Revert the optimistic update in the quotes list
+        updateVendorQuoteCompletionOptimistically(currentQuote.id, vendorQuoteId, vendorQuote.requested && vendorQuote.entered);
+      }
+      
       showToast(`Failed to update vendor quote: ${error.message}`, 'error');
     }
   }
@@ -208,29 +277,51 @@ const VendorQuotesModule = (function() {
     const vendorQuoteId = parseInt(checkbox.dataset.id, 10);
     const entered = checkbox.checked;
     
+    // Update UI immediately for responsive feel
+    const currentQuote = QuotesModule.getCurrentQuote();
+    let vendorQuote = null;
+    
+    if (currentQuote) {
+      vendorQuote = currentQuote.vendor_quotes.find(vq => vq.id === vendorQuoteId);
+      if (vendorQuote) {
+        // Update the data optimistically
+        vendorQuote.entered = entered;
+        
+        // Update the UI to reflect completion status
+        const item = checkbox.closest('.vendor-quote-item');
+        if (item) {
+          const isFullyComplete = vendorQuote.requested && vendorQuote.entered;
+          item.classList.toggle('fully-complete', isFullyComplete);
+        }
+        
+        // Update vendor quote counts optimistically in the quotes list
+        updateVendorQuoteCompletionOptimistically(currentQuote.id, vendorQuoteId, vendorQuote.requested && vendorQuote.entered);
+      }
+    }
+    
     try {
       await API.updateVendorQuote(vendorQuoteId, { entered });
-      
-      // Update the current quote data
-      const currentQuote = QuotesModule.getCurrentQuote();
-      if (currentQuote) {
-        const vendorQuote = currentQuote.vendor_quotes.find(vq => vq.id === vendorQuoteId);
-        if (vendorQuote) {
-          vendorQuote.entered = entered;
-          
-          // Update the UI to reflect completion status
-          const item = checkbox.closest('.vendor-quote-item');
-          if (item) {
-            const isFullyComplete = vendorQuote.requested && vendorQuote.entered;
-            item.classList.toggle('fully-complete', isFullyComplete);
-          }
-        }
-      }
-
-      QuotesModule.refreshCurrentQuote();
+      // No need for toast on simple checkbox toggle
+      // No full refresh needed - optimistic updates are already applied
     } catch (error) {
-      // Revert the checkbox if the update fails
+      // Revert the checkbox and UI if the update fails
       checkbox.checked = !entered;
+      
+      if (vendorQuote) {
+        // Revert the data
+        vendorQuote.entered = !entered;
+        
+        // Revert the UI
+        const item = checkbox.closest('.vendor-quote-item');
+        if (item) {
+          const isFullyComplete = vendorQuote.requested && vendorQuote.entered;
+          item.classList.toggle('fully-complete', isFullyComplete);
+        }
+        
+        // Revert the optimistic update in the quotes list
+        updateVendorQuoteCompletionOptimistically(currentQuote.id, vendorQuoteId, vendorQuote.requested && vendorQuote.entered);
+      }
+      
       showToast(`Failed to update vendor quote: ${error.message}`, 'error');
     }
   }

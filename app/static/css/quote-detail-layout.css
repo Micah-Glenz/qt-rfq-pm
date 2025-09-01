@@ -1,9 +1,15 @@
-/* Layout with independent columns */
+/* Layout with title row and columns below */
 .quote-detail {
   display: flex;
+  flex-direction: column;
   gap: 0.75rem;
   width: 100%;
   max-width: 1200px;
+}
+
+.quote-columns-container {
+  display: flex;
+  gap: 0.75rem;
   align-items: flex-start;
 }
 
