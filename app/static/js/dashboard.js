@@ -201,16 +201,23 @@ const DashboardModule = (function() {
         quote.completed_tasks === quote.task_count;
       const hasAnyTasks = quote.task_count > 0;
       
+      // Format the date if available
+      const updatedDate = quote.updated_at ? new Date(quote.updated_at).toLocaleDateString() : '';
+      
       html += `
         <div class="recent-quote-item" onclick="QuotesModule.loadQuoteDetail(${quote.id}); DashboardModule.closeDashboard();">
           ${hasAnyTasks ? `
             <div class="recent-quote-completion ${hasAllTasksCompleted ? 'completed' : 'incomplete'}"></div>
-          ` : '<div style="width: 12px;"></div>'}
+          ` : '<div style="width: 14px;"></div>'}
           <div class="recent-quote-info">
             <div class="recent-quote-customer">${quote.customer}</div>
-            <div class="recent-quote-number">${quote.quote_no}${quote.sales_rep ? ' • ' + quote.sales_rep : ''}</div>
+            <div class="recent-quote-number">${quote.quote_no}${quote.sales_rep ? ' • ' + quote.sales_rep : ''}${updatedDate ? ' • ' + updatedDate : ''}</div>
+            ${quote.description ? `<div style="font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: 0.25rem;">${quote.description}</div>` : ''}
           </div>
-          ${hasAnyTasks ? `<div style="font-size: var(--font-size-xs); color: var(--text-tertiary);">${quote.completed_tasks}/${quote.task_count}</div>` : ''}
+          <div class="recent-quote-stats">
+            ${hasAnyTasks ? `<div style="font-size: var(--font-size-sm); font-weight: 600; color: var(--text-color);">${quote.completed_tasks}/${quote.task_count}</div>` : ''}
+            ${quote.vendor_quote_count > 0 ? `<div style="font-size: var(--font-size-xs); color: var(--text-secondary);">${quote.vendor_quote_count} vendor${quote.vendor_quote_count !== 1 ? 's' : ''}</div>` : ''}
+          </div>
         </div>
       `;
     });

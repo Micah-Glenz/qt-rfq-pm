@@ -95,14 +95,12 @@ const QuotesModule = (function() {
       statusMessage = `${totalQuotes} quotes`;
       statusClass = 'info';
     } else {
-      const notFinishedQuotes = quotesWithTasks - finishedQuotes;
-      
       if (finishedQuotes === quotesWithTasks) {
         statusMessage = `All quotes finished (${finishedQuotes}/${quotesWithTasks})`;
         statusClass = 'success';
       } else {
-        statusMessage = `${finishedQuotes} finished / ${notFinishedQuotes} not finished`;
-        statusClass = finishedQuotes > notFinishedQuotes ? 'success' : notFinishedQuotes > finishedQuotes * 2 ? 'warning' : 'info';
+        statusMessage = `${finishedQuotes} finished / ${quotesWithTasks} total`;
+        statusClass = finishedQuotes > quotesWithTasks / 2 ? 'success' : finishedQuotes < quotesWithTasks / 3 ? 'warning' : 'info';
       }
     }
     
