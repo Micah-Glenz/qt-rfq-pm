@@ -201,13 +201,22 @@ const DashboardModule = (function() {
         quote.completed_tasks === quote.task_count;
       const hasAnyTasks = quote.task_count > 0;
       
+      // Determine vendor quote completion status
+      const hasAllVendorQuotesCompleted = quote.vendor_quote_count > 0 && quote.completed_vendor_quotes === quote.vendor_quote_count;
+      const hasAnyVendorQuotes = quote.vendor_quote_count > 0;
+      
+      // Overall completion: all tasks AND all vendor quotes must be complete
+      const isFullyComplete = (hasAnyTasks || hasAnyVendorQuotes) && 
+                              (!hasAnyTasks || hasAllTasksCompleted) && 
+                              (!hasAnyVendorQuotes || hasAllVendorQuotesCompleted);
+      
       // Format the date if available
       const updatedDate = quote.updated_at ? new Date(quote.updated_at).toLocaleDateString() : '';
       
       html += `
         <div class="recent-quote-item" onclick="QuotesModule.loadQuoteDetail(${quote.id}); DashboardModule.closeDashboard();">
-          ${hasAnyTasks ? `
-            <div class="recent-quote-completion ${hasAllTasksCompleted ? 'completed' : 'incomplete'}"></div>
+          ${(hasAnyTasks || hasAnyVendorQuotes) ? `
+            <div class="recent-quote-completion ${isFullyComplete ? 'completed' : 'incomplete'}"></div>
           ` : '<div style="width: 14px;"></div>'}
           <div class="recent-quote-info">
             <div class="recent-quote-customer">${quote.customer}</div>

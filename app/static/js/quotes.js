@@ -78,10 +78,17 @@ const QuotesModule = (function() {
     let quotesWithTasks = 0;
     
     quotesList.forEach(quote => {
-      if (quote.task_count > 0) {
+      const hasAnyTasks = quote.task_count > 0;
+      const hasAnyVendorQuotes = quote.vendor_quote_count > 0;
+      
+      if (hasAnyTasks || hasAnyVendorQuotes) {
         quotesWithTasks++;
-        // A quote is finished if all its tasks are completed
-        if (quote.completed_tasks === quote.task_count) {
+        
+        // Determine if quote is fully finished (all tasks AND all vendor quotes completed)
+        const hasAllTasksCompleted = !hasAnyTasks || quote.completed_tasks === quote.task_count;
+        const hasAllVendorQuotesCompleted = !hasAnyVendorQuotes || quote.completed_vendor_quotes === quote.vendor_quote_count;
+        
+        if (hasAllTasksCompleted && hasAllVendorQuotesCompleted) {
           finishedQuotes++;
         }
       }
@@ -124,15 +131,24 @@ const QuotesModule = (function() {
       const hasAllTasksCompleted = quote.task_count > 0 && quote.completed_tasks === quote.task_count;
       const hasAnyTasks = quote.task_count > 0;
       
+      // Determine vendor quote completion status
+      const hasAllVendorQuotesCompleted = quote.vendor_quote_count > 0 && quote.completed_vendor_quotes === quote.vendor_quote_count;
+      const hasAnyVendorQuotes = quote.vendor_quote_count > 0;
+      
+      // Overall completion: all tasks AND all vendor quotes must be complete
+      const isFullyComplete = (hasAnyTasks || hasAnyVendorQuotes) && 
+                              (!hasAnyTasks || hasAllTasksCompleted) && 
+                              (!hasAnyVendorQuotes || hasAllVendorQuotesCompleted);
+      
       return `
       <div class="quote-item ${currentQuote && quote.id === currentQuote.id ? 'selected' : ''} ${quote.hidden ? 'hidden' : ''}" 
            data-id="${quote.id}">
         <div class="quote-customer-row">
           <div class="quote-line-1">${quote.customer}</div>
           <div class="quote-completion-status">
-            ${hasAnyTasks ? `
-              <div class="completion-indicator ${hasAllTasksCompleted ? 'all-completed' : 'incomplete'}" 
-                   title="${hasAllTasksCompleted ? 'All tasks completed' : 'Tasks remaining'}">
+            ${(hasAnyTasks || hasAnyVendorQuotes) ? `
+              <div class="completion-indicator ${isFullyComplete ? 'all-completed' : 'incomplete'}" 
+                   title="${isFullyComplete ? 'All tasks and vendor quotes completed' : 'Tasks or vendor quotes remaining'}">
                 <div class="completion-dot"></div>
               </div>
             ` : ''}
