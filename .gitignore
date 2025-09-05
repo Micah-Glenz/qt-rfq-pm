@@ -128,3 +128,7 @@ dmypy.json
 cython_debug/
 
 # Application-specific
+# Database backups from merge process
+*copy.db
+*_old.db
+*_backup_*
