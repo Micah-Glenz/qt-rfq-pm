@@ -15,7 +15,9 @@ const QuotesModule = (function() {
     clearSearchBtn: document.getElementById('clearSearchBtn'),
     newQuoteBtn: document.getElementById('newQuoteBtn'),
     newQuoteModal: document.getElementById('newQuoteModal'),
-    newQuoteForm: document.getElementById('newQuoteForm')
+    newQuoteForm: document.getElementById('newQuoteForm'),
+    editQuoteModal: document.getElementById('editQuoteModal'),
+    editQuoteForm: document.getElementById('editQuoteForm')
   };
   
   /**
@@ -31,6 +33,11 @@ const QuotesModule = (function() {
     elements.clearSearchBtn.addEventListener('click', clearSearch);
     elements.newQuoteBtn.addEventListener('click', openNewQuoteModal);
     elements.newQuoteForm.addEventListener('submit', handleNewQuoteSubmit);
+
+    // Add edit modal event listener
+    if (elements.editQuoteForm) {
+      elements.editQuoteForm.addEventListener('submit', handleEditQuoteSubmit);
+    }
     
     // Close modal handlers
     document.querySelectorAll('.close-modal, .cancel-modal').forEach(el => {
@@ -495,11 +502,7 @@ const QuotesModule = (function() {
       document.getElementById('addTaskBtn').addEventListener('click', () => TasksModule.openAddTaskModal(currentQuote.id));
     }
     
-    if (addVendorQuoteBtn) {
-      addVendorQuoteBtn.replaceWith(addVendorQuoteBtn.cloneNode(true));
-      document.getElementById('addVendorQuoteBtn').addEventListener('click', () => VendorQuotesModule.openAddVendorQuoteModal(currentQuote.id));
-    }
-    
+        
     if (addNoteBtn) {
       addNoteBtn.replaceWith(addNoteBtn.cloneNode(true));
       document.getElementById('addNoteBtn').addEventListener('click', () => NotesModule.openAddNoteModal(currentQuote.id));
@@ -542,218 +545,101 @@ const QuotesModule = (function() {
     `;
     
     elements.quoteDetail.innerHTML = `
-      <div class="quote-title">
-        <h2 class="quote-title-main">${currentQuote.customer}</h2>
-        ${currentQuote.description ? `<p class="quote-title-description">${currentQuote.description}</p>` : ''}
-      </div>
-      <div class="quote-columns-container">
-        <div class="left-column">
-        <!-- Quote Info Card -->
-        <div class="quote-card details-card">
-          <div class="card-header">
-            <h3>Details</h3>
-            <div class="quote-actions">
-              <button class="btn small" id="editModeBtn">Edit</button>
-              <button class="btn small" id="hideQuoteBtn" style="display: none;">${currentQuote.hidden ? 'Unhide' : 'Hide'}</button>
-              <button class="btn small primary" id="saveQuoteBtn" style="display: none;">Save</button>
-              <button class="btn small" id="cancelEditBtn" style="display: none;">Cancel</button>
-            </div>
-          </div>
-          
-          <div class="card-content" id="quoteInfoCardContent">
-            <div class="quote-info">
-              <div class="info-group">
-                <div class="info-label">Quote Number</div>
-                <div class="info-value">
-                  <span id="quoteNoDisplay" class="editable clickable-copy" data-field="quote_no" data-original="${currentQuote.quote_no}" title="Click to copy">${currentQuote.quote_no}</span>
-                </div>
-              </div>
-              <div class="info-group">
-                <div class="info-label">Customer</div>
-                <div class="info-value">
-                  <span id="customerDisplay" class="editable clickable-copy" data-field="customer" data-original="${currentQuote.customer}" title="Click to copy">${currentQuote.customer}</span>
-                </div>
-              </div>
-              <div class="info-group">
-                <div class="info-label">Sales Rep</div>
-                <div class="info-value">
-                  <span id="salesRepDisplay" class="editable clickable-copy" data-field="sales_rep" data-original="${currentQuote.sales_rep || ''}" title="Click to copy">${currentQuote.sales_rep || 'No sales rep assigned'}</span>
-                </div>
+      <div class="quote-detail-main">
+        <!-- Details Section (primary content) -->
+        <div class="details-section">
+          <!-- Quote Info Section -->
+          <div class="compact-section">
+            <div class="compact-header">
+              <h3 class="compact-title">Quote Details</h3>
+              <div class="quote-actions">
+                <button class="compact-action-btn" id="editModeBtn">Edit</button>
+                <button class="compact-action-btn" id="hideQuoteBtn" style="display: none;">${currentQuote.hidden ? 'Unhide' : 'Hide'}</button>
+                <button class="compact-action-btn primary" id="saveQuoteBtn" style="display: none;">Save</button>
+                <button class="compact-action-btn" id="cancelEditBtn" style="display: none;">Cancel</button>
               </div>
             </div>
-            
-            <div class="info-group" style="margin-top: 0.5rem;">
-              <div class="info-label">Description</div>
-              <div class="info-value">
-                <span id="descriptionDisplay" class="editable clickable-copy" data-field="description" data-original="${currentQuote.description || ''}" title="Click to copy">${currentQuote.description || 'No description'}</span>
+            <div class="compact-content details-content">
+              <div class="compact-info-group">
+                <div class="compact-info-label">Quote #</div>
+                <div class="compact-info-value editable clickable-copy" data-field="quote_no" data-original="${currentQuote.quote_no}" title="Click to copy">${currentQuote.quote_no}</div>
               </div>
-            </div>
-            
-            <div class="quote-info-dates" style="margin-top: 0.75rem;">
-              <div class="info-group">
-                <div class="info-label">Created</div>
-                <div class="info-value">${formatDate(currentQuote.created_at)}</div>
+              <div class="compact-info-group">
+                <div class="compact-info-label">Customer</div>
+                <div class="compact-info-value editable clickable-copy" data-field="customer" data-original="${currentQuote.customer}" title="Click to copy">${currentQuote.customer}</div>
               </div>
-              <div class="info-group">
-                <div class="info-label">Last Updated</div>
-                <div class="info-value">${formatDate(currentQuote.updated_at)}</div>
+              <div class="compact-info-group">
+                <div class="compact-info-label">Sales Rep</div>
+                <div class="compact-info-value editable clickable-copy" data-field="sales_rep" data-original="${currentQuote.sales_rep || ''}" title="Click to copy">${currentQuote.sales_rep || 'No sales rep assigned'}</div>
               </div>
-            </div>
-            
-            <!-- Project links section - shown in both view and edit mode -->
-            ${currentQuote.project_sheet_url || currentQuote.mpsf_link || currentQuote.folder_link || currentQuote.method_link ? `
-              <div class="project-links" style="margin-top: 1rem; padding-top: 0.5rem; border-top: 1px solid var(--border-color);">
-                <div class="info-label">Project Links</div>
-                <div class="project-links-container">
-                  ${currentQuote.project_sheet_url ? `
-                    <div class="project-link">
-                      <a href="${currentQuote.project_sheet_url}" target="_blank" class="link-button">
-                        Open Project Sheet 📊
-                      </a>
-                    </div>
-                  ` : ''}
-                  ${currentQuote.mpsf_link ? `
-                    <div class="project-link">
-                      <a href="${currentQuote.mpsf_link}" target="_blank" class="link-button">
-                        Open MPSF 📄
-                      </a>
-                    </div>
-                  ` : ''}
-                  ${currentQuote.folder_link ? `
-                    <div class="project-link">
-                      <a href="${currentQuote.folder_link}" target="_blank" class="link-button">
-                        Open Drive Folder 📁
-                      </a>
-                    </div>
-                  ` : ''}
-                  ${currentQuote.method_link ? `
-                    <div class="project-link">
-                      <a href="${currentQuote.method_link}" target="_blank" class="link-button">
-                        Open Method 🔧
-                      </a>
-                    </div>
-                  ` : ''}
+              <div class="compact-info-group">
+                <div class="compact-info-label">Description</div>
+                <div class="compact-info-value editable clickable-copy" data-field="description" data-original="${currentQuote.description || ''}" title="Click to copy">${currentQuote.description || 'No description'}</div>
+              </div>
+              <div class="compact-info-group">
+                <div class="compact-info-label">Created</div>
+                <div class="compact-info-value">${formatDate(currentQuote.created_at)}</div>
+              </div>
+              <div class="compact-info-group">
+                <div class="compact-info-label">Updated</div>
+                <div class="compact-info-value">${formatDate(currentQuote.updated_at)}</div>
+              </div>
+
+              <!-- Project links section -->
+              ${currentQuote.project_sheet_url || currentQuote.mpsf_link || currentQuote.folder_link || currentQuote.method_link ? `
+                <div class="compact-project-links">
+                  <div class="compact-project-links-title">Project Links</div>
+                  ${currentQuote.project_sheet_url ? `<a href="${currentQuote.project_sheet_url}" target="_blank" class="compact-link-button">📊 Project Sheet</a>` : ''}
+                  ${currentQuote.mpsf_link ? `<a href="${currentQuote.mpsf_link}" target="_blank" class="compact-link-button">📄 MPSF</a>` : ''}
+                  ${currentQuote.folder_link ? `<a href="${currentQuote.folder_link}" target="_blank" class="compact-link-button">📁 Drive Folder</a>` : ''}
+                  ${currentQuote.method_link ? `<a href="${currentQuote.method_link}" target="_blank" class="compact-link-button">🔧 Method</a>` : ''}
                 </div>
-              </div>
-            ` : ''}
-            
-            <!-- Editable link fields - hidden by default, shown in edit mode -->
-            <div class="google-links-edit" style="margin-top: 1rem; display: none; flex-direction: column; gap: 0.5rem;">
-              <div class="info-group">
-                <div class="info-label">Project Sheet URL</div>
-                <div class="info-value">
-                  <span id="projectSheetUrlDisplay" class="editable" data-field="project_sheet_url" data-original="${currentQuote.project_sheet_url || ''}">${currentQuote.project_sheet_url || 'No project sheet URL'}</span>
-                </div>
-              </div>
-              <div class="info-group">
-                <div class="info-label">MPSF Link</div>
-                <div class="info-value">
-                  <span id="mpsfLinkDisplay" class="editable" data-field="mpsf_link" data-original="${currentQuote.mpsf_link || ''}">${currentQuote.mpsf_link || 'No MPSF link'}</span>
-                </div>
-              </div>
-              <div class="info-group">
-                <div class="info-label">Drive Folder Link</div>
-                <div class="info-value">
-                  <span id="folderLinkDisplay" class="editable" data-field="folder_link" data-original="${currentQuote.folder_link || ''}">${currentQuote.folder_link || 'No folder link'}</span>
-                </div>
-              </div>
-              <div class="info-group">
-                <div class="info-label">Method Link</div>
-                <div class="info-value">
-                  <span id="methodLinkDisplay" class="editable" data-field="method_link" data-original="${currentQuote.method_link || ''}">${currentQuote.method_link || 'No method link'}</span>
-                </div>
-              </div>
+              ` : ''}
             </div>
           </div>
         </div>
-        
-        <!-- Vendor Quotes Card -->
-        <div class="quote-card vendor-quotes-card">
-          <div class="card-header">
-            <h3>Vendor Quotes</h3>
-            <button class="btn small" id="addVendorQuoteBtn">Add Vendor Quote</button>
-          </div>
-          <div class="card-content" id="vendorQuotesCardContent">
-            <div id="vendorQuotesList" class="vendor-quotes-list">
-              ${vendorQuotesHtml}
+
+        <!-- Notes Section (secondary sidebar) -->
+        <div class="notes-section">
+          <div class="compact-section">
+            <div class="compact-header">
+              <h3 class="compact-title">Notes</h3>
+              <button class="compact-action-btn" id="addNoteBtn">Add Note</button>
+            </div>
+            <div class="compact-content notes-content">
+              <div id="notesList" class="compact-notes-list">
+                ${notesHtml}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="tasks-column">
-        <!-- Tasks Card -->
-        <div class="quote-card tasks-card">
-          <div class="card-header">
-            <h3>Tasks</h3>
-            <button class="btn small" id="addTaskBtn">Add Task</button>
-          </div>
-          <div class="card-content" id="tasksCardContent">
-            <div id="tasksList">
-              ${tasksHtml}
-            </div>
-          </div>
+      <!-- Full-width Vendor Quotes Section -->
+      <div class="vendor-quotes-section">
+        <div id="vendorQuotesList" class="vendor-quotes-list">
+          ${vendorQuotesHtml}
         </div>
-      </div>
-
-      <div class="notes-column">
-        <!-- Notes Card -->
-        <div class="quote-card notes-card">
-          <div class="card-header">
-            <h3>Notes</h3>
-            <button class="btn small" id="addNoteBtn">Add Note</button>
-          </div>
-          <div class="card-content" id="notesCardContent">
-            <div id="notesList" class="notes-list">
-              ${notesHtml}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="events-column">
-        <!-- Events Card -->
-        <div class="quote-card events-card">
-          <div class="card-header">
-            <h3>Events</h3>
-            <button class="btn small" id="addEventBtn">Add Event</button>
-          </div>
-          <div class="card-content" id="eventsCardContent">
-            <div id="eventsList" class="events-list">
-              ${eventsHtml}
-            </div>
-          </div>
-        </div>
-
-      </div>
       </div>
     `;
     
     // Add event listeners for detail page actions
-    document.getElementById('editModeBtn').addEventListener('click', enableEditMode);
+    document.getElementById('editModeBtn').addEventListener('click', openEditQuoteModal);
     document.getElementById('hideQuoteBtn').addEventListener('click', toggleQuoteHidden);
     document.getElementById('saveQuoteBtn').addEventListener('click', saveQuoteChanges);
     document.getElementById('cancelEditBtn').addEventListener('click', cancelEditMode);
-    document.getElementById('addTaskBtn').addEventListener('click', () => TasksModule.openAddTaskModal(currentQuote.id));
-    document.getElementById('addVendorQuoteBtn').addEventListener('click', () => VendorQuotesModule.openAddVendorQuoteModal(currentQuote.id));
     document.getElementById('addNoteBtn').addEventListener('click', () => NotesModule.openAddNoteModal(currentQuote.id));
-    document.getElementById('addEventBtn').addEventListener('click', () => EventsModule.openAddEventModal(currentQuote.id));
     
     // Add click-to-copy functionality for view mode
     document.querySelectorAll('.clickable-copy').forEach(element => {
       element.addEventListener('click', handleClickToCopy);
     });
     
-    // Initialize task checkboxes
-    TasksModule.initTaskCheckboxes();
-    
     // Initialize vendor quote controls
     VendorQuotesModule.initVendorQuoteControls();
 
     // Initialize note controls
     NotesModule.initNoteControls();
-    // Initialize event controls
-    EventsModule.initEventControls();
     
     // Add scroll event listeners to all scrollable content areas
     document.querySelectorAll('.card-content').forEach(content => {
@@ -924,7 +810,7 @@ const QuotesModule = (function() {
    */
   function handleClickToCopy(event) {
     // Don't copy if we're in edit mode
-    if (document.querySelector('.details-card.edit-mode')) {
+    if (document.querySelector('.details-section.edit-mode')) {
       return;
     }
     
@@ -949,68 +835,114 @@ const QuotesModule = (function() {
   }
   
   /**
-   * Enable edit mode for quote details
+   * Open edit quote modal with full field coverage
    */
-  function enableEditMode() {
-    // Hide edit button, show save/cancel/hide buttons
-    document.getElementById('editModeBtn').style.display = 'none';
-    document.getElementById('saveQuoteBtn').style.display = 'inline-block';
-    document.getElementById('cancelEditBtn').style.display = 'inline-block';
-    document.getElementById('hideQuoteBtn').style.display = 'inline-block';
-    
-    // Add edit-mode class to the card
-    document.querySelector('.details-card').classList.add('edit-mode');
-    
-    // Remove click-to-copy functionality in edit mode
-    document.querySelectorAll('.clickable-copy').forEach(element => {
-      element.removeEventListener('click', handleClickToCopy);
-      element.classList.remove('clickable-copy');
-    });
-    
-    // Show the editable link fields in edit mode
-    const googleLinksEdit = document.querySelector('.google-links-edit');
-    
-    if (googleLinksEdit) {
-      googleLinksEdit.style.display = 'flex';
+  function openEditQuoteModal() {
+    if (!currentQuote) return;
+
+    // Get modal and form elements
+    const modal = document.getElementById('editQuoteModal');
+    const form = document.getElementById('editQuoteForm');
+
+    // Populate form with current quote data
+    document.getElementById('editQuoteId').value = currentQuote.id;
+    document.getElementById('editCustomer').value = currentQuote.customer;
+    document.getElementById('editQuoteNo').value = currentQuote.quote_no;
+    document.getElementById('editDescription').value = currentQuote.description || '';
+    document.getElementById('editProjectSheetUrl').value = currentQuote.project_sheet_url || '';
+    document.getElementById('editMpsfLink').value = currentQuote.mpsf_link || '';
+    document.getElementById('editFolderLink').value = currentQuote.folder_link || '';
+    document.getElementById('editMethodLink').value = currentQuote.method_link || '';
+    document.getElementById('editHidden').checked = currentQuote.hidden || false;
+
+    // Populate sales rep dropdown
+    const salesRepSelect = document.getElementById('editSalesRepDropdown');
+    if (salesRepSelect) {
+      const salesReps = SettingsModule.getSalesReps();
+      salesRepSelect.innerHTML = `
+        <option value="">Select a sales rep</option>
+        ${salesReps.map(rep => `
+          <option value="${rep}" ${currentQuote.sales_rep === rep ? 'selected' : ''}>${rep}</option>
+        `).join('')}
+      `;
     }
-    
-    // Make editable fields actually editable
-    const editables = document.querySelectorAll('.editable');
-    editables.forEach(element => {
-      const field = element.dataset.field;
-      const originalValue = element.dataset.original;
-      
-      // Save original content for cancellation
-      element.dataset.displayContent = element.innerHTML;
-      
-      // Replace with appropriate input
-      if (field === 'description') {
-        element.innerHTML = `<textarea class="inline-edit-input" data-field="${field}">${originalValue}</textarea>`;
-      } else if (field === 'sales_rep') {
-        // Replace with dropdown for sales rep
-        const salesReps = SettingsModule.getSalesReps();
-        element.innerHTML = `
-          <select id="salesRepSelect" class="inline-edit-input sales-rep-select" data-field="${field}">
-            <option value="">Select a sales rep</option>
-            ${salesReps.map(rep => `
-              <option value="${rep}" ${originalValue === rep ? 'selected' : ''}>${rep}</option>
-            `).join('')}
-          </select>
-        `;
-      } else {
-        element.innerHTML = `<input type="text" class="inline-edit-input" data-field="${field}" value="${originalValue}">`;
+
+    // Show modal
+    modal.style.display = 'block';
+
+    // Focus on customer field
+    document.getElementById('editCustomer').focus();
+  }
+
+  /**
+   * Handle edit quote form submission
+   * @param {Event} event - The submit event
+   */
+  async function handleEditQuoteSubmit(event) {
+    event.preventDefault();
+
+    const submitButton = document.getElementById('updateQuoteBtn');
+    const btnText = submitButton.querySelector('.btn-text');
+    const btnLoading = submitButton.querySelector('.btn-loading');
+
+    // Show loading state
+    submitButton.disabled = true;
+    btnText.style.display = 'none';
+    btnLoading.style.display = 'inline-flex';
+
+    const formData = {
+      customer: document.getElementById('editCustomer').value,
+      quote_no: document.getElementById('editQuoteNo').value,
+      description: document.getElementById('editDescription').value,
+      sales_rep: document.getElementById('editSalesRepDropdown').value,
+      project_sheet_url: document.getElementById('editProjectSheetUrl').value,
+      mpsf_link: document.getElementById('editMpsfLink').value,
+      folder_link: document.getElementById('editFolderLink').value,
+      method_link: document.getElementById('editMethodLink').value,
+      hidden: document.getElementById('editHidden').checked
+    };
+
+    try {
+      // Validate required fields
+      if (!formData.customer || !formData.quote_no) {
+        showToast('Customer and Quote # are required fields', 'error');
+        return;
       }
-    });
-    
-    // Focus on the first input
-    const firstInput = document.querySelector('.inline-edit-input');
-    if (firstInput) {
-      firstInput.focus();
+
+      // Update the quote
+      await API.updateQuote(currentQuote.id, formData);
+
+      // Update the current quote object
+      Object.keys(formData).forEach(key => {
+        currentQuote[key] = formData[key];
+      });
+
+      // Update the quote in the list
+      const quoteIndex = quotesList.findIndex(q => q.id === currentQuote.id);
+      if (quoteIndex !== -1) {
+        quotesList[quoteIndex] = { ...quotesList[quoteIndex], ...formData };
+        renderQuotesList();
+      }
+
+      // Refresh the quote detail view
+      renderQuoteDetail();
+
+      // Close modal
+      closeModals();
+
+      showToast('Quote updated successfully', 'success');
+    } catch (error) {
+      showToast(`Failed to update quote: ${error.message}`, 'error');
+    } finally {
+      // Reset button state
+      submitButton.disabled = false;
+      btnText.style.display = 'inline';
+      btnLoading.style.display = 'none';
     }
   }
-  
+
   /**
-   * Save quote changes
+   * Save quote changes (legacy inline editing - deprecated)
    */
   async function saveQuoteChanges() {
     // Get values from all inputs
@@ -1046,8 +978,11 @@ const QuotesModule = (function() {
       // Refresh the quote detail view
       renderQuoteDetail();
       
-      // Remove edit-mode class from the card
-      document.querySelector('.details-card').classList.remove('edit-mode');
+      // Remove edit-mode class from the details section
+      const detailsSection = document.querySelector('.details-section');
+      if (detailsSection) {
+        detailsSection.classList.remove('edit-mode');
+      }
       
       // Hide the editable link fields
       const googleLinksEdit = document.querySelector('.google-links-edit');
@@ -1078,8 +1013,11 @@ const QuotesModule = (function() {
       element.innerHTML = element.dataset.displayContent;
     });
     
-    // Remove edit-mode class from the card
-    document.querySelector('.details-card').classList.remove('edit-mode');
+    // Remove edit-mode class from the details section
+    const detailsSection = document.querySelector('.details-section');
+    if (detailsSection) {
+      detailsSection.classList.remove('edit-mode');
+    }
     
     // Hide the editable link fields
     const googleLinksEdit = document.querySelector('.google-links-edit');

@@ -111,8 +111,8 @@ class Quote:
                 LEFT JOIN (
                     SELECT quote_id,
                            COUNT(*) AS vendor_quote_count,
-                           SUM(CASE WHEN requested = 1 AND entered = 1 THEN 1 ELSE 0 END) AS completed_vendor_quotes
-                    FROM vendor_quotes 
+                           SUM(CASE WHEN status = 'selected' OR status = 'received' OR status = 'reviewing' THEN 1 ELSE 0 END) AS completed_vendor_quotes
+                    FROM vendor_quotes
                     GROUP BY quote_id
                 ) vendor_stats ON q.id = vendor_stats.quote_id
                 LEFT JOIN (

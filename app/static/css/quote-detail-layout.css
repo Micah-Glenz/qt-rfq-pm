@@ -1,27 +1,266 @@
-/* Layout with title row and columns below */
+/* Ensure full height layout chain */
+html, body {
+  height: 100%;
+}
+
+/* Ensure main content area can grow vertically */
+main, .app-container, .content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Allow flex items to shrink below content size */
+}
+
+/* Compact Full-Width Right Pane Layout */
 .quote-detail {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
   width: 100%;
   max-width: 1200px;
+  height: 100%;
+  min-height: calc(100vh - 80px); /* Fill available height minus minimal header */
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--card-background);
+  margin: 0 auto; /* Center content on wide screens */
 }
 
+/* Compact section containers */
+.compact-section {
+  border-bottom: 1px solid var(--border-color);
+  background: var(--card-background);
+  flex-shrink: 0;
+}
+
+.compact-section:last-child {
+  border-bottom: none;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Compact section header */
+.compact-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--font-size-xs) var(--font-size-base);
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--border-color);
+  min-height: calc(var(--font-size-base) * 2.5);
+}
+
+.compact-title {
+  font-size: var(--font-size-header-h3);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--font-size-sm);
+}
+
+.compact-title::before {
+  content: "";
+  width: 3px;
+  height: 16px;
+  background: var(--primary-color);
+  border-radius: 1px;
+}
+
+.compact-action-btn {
+  padding: var(--font-size-xs) var(--font-size-sm);
+  font-size: var(--font-size-button-sm);
+  font-weight: 500;
+  color: var(--primary-color);
+  background: transparent;
+  border: 1px solid var(--primary-color);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.compact-action-btn:hover {
+  background: var(--primary-color);
+  color: var(--button-text);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+}
+
+/* Compact content area */
+.compact-content {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Details and Notes unified layout */
+.quote-detail-main {
+  display: flex;
+  gap: 0;
+  min-height: 0;
+}
+
+/* Details section - primary content */
+.details-section {
+  max-width: 380px; /* Reduced from 450px for compaction */
+  min-width: 300px; /* Reduced from 350px */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex-shrink: 0;
+}
+
+/* Notes section - secondary sidebar */
+.notes-section {
+  width: 280px; /* Increased from 240px */
+  flex-shrink: 0;
+  border-left: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Compact vendor quotes section */
+.vendor-quotes-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 0; /* Force to take available space */
+  max-width: 100%;
+  margin: 0; /* Left-align vendor quotes section */
+}
+
+/* Compact details content */
+.details-content {
+  padding: var(--font-size-base);
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Compact info display */
+.compact-info-group {
+  display: flex;
+  align-items: center;
+  padding: calc(var(--font-size-xs) * 0.5) 0; /* Reduced padding for compaction */
+  border-bottom: 1px solid var(--border-light);
+  min-height: calc(var(--font-size-base) * 1.6); /* Reduced from 2 */
+}
+
+.compact-info-group:last-child {
+  border-bottom: none;
+}
+
+.compact-info-label {
+  width: calc(var(--font-size-base) * 7);
+  font-size: var(--font-size-button-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+  line-height: 1.2; /* Minimal line height for compactness */
+  text-align: left; /* Ensure left alignment */
+}
+
+.compact-info-value {
+  flex: 1;
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  font-weight: 500;
+  min-height: calc(var(--font-size-base) * 1.2); /* Reduced from 1.4 for compaction */
+  display: flex;
+  align-items: center;
+  line-height: 1.3; /* Minimal line height for better density */
+  text-align: left; /* Ensure left alignment */
+}
+
+.compact-info-value.editable {
+  cursor: text;
+  padding: var(--font-size-xs) calc(var(--font-size-xs) * 1.5);
+  border-radius: 2px;
+  transition: all 0.2s ease;
+}
+
+.compact-info-value.editable:hover {
+  background-color: var(--hover-bg);
+}
+
+/* Compact project links */
+.compact-project-links {
+  padding: var(--font-size-sm) 0;
+  border-top: 1px solid var(--border-color);
+  margin-top: var(--font-size-sm);
+}
+
+.compact-project-links-title {
+  font-size: var(--font-size-button-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--font-size-xs);
+}
+
+.compact-link-button {
+  display: inline-block;
+  padding: var(--font-size-xs) var(--font-size-sm);
+  margin: var(--font-size-xs) var(--font-size-xs) var(--font-size-xs) 0;
+  font-size: var(--font-size-tiny);
+  color: var(--primary-color);
+  background: var(--button-bg);
+  border: 1px solid var(--button-border);
+  border-radius: 3px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.compact-link-button:hover {
+  background: var(--primary-color);
+  color: var(--button-text);
+  border-color: var(--primary-color);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+}
+
+/* Vendor quotes table container with scroll */
+.vendor-quotes-container {
+  flex: 1;
+  overflow: hidden;
+  background: white;
+  border-radius: 0.35rem;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Allow to shrink properly in flex context */
+  height: 100%; /* Force container to fill parent height */
+}
+
+.vendor-quotes-table-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+  min-height: 0; /* Allow to shrink properly in flex context */
+  height: 100%; /* Ensure wrapper fills container height */
+}
+
+/* Legacy column containers for backward compatibility */
 .quote-columns-container {
   display: flex;
   gap: 0.75rem;
   align-items: flex-start;
 }
 
-/* Column containers */
 .left-column,
 .tasks-column,
-.notes-column,
 .events-column {
   flex: 1;
   min-width: 450px;
   max-width: 750px;
-
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -29,7 +268,6 @@
 
 /* Column alignment */
 .tasks-column,
-.notes-column,
 .events-column {
   align-items: flex-start; /* Don't stretch children */
   justify-content: flex-start; /* Align to top */
@@ -37,18 +275,17 @@
 
 /* Base card styling */
 .quote-card {
-  background-color: white;
+  background-color: var(--card-background);
   border-radius: 0.35rem;
   box-shadow: var(--card-shadow);
-  padding: 0.75rem;
+  padding: calc(var(--font-size-xs) * 0.5); /* Reduced padding for compaction */
 
-  min-width: 450px;
-  max-width: 750px;
+  min-width: 350px; /* Reduced from 450px */
+  max-width: 650px; /* Reduced from 750px */
   display: flex;
   flex-direction: column;
   height: fit-content;
   width: 100%;
-
 }
 
 /* Tasks card specific - height adjusts to content */
@@ -65,9 +302,497 @@
   overflow-y: visible;
 }
 
-/* Responsive layout - stack columns on mobile */
+/* Corporate Vendor Quotes Table */
+.corporate-vendor-quotes-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card-background);
+  font-size: 14px;
+  line-height: 1.2; /* Reduced from 1.5 for compactness */
+  height: 1px; /* Force table to expand to fill container */
+}
+
+/* Corporate table header */
+.corporate-vendor-quotes-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--header-bg);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.corporate-vendor-quotes-table thead th {
+  background: var(--header-bg);
+  color: var(--text-primary);
+  padding: var(--font-size-sm) var(--font-size-base);
+  text-align: left;
+  font-weight: 600;
+  font-size: var(--font-size-button-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+/* Corporate table body */
+.corporate-vendor-quotes-table tbody tr {
+  border-bottom: 1px solid var(--border-light);
+  transition: background-color 0.15s ease;
+}
+
+.corporate-vendor-quotes-table tbody tr:hover {
+  background-color: var(--hover-bg);
+}
+
+.corporate-vendor-quotes-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.corporate-vendor-quotes-table td {
+  padding: calc(var(--font-size-xs) * 0.75); /* Further reduced for compaction */
+  vertical-align: middle;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-light);
+  line-height: 1.2; /* Minimal line height for compactness */
+}
+
+/* Enhanced Vendor Quotes Table */
+.vendor-quotes-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card-background);
+  border-radius: 0;
+  overflow: visible;
+  box-shadow: none;
+  height: 1px; /* Force table to expand to fill container */
+}
+
+/* Sticky header for vendor quotes table */
+.vendor-quotes-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--primary-color);
+}
+
+.vendor-quotes-table thead th {
+  background: var(--primary-color);
+  color: var(--button-text);
+  padding: calc(var(--font-size-xs) * 0.75) calc(var(--font-size-xs) * 0.5); /* Reduced padding */
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.75rem; /* Reduced font size */
+  border-bottom: 2px solid var(--primary-color);
+  position: sticky;
+  top: 0;
+}
+
+.vendor-quotes-table td {
+  padding: calc(var(--font-size-xs) * 0.5); /* Reduced padding */
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
+  font-size: 0.75rem; /* Reduced font size */
+}
+
+.vendor-quotes-table tr:hover {
+  background-color: var(--hover-bg);
+}
+
+.vendor-quotes-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Corporate status badges */
+.corporate-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.corporate-status-badge.draft {
+  background: var(--hover-bg);
+  color: var(--text-secondary);
+  border-color: var(--border-color);
+}
+.corporate-status-badge.requested {
+  background: var(--warning-color);
+  color: #92400e;
+  border-color: #f59e0b;
+}
+.corporate-status-badge.received {
+  background: var(--success-color);
+  color: #065f46;
+  border-color: #10b981;
+}
+.corporate-status-badge.reviewing {
+  background: var(--primary-color);
+  color: var(--button-text);
+  border-color: #3b82f6;
+}
+.corporate-status-badge.selected {
+  background: var(--success-color);
+  color: #166534;
+  border-color: #059669;
+}
+.corporate-status-badge.rejected {
+  background: var(--error-color);
+  color: #b91c1c;
+  border-color: #ef4444;
+}
+.corporate-status-badge.expired {
+  background: var(--hover-bg);
+  color: var(--text-secondary);
+  border-color: var(--border-color);
+}
+
+/* Corporate action buttons */
+.corporate-action-buttons {
+  display: flex;
+  gap: var(--font-size-xs);
+  justify-content: flex-end;
+}
+
+.corporate-btn-sm {
+  padding: var(--font-size-xs) var(--font-size-sm);
+  font-size: var(--font-size-button-sm);
+  font-weight: 500;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: var(--card-background);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.corporate-btn-sm:hover {
+  background: var(--hover-bg);
+  border-color: var(--border-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.corporate-btn-sm.primary {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.corporate-btn-sm.primary:hover {
+  background: var(--primary-color);
+  color: var(--button-text);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+}
+
+/* Corporate vendor cost */
+.corporate-vendor-cost {
+  font-weight: 600;
+  color: var(--success-color);
+  text-align: right;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  font-size: 14px;
+}
+
+/* Corporate lead time */
+.corporate-lead-time {
+  text-align: center;
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+/* Corporate vendor type */
+.corporate-vendor-type {
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+/* Status badges */
+.vendor-status {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.vendor-status.draft { background: var(--hover-bg); color: var(--text-secondary); }
+.vendor-status.requested { background: var(--warning-color); color: #92400e; }
+.vendor-status.received { background: var(--success-color); color: #065f46; }
+.vendor-status.reviewing { background: var(--primary-color); color: var(--button-text); }
+.vendor-status.selected { background: var(--success-color); color: #166534; }
+.vendor-status.rejected { background: var(--error-color); color: #b91c1c; }
+.vendor-status.expired { background: var(--hover-bg); color: var(--text-secondary); }
+
+/* Cost cell styling */
+.vendor-cost {
+  font-weight: 600;
+  color: var(--primary-color);
+  text-align: right;
+  font-family: 'Courier New', monospace;
+}
+
+/* Lead time styling */
+.vendor-lead-time {
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Type styling */
+.vendor-type {
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+/* Actions cell */
+.vendor-actions {
+  display: flex;
+  gap: 0.25rem;
+  justify-content: center;
+}
+
+.vendor-actions button {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--border-color);
+  background: white;
+  cursor: pointer;
+}
+
+.vendor-actions button:hover {
+  background: var(--hover-bg);
+  border-color: var(--primary-color);
+}
+
+/* Compact Vendor Quotes Section */
+.compact-vendor-quotes {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--card-background);
+  overflow: hidden;
+}
+
+/* Compact notes section */
+.notes-content {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* Compact notes list */
+.compact-notes-list {
+  padding: var(--font-size-sm);
+}
+
+.compact-note-item {
+  padding: var(--font-size-sm);
+  border-bottom: 1px solid var(--border-light);
+  font-size: var(--font-size-button-sm);
+  line-height: 1.2; /* Reduced from 1.4 for compactness */
+}
+
+.compact-note-item:last-child {
+  border-bottom: none;
+}
+
+.compact-note-content {
+  color: var(--text-primary);
+  word-wrap: break-word;
+}
+
+.compact-note-timestamp {
+  color: var(--text-muted);
+  font-size: var(--font-size-tiny);
+  margin-top: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Corporate table container */
+.corporate-table-container {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.corporate-table-scroll {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+}
+
+/* Override card-content constraints for vendor quotes */
+#vendorQuotesCardContent {
+  flex: 1 !important;
+  max-height: none !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Vendor quotes list container */
+.vendor-quotes-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Empty state for vendor quotes */
+.vendor-quotes-empty {
+  text-align: center;
+  padding: calc(var(--font-size-base) * 2);
+  color: var(--text-secondary);
+  background: var(--card-background);
+  border-radius: 0.35rem;
+  box-shadow: var(--card-shadow);
+}
+
+/* Tablet responsive layout */
+@media (max-width: 1024px) {
+  .quote-detail {
+    max-width: none; /* Remove max-width constraint on tablets */
+  }
+
+  .details-section {
+    max-width: 320px; /* Further reduced for tablets */
+    min-width: 280px;
+  }
+
+  .notes-section {
+    width: 240px; /* Adjusted for tablets */
+  }
+
+  .vendor-quotes-section {
+    max-width: 100%; /* Full width vendor quotes on tablets */
+  }
+}
+
+/* Compact responsive layout */
 @media (max-width: 767px) {
   .quote-detail {
+    min-height: auto;
+  }
+
+  .quote-detail-main {
     flex-direction: column;
+  }
+
+  .details-section {
+    min-height: 200px;
+  }
+
+  .notes-section {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid var(--border-color);
+    min-height: 150px;
+  }
+
+  .vendor-quotes-section {
+    flex: none;
+    height: auto;
+    min-height: 300px;
+  }
+
+  /* Compact header mobile adjustments */
+  .compact-header {
+    padding: 6px 12px;
+    min-height: 36px;
+  }
+
+  .compact-title {
+    font-size: 13px;
+  }
+
+  .compact-action-btn {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+
+  /* Compact info mobile adjustments */
+  .compact-info-group {
+    padding: 4px 0;
+    min-height: 28px;
+  }
+
+  .compact-info-label {
+    width: 80px;
+    font-size: 11px;
+  }
+
+  .compact-info-value {
+    font-size: 12px;
+  }
+
+  .compact-link-button {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+
+  /* Vendor quotes table mobile */
+  .corporate-vendor-quotes-table thead th {
+    padding: 6px 8px;
+    font-size: 10px;
+  }
+
+  .corporate-vendor-quotes-table td {
+    padding: 8px;
+    font-size: 11px;
+  }
+
+  .corporate-vendor-quotes-table td:nth-child(8),
+  .corporate-vendor-quotes-table th:nth-child(8) {
+    display: none;
+  }
+
+  .corporate-action-buttons {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .corporate-btn-sm {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  .corporate-status-badge {
+    font-size: 9px;
+    padding: 1px 6px;
+  }
+
+  .compact-note-item {
+    padding: 6px;
+    font-size: 11px;
+  }
+}
+
+/* Legacy responsive layout - stack columns on mobile */
+@media (max-width: 767px) {
+  .vendor-quotes-table {
+    font-size: 0.75rem;
+  }
+
+  .vendor-quotes-table thead th,
+  .vendor-quotes-table td {
+    padding: 0.4rem 0.3rem;
   }
 }

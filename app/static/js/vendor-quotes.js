@@ -3,105 +3,173 @@
  */
 const VendorQuotesModule = (function() {
   /**
-   * Render vendor quotes for a quote
+   * Render vendor quotes for a quote as information-dense table
    * @param {Array} vendorQuotes - Array of vendor quote objects
    * @returns {string} - HTML string
    */
   function renderVendorQuotes(vendorQuotes) {
     if (!vendorQuotes || vendorQuotes.length === 0) {
-      return '<div class="empty-state no-vendor-quotes">No vendor quotes</div>';
-    }
-    
-    let html = '';
-    
-    vendorQuotes.forEach(vq => {
-      // Determine class based on quote type
-      let typeClass = 'freight'; // Default
-      if (vq.type === 'install') {
-        typeClass = 'install';
-      } else if (vq.type === 'forward') {
-        typeClass = 'forward';
-      }
-      
-      // Determine if the vendor quote is fully complete (has both checkboxes checked)
-      const isFullyComplete = vq.requested && vq.entered;
-      
-      // Format the date nicely
-      let formattedDate = '';
-      if (vq.date) {
-        const dateObj = new Date(vq.date);
-        formattedDate = dateObj.toLocaleDateString('en-US', { 
-          month: 'short', 
-          day: 'numeric', 
-          year: 'numeric' 
-        });
-      }
-      
-      html += `
-        <div class="vendor-quote-item ${isFullyComplete ? 'fully-complete' : ''}" data-id="${vq.id}">
-          <div class="vendor-quote-header ${typeClass}">
-            ${vq.type.toUpperCase()}
+      return `
+        <div class="compact-vendor-quotes">
+          <div class="compact-header">
+            <h3 class="compact-title">Vendor Quotes</h3>
+            <button class="compact-action-btn" id="addVendorQuoteBtn">Add Vendor Quote</button>
           </div>
-          <div class="vendor-quote-details">
-            <div class="vendor-name">${vq.vendor}</div>
-            ${formattedDate ? `<div class="vendor-date">${formattedDate}</div>` : ''}
-          </div>
-          <div class="vendor-quote-notes">
-            <div class="editable-note" 
-                 contenteditable="true" 
-                 data-id="${vq.id}"
-                 data-original="${vq.notes || ''}"
-                 placeholder="Add notes...">${vq.notes || ''}</div>
-          </div>
-          <div class="vendor-quote-status">
-            <div class="status-checkbox-stack">
-              <label class="status-checkbox">
-                <input type="checkbox" class="status-check vendor-requested-checkbox" 
-                  data-id="${vq.id}" ${vq.requested ? 'checked' : ''}>
-                <span>Requested</span>
-              </label>
-              <label class="status-checkbox">
-                <input type="checkbox" class="status-check vendor-entered-checkbox" 
-                  data-id="${vq.id}" ${vq.entered ? 'checked' : ''}>
-                <span>Entered</span>
-              </label>
+          <div class="compact-content">
+            <div style="text-align: center; padding: 32px; color: #6b7280; font-size: 12px;">
+              No vendor quotes available
             </div>
-          </div>
-          <div class="vendor-quote-actions">
-            <button class="btn small delete-vendor-quote" data-id="${vq.id}">×</button>
           </div>
         </div>
       `;
+    }
+
+    // Create compact layout with header and table
+    let html = `
+      <div class="compact-vendor-quotes">
+        <div class="compact-header">
+          <h3 class="compact-title">Vendor Quotes</h3>
+          <button class="compact-action-btn" id="addVendorQuoteBtn">Add Vendor Quote</button>
+        </div>
+        <div class="compact-content">
+          <div class="vendor-quotes-container">
+            <div class="vendor-quotes-table-wrapper">
+              <table class="corporate-vendor-quotes-table">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Vendor</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Cost</th>
+                    <th>Lead Time</th>
+                    <th>Contact</th>
+                    <th>Notes</th>
+                    <th style="text-align: right; padding-right: 12px;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+    `;
+
+    vendorQuotes.forEach(vq => {
+      // Handle both legacy and enhanced vendor quote data
+      const vendorName = vq.vendor?.name || vq.vendor || 'Unknown';
+      const status = vq.status || getStatusFromLegacy(vq);
+      const cost = vq.cost || '';
+      const leadTime = vq.lead_time_days || '';
+      const contact = vq.contact_person || vq.vendor?.contact_name || '';
+      const notes = vq.notes || '';
+      const quoteDate = vq.quote_date || vq.date || '';
+
+      // Format dates
+      let formattedQuoteDate = '';
+      if (quoteDate) {
+        const dateObj = new Date(quoteDate);
+        formattedQuoteDate = dateObj.toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
+        });
+      }
+
+      // Format cost with currency
+      const formattedCost = cost ? `$${parseFloat(cost).toFixed(2)}` : '—';
+
+      html += `
+        <tr data-id="${vq.id}" class="vendor-quote-row">
+          <td>
+            <span class="corporate-vendor-type">${vq.type}</span>
+          </td>
+          <td>
+            <div class="vendor-info">
+              <div style="font-weight: 500; color: #374151;">${vendorName}</div>
+              ${vq.vendor?.email ? `<div style="font-size: 12px; color: #6b7280; margin-top: 2px;">${vq.vendor.email}</div>` : ''}
+            </div>
+          </td>
+          <td>
+            <span class="corporate-status-badge ${status}">${status}</span>
+          </td>
+          <td style="color: #6b7280; font-size: 13px;">${formattedQuoteDate}</td>
+          <td class="corporate-vendor-cost">${formattedCost}</td>
+          <td class="corporate-lead-time">${leadTime ? `${leadTime} days` : '—'}</td>
+          <td style="color: #6b7280; font-size: 13px;">${contact || '—'}</td>
+          <td style="color: #6b7280; font-size: 13px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${notes}">${notes || '—'}</td>
+          <td>
+            <div class="corporate-action-buttons">
+              <button class="corporate-btn-sm primary edit-vendor-quote" data-id="${vq.id}" title="Edit">Edit</button>
+              <button class="corporate-btn-sm delete-vendor-quote" data-id="${vq.id}" title="Delete">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `;
     });
-    
+
+    html += `
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
     return html;
+  }
+
+  /**
+   * Convert legacy requested/entered status to new status system
+   * @param {Object} vq - Vendor quote object
+   * @returns {string} - Status string
+   */
+  function getStatusFromLegacy(vq) {
+    if (vq.entered) return 'received';
+    if (vq.requested) return 'requested';
+    return 'draft';
   }
   
   /**
    * Initialize vendor quote-related event listeners
    */
   function initVendorQuoteControls() {
+    // Add Vendor Quote button (corporate layout)
+    const addVendorQuoteBtn = document.getElementById('addVendorQuoteBtn');
+    if (addVendorQuoteBtn) {
+      // Get current quote from QuotesModule
+      const currentQuote = QuotesModule.getCurrentQuote();
+      if (currentQuote) {
+        addVendorQuoteBtn.addEventListener('click', () => openAddVendorQuoteModal(currentQuote.id));
+      }
+    }
+
+    // Edit buttons
     document.querySelectorAll('.edit-vendor-quote').forEach(btn => {
       btn.addEventListener('click', handleEditVendorQuote);
     });
-    
+
+    // Delete buttons
     document.querySelectorAll('.delete-vendor-quote').forEach(btn => {
       btn.addEventListener('click', handleDeleteVendorQuote);
     });
-    
-    // Add event listeners for checkbox status changes
-    document.querySelectorAll('.vendor-requested-checkbox').forEach(checkbox => {
-      checkbox.addEventListener('change', handleRequestedChange);
-    });
-    
-    document.querySelectorAll('.vendor-entered-checkbox').forEach(checkbox => {
-      checkbox.addEventListener('change', handleEnteredChange);
-    });
-    
-    // Add event listeners for inline editable notes
-    document.querySelectorAll('.editable-note').forEach(note => {
-      note.addEventListener('blur', handleNoteBlur);
-      note.addEventListener('input', handleNoteInput);
+
+    // Add hover effect to table rows
+    document.querySelectorAll('.vendor-quote-row').forEach(row => {
+      row.addEventListener('mouseenter', () => {
+        row.style.cursor = 'pointer';
+      });
+      row.addEventListener('mouseleave', () => {
+        row.style.cursor = 'default';
+      });
+
+      // Row click to edit (optional UX improvement)
+      row.addEventListener('click', (e) => {
+        // Don't trigger if clicking on action buttons
+        if (e.target.closest('.vendor-actions')) return;
+
+        const editBtn = row.querySelector('.edit-vendor-quote');
+        if (editBtn) {
+          handleEditVendorQuote({ stopPropagation: () => {}, target: editBtn });
+        }
+      });
     });
   }
   
@@ -327,19 +395,62 @@ const VendorQuotesModule = (function() {
   }
   
   /**
+   * Create vendor dropdown HTML
+   * @param {Array} vendors - Array of vendor objects
+   * @param {string} selectedVendorId - Optional currently selected vendor ID
+   * @returns {string} - HTML for vendor dropdown
+   */
+  function createVendorDropdown(vendors, selectedVendorId = '') {
+    const vendorOptions = vendors.map(vendor =>
+      `<option value="${vendor.id}" ${vendor.id == selectedVendorId ? 'selected' : ''}>${vendor.name}${vendor.specialization ? ` (${vendor.specialization})` : ''}</option>`
+    ).join('');
+
+    return `
+      <select id="vendorSelect" name="vendor_id" required>
+        <option value="">Select a vendor...</option>
+        <option value="">─────────────</option>
+        <option value="" style="font-style: italic;" ${!selectedVendorId ? 'selected' : ''}>(No vendor selected)</option>
+        <option value="">─────────────</option>
+        ${vendorOptions}
+      </select>
+    `;
+  }
+
+  /**
    * Open add vendor quote modal
    * @param {number} quoteId - The quote ID
+   * @param {Object} vendorQuote - Optional vendor quote data for editing
    */
-  function openAddVendorQuoteModal(quoteId) {
+  async function openAddVendorQuoteModal(quoteId, vendorQuote = null) {
     // Get today's date in YYYY-MM-DD format for the date input
     const today = new Date().toISOString().split('T')[0];
-    
-    // Create modal HTML
+
+    // Fetch vendors for dropdown
+    let vendors = [];
+    try {
+      vendors = await API.getVendors(true);
+    } catch (error) {
+      console.error('Failed to load vendors:', error);
+      showToast('Failed to load vendors', 'error');
+      return;
+    }
+
+    const isEditing = vendorQuote !== null;
+    const modalTitle = isEditing ? 'Edit Vendor Quote' : 'Add Vendor Quote';
+    const selectedVendorId = vendorQuote?.vendor_id || '';
+
+    // Create vendor dropdown HTML
+    const vendorDropdown = createVendorDropdown(vendors, selectedVendorId);
+
+    // Determine if new vendor input should be shown
+    const showNewVendorInput = !selectedVendorId && vendorQuote?.vendor && vendorQuote.vendor !== 'No vendor';
+
+    // Create modal HTML with enhanced fields
     const modalHtml = `
       <div id="vendorQuoteModal" class="modal">
         <div class="modal-content">
           <div class="modal-header">
-            <h2>Add Vendor Quote</h2>
+            <h2>${modalTitle}</h2>
             <span class="close-modal">&times;</span>
           </div>
           <div class="modal-body">
@@ -353,16 +464,48 @@ const VendorQuotesModule = (function() {
                 </select>
               </div>
               <div class="form-group">
-                <label for="vendorName">Vendor</label>
-                <input type="text" id="vendorName" name="vendor" required>
+                <label for="vendorSelect">Vendor</label>
+                ${vendorDropdown}
+              </div>
+              <div class="form-group" id="newVendorGroup" style="display: ${showNewVendorInput ? 'block' : 'none'};">
+                <label for="newVendorName">New Vendor Name</label>
+                <input type="text" id="newVendorName" name="new_vendor" placeholder="Enter new vendor name" value="${showNewVendorInput ? (vendorQuote?.vendor || '') : ''}">
               </div>
               <div class="form-group">
-                <label for="vendorQuoteDate">Date</label>
-                <input type="date" id="vendorQuoteDate" name="date" value="${today}">
+                <label for="vendorQuoteStatus">Status</label>
+                <select id="vendorQuoteStatus" name="status">
+                  <option value="draft">Draft</option>
+                  <option value="requested">Requested</option>
+                  <option value="received">Received</option>
+                  <option value="reviewing">Reviewing</option>
+                  <option value="selected">Selected</option>
+                  <option value="rejected">Rejected</option>
+                  <option value="expired">Expired</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="vendorQuoteCost">Cost ($)</label>
+                <input type="number" id="vendorQuoteCost" name="cost" step="0.01" min="0" placeholder="0.00">
+              </div>
+              <div class="form-group">
+                <label for="vendorQuoteLeadTime">Lead Time (days)</label>
+                <input type="number" id="vendorQuoteLeadTime" name="lead_time_days" min="0" placeholder="0">
+              </div>
+              <div class="form-group">
+                <label for="vendorQuoteDate">Quote Date</label>
+                <input type="date" id="vendorQuoteDate" name="quote_date" value="${today}">
+              </div>
+              <div class="form-group">
+                <label for="vendorQuoteValidUntil">Valid Until</label>
+                <input type="date" id="vendorQuoteValidUntil" name="valid_until">
+              </div>
+              <div class="form-group">
+                <label for="vendorQuoteContact">Contact Person</label>
+                <input type="text" id="vendorQuoteContact" name="contact_person" placeholder="Contact name">
               </div>
               <div class="form-group">
                 <label for="vendorQuoteNotes">Notes</label>
-                <textarea id="vendorQuoteNotes" name="notes"></textarea>
+                <textarea id="vendorQuoteNotes" name="notes" rows="3"></textarea>
               </div>
               <div class="form-actions">
                 <button type="button" class="btn cancel-modal">Cancel</button>
@@ -373,7 +516,7 @@ const VendorQuotesModule = (function() {
         </div>
       </div>
     `;
-    
+
     // Inject the modal if it doesn't exist
     if (!document.getElementById('vendorQuoteModal')) {
       document.body.insertAdjacentHTML('beforeend', modalHtml);
@@ -386,15 +529,49 @@ const VendorQuotesModule = (function() {
       document.getElementById('vendorQuoteDate').value = today;
     }
 
+    // Fill form data if editing
+    if (isEditing) {
+      // Fill the form with existing data (handle both legacy and enhanced data)
+      document.getElementById('vendorQuoteType').value = vendorQuote.type;
+
+      // Handle status (could be enhanced status or legacy)
+      const status = vendorQuote.status || getStatusFromLegacy(vendorQuote);
+      document.getElementById('vendorQuoteStatus').value = status;
+
+      // Enhanced fields
+      document.getElementById('vendorQuoteCost').value = vendorQuote.cost || '';
+      document.getElementById('vendorQuoteLeadTime').value = vendorQuote.lead_time_days || '';
+      document.getElementById('vendorQuoteDate').value = vendorQuote.quote_date || vendorQuote.date || '';
+      document.getElementById('vendorQuoteValidUntil').value = vendorQuote.valid_until || '';
+      document.getElementById('vendorQuoteContact').value = vendorQuote.contact_person || vendorQuote.vendor?.contact_name || '';
+      document.getElementById('vendorQuoteNotes').value = vendorQuote.notes || '';
+    }
+
     // Always bind the submit handler with the latest quoteId
     const form = document.getElementById('vendorQuoteForm');
-    form.onsubmit = e => handleVendorQuoteSubmit(e, quoteId);
-    
+    form.onsubmit = e => handleVendorQuoteSubmit(e, quoteId, vendorQuote?.id);
+
+    // Add vendor selection change handler
+    const vendorSelect = document.getElementById('vendorSelect');
+    const newVendorGroup = document.getElementById('newVendorGroup');
+
+    vendorSelect.addEventListener('change', function() {
+      if (this.value === '') {
+        // If "No vendor selected" is chosen, show new vendor input
+        newVendorGroup.style.display = 'block';
+      } else {
+        // Hide new vendor input when a vendor is selected
+        newVendorGroup.style.display = 'none';
+      }
+    });
+
     // Reset form and show modal
-    document.getElementById('vendorQuoteForm').reset();
-    document.getElementById('vendorQuoteDate').value = today; // Set today's date
+    if (!isEditing) {
+      document.getElementById('vendorQuoteForm').reset();
+      document.getElementById('vendorQuoteDate').value = today; // Set today's date
+    }
     document.getElementById('vendorQuoteModal').style.display = 'block';
-    document.getElementById('vendorName').focus();
+    document.getElementById('vendorSelect').focus();
   }
   
   /**
@@ -415,25 +592,53 @@ const VendorQuotesModule = (function() {
    */
   async function handleVendorQuoteSubmit(event, quoteId, vendorQuoteId = null) {
     event.preventDefault();
-    
+
+    const vendorSelect = document.getElementById('vendorSelect');
+    const newVendorName = document.getElementById('newVendorName');
+
+    let vendorId = vendorSelect.value;
+    let vendorName = '';
+
+    // Handle vendor selection
+    if (vendorId === '' && newVendorName.value.trim()) {
+      // Creating a new vendor
+      vendorName = newVendorName.value.trim();
+      try {
+        // Create the new vendor
+        const newVendor = await API.createVendor({
+          name: vendorName,
+          specialization: document.getElementById('vendorQuoteType').value
+        });
+        vendorId = newVendor.id;
+      } catch (error) {
+        showToast(`Failed to create new vendor: ${error.message}`, 'error');
+        return;
+      }
+    } else if (vendorId !== '') {
+      // Using existing vendor
+      const selectedOption = vendorSelect.options[vendorSelect.selectedIndex];
+      vendorName = selectedOption.text.split(' (')[0]; // Remove specialization if present
+    } else {
+      // No vendor selected
+      vendorName = 'No vendor';
+    }
+
     const formData = {
       type: document.getElementById('vendorQuoteType').value,
-      vendor: document.getElementById('vendorName').value,
-      date: document.getElementById('vendorQuoteDate').value || null,
-      notes: document.getElementById('vendorQuoteNotes').value,
-      requested: false,  // Default values when creating
-      entered: false     // Default values when creating
+      vendor_id: vendorId || null,
+      vendor: vendorName,
+      status: document.getElementById('vendorQuoteStatus').value,
+      cost: parseFloat(document.getElementById('vendorQuoteCost').value) || null,
+      lead_time_days: parseInt(document.getElementById('vendorQuoteLeadTime').value) || null,
+      quote_date: document.getElementById('vendorQuoteDate').value || null,
+      valid_until: document.getElementById('vendorQuoteValidUntil').value || null,
+      contact_person: document.getElementById('vendorQuoteContact').value,
+      notes: document.getElementById('vendorQuoteNotes').value
     };
     
     try {
       if (vendorQuoteId) {
-        // Editing existing vendor quote - preserve current status
-        const currentQuote = QuotesModule.getCurrentQuote();
-        const vendorQuote = currentQuote.vendor_quotes.find(vq => vq.id === vendorQuoteId);
-        if (vendorQuote) {
-          formData.requested = vendorQuote.requested;
-          formData.entered = vendorQuote.entered;
-        }
+        // Editing existing vendor quote
         await API.updateVendorQuote(vendorQuoteId, formData);
         showToast('Vendor quote updated successfully', 'success');
       } else {
@@ -484,34 +689,19 @@ const VendorQuotesModule = (function() {
     event.stopPropagation();
     const vendorQuoteId = parseInt(event.target.dataset.id, 10);
     const currentQuote = QuotesModule.getCurrentQuote();
-    
+
     if (!currentQuote) return;
-    
+
     // Find the vendor quote in the current quote
     const vendorQuote = currentQuote.vendor_quotes.find(vq => vq.id === vendorQuoteId);
-    
+
     if (!vendorQuote) {
       showToast('Vendor quote not found', 'error');
       return;
     }
-    
-    // Open the modal
-    openAddVendorQuoteModal(currentQuote.id);
-    
-    // Fill the form with existing data
-    document.getElementById('vendorQuoteType').value = vendorQuote.type;
-    document.getElementById('vendorName').value = vendorQuote.vendor;
-    document.getElementById('vendorQuoteDate').value = vendorQuote.date || '';
-    document.getElementById('vendorQuoteNotes').value = vendorQuote.notes || '';
-    document.getElementById('vendorQuoteRequested').checked = vendorQuote.requested;
-    document.getElementById('vendorQuoteEntered').checked = vendorQuote.entered;
-    
-    // Update modal title
-    document.querySelector('#vendorQuoteModal .modal-header h2').textContent = 'Edit Vendor Quote';
-    
-    // Update form submit handler with the current quote and vendor quote id
-    const form = document.getElementById('vendorQuoteForm');
-    form.onsubmit = e => handleVendorQuoteSubmit(e, currentQuote.id, vendorQuoteId);
+
+    // Open the modal with the vendor quote data for editing
+    await openAddVendorQuoteModal(currentQuote.id, vendorQuote);
   }
   
   /**

@@ -1,0 +1,88 @@
+/* DEBUGGING CSS - Add this temporarily to verify layout issues */
+/* Add to your HTML: <link rel="stylesheet" href="{{ url_for('static', filename='css/debug-layout.css') }}"> */
+
+/* Visual debugging borders - REMOVE IN PRODUCTION */
+.vendor-quotes-section {
+  border: 3px solid red !important;
+  background-color: rgba(255, 0, 0, 0.1) !important;
+}
+
+.vendor-quotes-container {
+  border: 3px solid blue !important;
+  background-color: rgba(0, 0, 255, 0.1) !important;
+}
+
+.vendor-quotes-table-wrapper {
+  border: 3px solid green !important;
+  background-color: rgba(0, 255, 0, 0.1) !important;
+}
+
+.vendor-quotes-table {
+  border: 3px solid orange !important;
+  background-color: rgba(255, 165, 0, 0.1) !important;
+}
+
+.quote-detail {
+  border: 2px solid purple !important;
+  background-color: rgba(128, 0, 128, 0.05) !important;
+}
+
+.right-pane {
+  border: 2px solid cyan !important;
+  background-color: rgba(0, 255, 255, 0.05) !important;
+}
+
+/* Height indicator - will show actual computed heights */
+.vendor-quotes-section::before {
+  content: "VQ Section Height: " attr(data-height);
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: red;
+  color: white;
+  font-size: 10px;
+  z-index: 1000;
+}
+
+/* Console logging for height debugging */
+.vendor-quotes-section,
+.vendor-quotes-container,
+.vendor-quotes-table-wrapper {
+  position: relative;
+}
+
+/* Add this JavaScript to your page to log heights:
+<script>
+function logHeights() {
+  const elements = [
+    '.vendor-quotes-section',
+    '.vendor-quotes-container',
+    '.vendor-quotes-table-wrapper',
+    '.vendor-quotes-table'
+  ];
+
+  elements.forEach(selector => {
+    const el = document.querySelector(selector);
+    if (el) {
+      const rect = el.getBoundingClientRect();
+      console.log(`${selector}:`, {
+        height: rect.height,
+        clientHeight: el.clientHeight,
+        scrollHeight: el.scrollHeight,
+        computedHeight: window.getComputedStyle(el).height
+      });
+
+      // Store height as data attribute for visual debugging
+      el.setAttribute('data-height', Math.round(rect.height) + 'px');
+    }
+  });
+}
+
+// Run on load and resize
+window.addEventListener('load', logHeights);
+window.addEventListener('resize', logHeights);
+
+// Also log every 2 seconds for debugging
+setInterval(logHeights, 2000);
+</script>
+*/

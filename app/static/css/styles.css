@@ -104,6 +104,18 @@
   --empty-state-color: #666;
   --toast-bg: white;
   --tab-header-bg: var(--bg-hover);
+
+  /* Extended theming variables for quote detail layout */
+  --card-background: white;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  --border-light: #f3f4f6;
+  --border-dark: #9ca3af;
+  --hover-bg: #f9fafb;
+  --button-bg: #f0f9ff;
+  --button-border: #bfdbfe;
+  --button-text: white;
 }
 
 /* Dark mode variables */
@@ -112,7 +124,7 @@
   --scrollbar-thumb-bg: rgba(255, 255, 255, 0.2);
   --scrollbar-thumb-hover-bg: rgba(255, 255, 255, 0.3);
   --scrollbar-thumb-active-bg: rgba(255, 255, 255, 0.4);
-  
+
   --primary-color: #3b82f6;
   --primary-hover: #2563eb;
   --text-color: #e5e7eb;
@@ -132,7 +144,7 @@
   --freight-color: #9ca3af;
   --install-color: #9ca3af;
   --forward-color: #9ca3af;
-  
+
   /* Additional semantic colors */
   --header-bg: #1f2937;
   --resizer-color: #4b5563;
@@ -148,6 +160,18 @@
   --empty-state-color: #9ca3af;
   --toast-bg: #1f2937;
   --tab-header-bg: var(--bg-hover);
+
+  /* Extended theming variables for quote detail layout */
+  --card-background: #1f2937;
+  --text-primary: #e5e7eb;
+  --text-secondary: #94a3b8;
+  --text-muted: #6b7280;
+  --border-light: #374151;
+  --border-dark: #4b5563;
+  --hover-bg: #374151;
+  --button-bg: #1e3a8a;
+  --button-border: #3b82f6;
+  --button-text: white;
 }
 
 /* Chill Coffee Theme */
@@ -156,7 +180,7 @@
   --scrollbar-thumb-bg: rgba(139, 69, 19, 0.3);
   --scrollbar-thumb-hover-bg: rgba(139, 69, 19, 0.4);
   --scrollbar-thumb-active-bg: rgba(139, 69, 19, 0.5);
-  
+
   --primary-color: #8B4513;
   --primary-hover: #7A3D10;
   --text-color: #3E2723;
@@ -176,7 +200,7 @@
   --freight-color: #5D4037;
   --install-color: #5D4037;
   --forward-color: #5D4037;
-  
+
   /* Additional semantic colors */
   --header-bg: #EFEBE9;
   --resizer-color: #D7CCC8;
@@ -192,6 +216,18 @@
   --empty-state-color: #6D4C41;
   --toast-bg: #FFFDF7;
   --tab-header-bg: #EFEBE9;
+
+  /* Extended theming variables for quote detail layout */
+  --card-background: #FFFDF7;
+  --text-primary: #3E2723;
+  --text-secondary: #5D4037;
+  --text-muted: #6D4C41;
+  --border-light: #F5DEB3;
+  --border-dark: #D7CCC8;
+  --hover-bg: #FFF3E0;
+  --button-bg: #FFF3E0;
+  --button-border: #8B4513;
+  --button-text: white;
 }
 
 /* Ocean Breeze Theme */
@@ -200,7 +236,7 @@
   --scrollbar-thumb-bg: rgba(0, 105, 148, 0.3);
   --scrollbar-thumb-hover-bg: rgba(0, 105, 148, 0.4);
   --scrollbar-thumb-active-bg: rgba(0, 105, 148, 0.5);
-  
+
   --primary-color: #006994;
   --primary-hover: #005577;
   --text-color: #263238;
@@ -220,7 +256,7 @@
   --freight-color: #455A64;
   --install-color: #455A64;
   --forward-color: #455A64;
-  
+
   /* Additional semantic colors */
   --header-bg: #CDEAFF;
   --resizer-color: #B0BEC5;
@@ -236,6 +272,18 @@
   --empty-state-color: #607D8B;
   --toast-bg: #F5FBFF;
   --tab-header-bg: #CDEAFF;
+
+  /* Extended theming variables for quote detail layout */
+  --card-background: #F5FBFF;
+  --text-primary: #263238;
+  --text-secondary: #455A64;
+  --text-muted: #607D8B;
+  --border-light: #E1F5FE;
+  --border-dark: #B0BEC5;
+  --hover-bg: #E3F2FD;
+  --button-bg: #E1F5FE;
+  --button-border: #006994;
+  --button-text: white;
 }
 
 /* Sunset Glow Theme */
@@ -244,7 +292,7 @@
   --scrollbar-thumb-bg: rgba(255, 107, 53, 0.3);
   --scrollbar-thumb-hover-bg: rgba(255, 107, 53, 0.4);
   --scrollbar-thumb-active-bg: rgba(255, 107, 53, 0.5);
-  
+
   --primary-color: #FF6B35;
   --primary-hover: #E55A28;
   --text-color: #2C1810;
@@ -264,7 +312,7 @@
   --freight-color: #5D3A2A;
   --install-color: #5D3A2A;
   --forward-color: #5D3A2A;
-  
+
   /* Additional semantic colors */
   --header-bg: #FFE0CC;
   --resizer-color: #FFB79D;
@@ -280,6 +328,18 @@
   --empty-state-color: #7D5040;
   --toast-bg: #FFFBF7;
   --tab-header-bg: #FFE0CC;
+
+  /* Extended theming variables for quote detail layout */
+  --card-background: #FFFBF7;
+  --text-primary: #2C1810;
+  --text-secondary: #5D3A2A;
+  --text-muted: #7D5040;
+  --border-light: #FFE5CC;
+  --border-dark: #FFB79D;
+  --hover-bg: #FFF0E5;
+  --button-bg: #FFE5CC;
+  --button-border: #FF6B35;
+  --button-text: white;
 }
 
 /* Forest Mist Theme */
@@ -288,7 +348,7 @@
   --scrollbar-thumb-bg: rgba(46, 125, 50, 0.3);
   --scrollbar-thumb-hover-bg: rgba(46, 125, 50, 0.4);
   --scrollbar-thumb-active-bg: rgba(46, 125, 50, 0.5);
-  
+
   --primary-color: #2E7D32;
   --primary-hover: #1B5E20;
   --text-color: #1B3021;
@@ -308,7 +368,7 @@
   --freight-color: #2E3F34;
   --install-color: #2E3F34;
   --forward-color: #2E3F34;
-  
+
   /* Additional semantic colors */
   --header-bg: #DCEDC8;
   --resizer-color: #A8C3A6;
@@ -324,6 +384,18 @@
   --empty-state-color: #455A47;
   --toast-bg: #F9FBF5;
   --tab-header-bg: #DCEDC8;
+
+  /* Extended theming variables for quote detail layout */
+  --card-background: #F9FBF5;
+  --text-primary: #1B3021;
+  --text-secondary: #2E3F34;
+  --text-muted: #455A47;
+  --border-light: #E8F5E8;
+  --border-dark: #A8C3A6;
+  --hover-bg: #F1F8E9;
+  --button-bg: #E8F5E8;
+  --button-border: #2E7D32;
+  --button-text: white;
 }
 
 /* Cherry Blossom Theme */
@@ -332,7 +404,7 @@
   --scrollbar-thumb-bg: rgba(233, 30, 99, 0.3);
   --scrollbar-thumb-hover-bg: rgba(233, 30, 99, 0.4);
   --scrollbar-thumb-active-bg: rgba(233, 30, 99, 0.5);
-  
+
   --primary-color: #E91E63;
   --primary-hover: #C2185B;
   --text-color: #2E1A1E;
@@ -352,7 +424,7 @@
   --freight-color: #5D3A40;
   --install-color: #5D3A40;
   --forward-color: #5D3A40;
-  
+
   /* Additional semantic colors */
   --header-bg: #FFD6E8;
   --resizer-color: #F8BBD0;
@@ -368,6 +440,18 @@
   --empty-state-color: #795548;
   --toast-bg: #FFFBFF;
   --tab-header-bg: #FFD6E8;
+
+  /* Extended theming variables for quote detail layout */
+  --card-background: #FFFBFF;
+  --text-primary: #2E1A1E;
+  --text-secondary: #5D3A40;
+  --text-muted: #795548;
+  --border-light: #FCE4EC;
+  --border-dark: #F8BBD0;
+  --hover-bg: #FFF0F5;
+  --button-bg: #FCE4EC;
+  --button-border: #E91E63;
+  --button-text: white;
 }
 
 /* Midnight Purple Theme */
@@ -376,7 +460,7 @@
   --scrollbar-thumb-bg: rgba(186, 104, 200, 0.3);
   --scrollbar-thumb-hover-bg: rgba(186, 104, 200, 0.4);
   --scrollbar-thumb-active-bg: rgba(186, 104, 200, 0.5);
-  
+
   --primary-color: #6A1B9A;
   --primary-hover: #4A148C;
   --text-color: #E1BEE7;
@@ -396,7 +480,7 @@
   --freight-color: #BA68C8;
   --install-color: #BA68C8;
   --forward-color: #BA68C8;
-  
+
   /* Additional semantic colors */
   --header-bg: #311B92;
   --resizer-color: #6A1B9A;
@@ -412,6 +496,18 @@
   --empty-state-color: #BA68C8;
   --toast-bg: #311B92;
   --tab-header-bg: #311B92;
+
+  /* Extended theming variables for quote detail layout */
+  --card-background: #211640;
+  --text-primary: #E1BEE7;
+  --text-secondary: #BA68C8;
+  --text-muted: #9C27B0;
+  --border-light: #4A148C;
+  --border-dark: #6A1B9A;
+  --hover-bg: #2A1346;
+  --button-bg: #311B92;
+  --button-border: #6A1B9A;
+  --button-text: white;
 }
 
 .dark-mode body {
@@ -2048,6 +2144,15 @@ main {
   font-size: var(--font-size-input);
 }
 
+.vendors-list {
+  border: 1px solid var(--border-color);
+  border-radius: 0.25rem;
+  margin-bottom: 1rem;
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: var(--font-size-input);
+}
+
 .sales-rep-item {
   display: flex;
   justify-content: space-between;
@@ -2068,6 +2173,69 @@ main {
 
 .sales-rep-delete:hover {
   opacity: 1;
+}
+
+/* Vendor items */
+.vendor-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--font-size-sm);
+  border-bottom: 1px solid var(--border-light);
+  background: var(--card-background);
+  border-radius: 4px;
+  margin-bottom: var(--font-size-xs);
+}
+
+.vendor-info {
+  flex: 1;
+}
+
+.vendor-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+}
+
+.vendor-specialization {
+  font-size: var(--font-size-tiny);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+
+.vendor-contact {
+  font-size: var(--font-size-tiny);
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.vendor-actions {
+  display: flex;
+  gap: var(--font-size-xs);
+}
+
+.vendor-delete-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: var(--font-size-base);
+  font-weight: bold;
+  cursor: pointer;
+  padding: var(--font-size-xs);
+  border-radius: 3px;
+  transition: all 0.2s ease;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vendor-delete-btn:hover {
+  background-color: var(--error-color);
+  color: white;
 }
 
 /* Modal */
@@ -2621,7 +2789,7 @@ textarea.inline-edit-input {
   --freight-color: #00CCCC;
   --install-color: #00CCCC;
   --forward-color: #00CCCC;
-  
+
   /* Additional semantic colors */
   --header-bg: #0A0A0A;
   --resizer-color: #FF00FF;
@@ -2637,6 +2805,18 @@ textarea.inline-edit-input {
   --empty-state-color: #00CCCC;
   --toast-bg: #111111;
   --tab-header-bg: #0A0A0A;
+
+  /* Extended theming variables for quote detail layout */
+  --card-background: #111111;
+  --text-primary: #FFFFFF;
+  --text-secondary: #00FF00;
+  --text-muted: #FF00FF;
+  --border-light: #FF00FF;
+  --border-dark: #00FFFF;
+  --hover-bg: #1A1A1A;
+  --button-bg: #1A1A1A;
+  --button-border: #00FFFF;
+  --button-text: #000000;
 }
 
 /* Dingy Dank Theme */
@@ -2645,7 +2825,7 @@ textarea.inline-edit-input {
   --scrollbar-thumb-bg: rgba(124, 179, 66, 0.3);
   --scrollbar-thumb-hover-bg: rgba(124, 179, 66, 0.4);
   --scrollbar-thumb-active-bg: rgba(124, 179, 66, 0.5);
-  
+
   --primary-color: #7CB342;
   --primary-hover: #558B2F;
   --text-color: #E8F5E9;
@@ -2665,7 +2845,7 @@ textarea.inline-edit-input {
   --freight-color: #827717;
   --install-color: #827717;
   --forward-color: #827717;
-  
+
   /* Additional semantic colors */
   --header-bg: #212821;
   --resizer-color: #33691E;
@@ -2681,6 +2861,18 @@ textarea.inline-edit-input {
   --empty-state-color: #AED581;
   --toast-bg: #212821;
   --tab-header-bg: #263026;
+
+  /* Extended theming variables for quote detail layout */
+  --card-background: #212821;
+  --text-primary: #E8F5E9;
+  --text-secondary: #AED581;
+  --text-muted: #9CCC65;
+  --border-light: #263026;
+  --border-dark: #33691E;
+  --hover-bg: #263026;
+  --button-bg: #1B5E20;
+  --button-border: #7CB342;
+  --button-text: white;
 }
 
 /* Theme-specific adjustments */

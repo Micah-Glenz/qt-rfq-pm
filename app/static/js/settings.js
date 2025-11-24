@@ -5,15 +5,12 @@ const SettingsModule = (function() {
   // Private variables
   let defaultTasks = [];
   let salesReps = [];
-  
+  let vendors = [];
+
   // DOM elements
   const elements = {
     settingsBtn: document.getElementById('settingsBtn'),
     settingsModal: document.getElementById('settingsModal'),
-    defaultTasksList: document.getElementById('defaultTasksList'),
-    newTaskInput: document.getElementById('newTaskInput'),
-    addTaskBtn: document.getElementById('addTaskBtn'),
-    addSeparatorBtn: document.getElementById('addSeparatorBtn'),
     saveSettingsBtn: document.getElementById('saveSettingsBtn')
   };
   
@@ -22,10 +19,8 @@ const SettingsModule = (function() {
    */
   function init() {
     elements.settingsBtn.addEventListener('click', openSettingsModal);
-    elements.addTaskBtn.addEventListener('click', handleAddDefaultTask);
-    elements.addSeparatorBtn.addEventListener('click', handleAddDefaultSeparator);
     elements.saveSettingsBtn.addEventListener('click', handleSaveSettings);
-    
+
     // Close modal handlers
     document.querySelectorAll('.close-modal, .cancel-modal').forEach(el => {
       el.addEventListener('click', closeModals);
@@ -81,16 +76,15 @@ const SettingsModule = (function() {
    * Open settings modal
    */
   function openSettingsModal() {
-    loadDefaultTasks();
     renderSalesReps();
     loadApiConfig();
-    
+
     // Initialize theme selector
     const themeSelect = document.getElementById('themeSelect');
     if (themeSelect) {
       const currentTheme = localStorage.getItem('theme') || 'default';
       themeSelect.value = currentTheme;
-      
+
       // Add event listener for theme changes
       themeSelect.addEventListener('change', function() {
         const selectedTheme = this.value;
@@ -98,12 +92,12 @@ const SettingsModule = (function() {
         localStorage.setItem('theme', selectedTheme);
       });
     }
-    
+
     // Initialize show hidden quotes toggle
     const showHiddenToggle = document.getElementById('showHiddenToggle');
     if (showHiddenToggle) {
       showHiddenToggle.checked = localStorage.getItem('showHiddenQuotes') === 'true';
-      
+
       // Add event listener for show hidden toggle
       showHiddenToggle.addEventListener('change', function() {
         const showHidden = this.checked;
@@ -112,7 +106,21 @@ const SettingsModule = (function() {
         QuotesModule.reloadQuotes();
       });
     }
-    
+
+    // Set up vendor form event listeners
+    const addVendorBtn = document.getElementById('addVendorBtn');
+    if (addVendorBtn) {
+      addVendorBtn.addEventListener('click', handleAddVendor);
+    }
+
+    // Load vendors when vendors tab is activated
+    const vendorsTab = document.querySelector('[data-tab="vendors"]');
+    if (vendorsTab) {
+      vendorsTab.addEventListener('click', () => {
+        loadVendors();
+      });
+    }
+
     elements.settingsModal.style.display = 'block';
   }
   
@@ -242,18 +250,146 @@ const SettingsModule = (function() {
    */
   function updateSalesRepDropdown(dropdown) {
     const currentValue = dropdown.value;
-    
+
     // Create options
     let options = '<option value="">Select a sales rep</option>';
     salesReps.forEach(rep => {
       options += `<option value="${rep}">${rep}</option>`;
     });
-    
+
     dropdown.innerHTML = options;
-    
+
     // Restore selected value if it still exists
     if (salesReps.includes(currentValue)) {
       dropdown.value = currentValue;
+    }
+  }
+
+  /**
+   * Load vendors from API
+   */
+  async function loadVendors() {
+    try {
+      vendors = await API.getVendors(true); // Get active vendors only
+      renderVendors();
+    } catch (error) {
+      console.error('Failed to load vendors:', error);
+      showToast('Failed to load vendors', 'error');
+    }
+  }
+
+  /**
+   * Render vendors list
+   */
+  function renderVendors() {
+    const vendorsContainer = document.getElementById('vendorsList');
+    if (!vendorsContainer) return;
+
+    if (vendors.length === 0) {
+      vendorsContainer.innerHTML = '<div class="empty-state">No vendors found</div>';
+      return;
+    }
+
+    vendorsContainer.innerHTML = vendors.map(vendor => `
+      <div class="vendor-item" data-id="${vendor.id}">
+        <div class="vendor-info">
+          <div class="vendor-name">${vendor.name}</div>
+          <div class="vendor-specialization">${vendor.specialization || 'No specialization'}</div>
+          ${vendor.contact_info ? `<div class="vendor-contact">${vendor.contact_info}</div>` : ''}
+        </div>
+        <div class="vendor-actions">
+          <button class="vendor-delete-btn" data-id="${vendor.id}">×</button>
+        </div>
+      </div>
+    `).join('');
+
+    // Add event listeners for delete buttons
+    document.querySelectorAll('.vendor-delete-btn').forEach(btn => {
+      btn.addEventListener('click', handleDeleteVendor);
+    });
+  }
+
+  /**
+   * Handle add vendor
+   */
+  async function handleAddVendor() {
+    const nameInput = document.getElementById('newVendorName');
+    const contactInput = document.getElementById('newVendorContact');
+    const emailInput = document.getElementById('newVendorEmail');
+    const phoneInput = document.getElementById('newVendorPhone');
+    const specializationInput = document.getElementById('newVendorSpecialization');
+    const notesInput = document.getElementById('newVendorNotes');
+
+    // Check if elements exist
+    if (!nameInput || !contactInput || !emailInput || !phoneInput || !specializationInput || !notesInput) {
+      console.error('Vendor form elements not found');
+      showToast('Error: Vendor form not properly initialized', 'error');
+      return;
+    }
+
+    const name = nameInput.value.trim();
+    const contact = contactInput.value.trim();
+    const email = emailInput.value.trim();
+    const phone = phoneInput.value.trim();
+    const specialization = specializationInput.value.trim();
+    const notes = notesInput.value.trim();
+
+    if (!name) {
+      showToast('Vendor name cannot be empty', 'error');
+      return;
+    }
+
+    // Build comprehensive contact info
+    let contactInfo = contact;
+    if (email) contactInfo += (contactInfo ? ' | ' : '') + email;
+    if (phone) contactInfo += (contactInfo ? ' | ' : '') + phone;
+    if (notes) contactInfo += (contactInfo ? ' | Notes: ' : 'Notes: ') + notes;
+
+    try {
+      const vendorData = {
+        name: name,
+        specialization: specialization || null,
+        contact_info: contactInfo || null,
+        is_active: true
+      };
+
+      const newVendor = await API.createVendor(vendorData);
+
+      // Clear form
+      nameInput.value = '';
+      contactInput.value = '';
+      emailInput.value = '';
+      phoneInput.value = '';
+      specializationInput.value = '';
+      notesInput.value = '';
+
+      // Reload vendors
+      await loadVendors();
+
+      showToast('Vendor added successfully', 'success');
+    } catch (error) {
+      showToast(`Failed to add vendor: ${error.message}`, 'error');
+    }
+  }
+
+  /**
+   * Handle delete vendor
+   * @param {Event} event - Click event
+   */
+  async function handleDeleteVendor(event) {
+    const vendorId = parseInt(event.target.dataset.id, 10);
+    const vendor = vendors.find(v => v.id === vendorId);
+
+    if (!vendor) return;
+
+    if (confirm(`Are you sure you want to delete "${vendor.name}"? This will mark the vendor as inactive but won't remove existing vendor quotes.`)) {
+      try {
+        await API.deleteVendor(vendorId);
+        await loadVendors();
+        showToast('Vendor deleted successfully', 'success');
+      } catch (error) {
+        showToast(`Failed to delete vendor: ${error.message}`, 'error');
+      }
     }
   }
   
@@ -590,6 +726,7 @@ const SettingsModule = (function() {
     getSalesReps,
     updateSalesRepDropdown,
     handleAddSalesRep,
+    handleAddVendor,
     getApiConfig,
     getShowHiddenQuotes,
     initTheme,

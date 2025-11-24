@@ -161,7 +161,7 @@ const API = {
    * @returns {Promise<Object>} - Response message
    */
   async updateVendorQuote(vendorQuoteId, vendorQuoteData) {
-    return this.fetch(`${this.baseUrl}/vendor-quotes/${vendorQuoteId}`, {
+    return this.fetch(`${this.baseUrl}/vendor-quotes/${vendorQuoteId}/enhanced`, {
       method: 'PUT',
       body: JSON.stringify(vendorQuoteData)
     });
@@ -305,6 +305,73 @@ const API = {
     return this.fetch(`${this.baseUrl}/quotes/${quoteId}/tasks/reorder`, {
       method: 'POST',
       body: JSON.stringify({ taskIds })
+    });
+  },
+
+  /**
+   * Get all vendors with optional filtering
+   * @param {boolean} activeOnly - Whether to get only active vendors
+   * @param {string} specialization - Filter by specialization
+   * @returns {Promise<Array>} - Array of vendors
+   */
+  async getVendors(activeOnly = true, specialization = null) {
+    const params = new URLSearchParams();
+    if (activeOnly) {
+      params.append('active_only', 'true');
+    }
+    if (specialization) {
+      params.append('specialization', specialization);
+    }
+
+    const url = `${this.baseUrl}/vendors${params.toString() ? `?${params.toString()}` : ''}`;
+    const response = await this.fetch(url);
+    return response.data || [];
+  },
+
+  /**
+   * Get a vendor by ID
+   * @param {number} vendorId - The vendor ID
+   * @returns {Promise<Object>} - The vendor object
+   */
+  async getVendor(vendorId) {
+    const response = await this.fetch(`${this.baseUrl}/vendors/${vendorId}`);
+    return response.data;
+  },
+
+  /**
+   * Create a new vendor
+   * @param {Object} vendorData - The vendor data
+   * @returns {Promise<Object>} - The created vendor
+   */
+  async createVendor(vendorData) {
+    const response = await this.fetch(`${this.baseUrl}/vendors`, {
+      method: 'POST',
+      body: JSON.stringify(vendorData)
+    });
+    return response.data;
+  },
+
+  /**
+   * Update a vendor
+   * @param {number} vendorId - The vendor ID
+   * @param {Object} vendorData - The updated vendor data
+   * @returns {Promise<Object>} - Response message
+   */
+  async updateVendor(vendorId, vendorData) {
+    return this.fetch(`${this.baseUrl}/vendors/${vendorId}`, {
+      method: 'PUT',
+      body: JSON.stringify(vendorData)
+    });
+  },
+
+  /**
+   * Delete a vendor (sets is_active=False)
+   * @param {number} vendorId - The vendor ID
+   * @returns {Promise<Object>} - Response message
+   */
+  async deleteVendor(vendorId) {
+    return this.fetch(`${this.baseUrl}/vendors/${vendorId}`, {
+      method: 'DELETE'
     });
   }
 };
