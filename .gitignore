@@ -132,3 +132,6 @@ cython_debug/
 *copy.db
 *_old.db
 *_backup_*
+
+# Configuration files (may contain sensitive data)
+config.json
