@@ -87,25 +87,17 @@ class Quote:
         """Get all quotes, optionally filtered by search term and hidden status"""
         with DatabaseContext() as conn:
             cursor = conn.cursor()
-            
-            # Base query with subqueries to avoid JOIN multiplication issues
+
+            # Base query without task references (tasks table has been removed)
             base_query = '''
-                SELECT q.id, q.customer, q.quote_no, q.description, q.sales_rep, 
+                SELECT q.id, q.customer, q.quote_no, q.description, q.sales_rep,
                        q.hidden, q.created_at, q.updated_at,
-                       COALESCE(task_stats.task_count, 0) AS task_count,
-                       COALESCE(task_stats.completed_tasks, 0) AS completed_tasks,
+                       0 AS task_count,
+                       0 AS completed_tasks,
                        COALESCE(vendor_stats.vendor_quote_count, 0) AS vendor_quote_count,
                        COALESCE(vendor_stats.completed_vendor_quotes, 0) AS completed_vendor_quotes,
                        COALESCE(note_stats.note_count, 0) AS note_count
                 FROM quotes q
-                LEFT JOIN (
-                    SELECT quote_id,
-                           COUNT(*) AS task_count,
-                           SUM(CASE WHEN done = 1 THEN 1 ELSE 0 END) AS completed_tasks
-                    FROM tasks 
-                    WHERE is_separator = 0 
-                    GROUP BY quote_id
-                ) task_stats ON q.id = task_stats.quote_id
                 LEFT JOIN (
                     SELECT quote_id,
                            COUNT(*) AS vendor_quote_count,
@@ -116,18 +108,18 @@ class Quote:
                 LEFT JOIN (
                     SELECT quote_id,
                            COUNT(*) AS note_count
-                    FROM notes 
+                    FROM notes
                     GROUP BY quote_id
                 ) note_stats ON q.id = note_stats.quote_id
             '''
-            
+
             where_clauses = []
             params = []
-            
+
             # Only show visible quotes unless including hidden
             if not include_hidden:
                 where_clauses.append("q.hidden = 0")
-            
+
             # Add search filter if provided
             if search:
                 search_param = f"%{search}%"
@@ -138,18 +130,18 @@ class Quote:
                      q.sales_rep LIKE ?)
                 ''')
                 params.extend([search_param, search_param, search_param, search_param])
-            
+
             # Construct final query
             if where_clauses:
                 base_query += " WHERE " + " AND ".join(where_clauses)
-            
+
             base_query += " ORDER BY q.created_at DESC"
-            
+
             cursor.execute(base_query, params)
-            
+
             rows = cursor.fetchall()
             quotes = []
-            
+
             for row in rows:
                 quote = {
                     'id': row['id'],
@@ -160,14 +152,14 @@ class Quote:
                     'hidden': row['hidden'],
                     'created_at': row['created_at'],
                     'updated_at': row['updated_at'],
-                    'task_count': row['task_count'],
-                    'completed_tasks': row['completed_tasks'] or 0,
+                    'task_count': 0,  # Tasks table has been removed
+                    'completed_tasks': 0,  # Tasks table has been removed
                     'vendor_quote_count': row['vendor_quote_count'],
                     'completed_vendor_quotes': row['completed_vendor_quotes'] or 0,
                     'note_count': row['note_count']
                 }
                 quotes.append(quote)
-            
+
             return quotes
     
     @staticmethod

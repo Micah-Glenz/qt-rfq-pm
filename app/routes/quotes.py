@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.models import Quote, Task, VendorQuote, Note, Event
+from app.models import Quote, VendorQuote, Note, Event
 import json
 
 from app.services.config_service import ConfigService
@@ -19,11 +19,10 @@ def get_quote(quote_id):
     if not quote:
         return jsonify({'error': 'Quote not found'}), 404
     
-    tasks = Task.get_by_quote_id(quote_id)
     vendor_quotes = VendorQuote.get_by_quote_id(quote_id)
     notes = Note.get_by_quote_id(quote_id)
     events = Event.get_by_quote_id(quote_id)
-    
+
     result = {
         'id': quote.id,
         'customer': quote.customer,
@@ -36,7 +35,7 @@ def get_quote(quote_id):
         'hidden': quote.hidden,
         'created_at': quote.created_at,
         'updated_at': quote.updated_at,
-        'tasks': tasks,
+        'tasks': [],  # Empty array since tasks are no longer supported
         'vendor_quotes': vendor_quotes,
         'notes': notes,
         'events': events
