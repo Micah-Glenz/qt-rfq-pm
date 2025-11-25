@@ -253,9 +253,8 @@ const QuotesModule = (function() {
       console.group(`Google-related data for Quote ID: ${quoteId}`);
       console.log('Quote Number:', quote.quote_no);
       console.log('Customer:', quote.customer);
-      console.log('Google Project Sheet URL:', quote.project_sheet_url || 'Not set');
-      console.log('Google MPSF Link:', quote.mpsf_link || 'Not set');
-      console.log('Google Drive Folder Link:', quote.folder_link || 'Not set');
+      console.log('MPSF Link:', quote.mpsf_link || 'Not set');
+      console.log('Folder Link:', quote.folder_link || 'Not set');
       console.log('Method Link:', quote.method_link || 'Not set');
       console.log('Full quote object:', quote);
       console.groupEnd();
@@ -384,23 +383,16 @@ const QuotesModule = (function() {
     const projectLinksContainer = document.querySelector('.project-links');
     
     // Check if any project links exist
-    const hasLinks = quote.project_sheet_url || quote.mpsf_link || quote.folder_link || quote.method_link;
+    const hasLinks = quote.mpsf_link || quote.folder_link || quote.method_link;
     
     if (hasLinks) {
       const projectLinksHTML = `
         <div class="info-label">Project Links</div>
         <div class="project-links-container">
-          ${quote.project_sheet_url ? `
-            <div class="project-link">
-              <a href="${quote.project_sheet_url}" target="_blank" class="link-button">
-                Open Project Sheet 📊
-              </a>
-            </div>
-          ` : ''}
           ${quote.mpsf_link ? `
             <div class="project-link">
               <a href="${quote.mpsf_link}" target="_blank" class="link-button">
-                Open MPSF 📄
+                Open MPSF 📊
               </a>
             </div>
           ` : ''}
@@ -451,7 +443,6 @@ const QuotesModule = (function() {
    */
   function updateEditableLinkFields(quote) {
     const linkFields = [
-      { id: 'projectSheetUrlDisplay', field: 'project_sheet_url', defaultText: 'No project sheet URL' },
       { id: 'mpsfLinkDisplay', field: 'mpsf_link', defaultText: 'No MPSF link' },
       { id: 'folderLinkDisplay', field: 'folder_link', defaultText: 'No folder link' },
       { id: 'methodLinkDisplay', field: 'method_link', defaultText: 'No method link' }
@@ -586,11 +577,10 @@ const QuotesModule = (function() {
               </div>
 
               <!-- Project links section -->
-              ${currentQuote.project_sheet_url || currentQuote.mpsf_link || currentQuote.folder_link || currentQuote.method_link ? `
+              ${currentQuote.mpsf_link || currentQuote.folder_link || currentQuote.method_link ? `
                 <div class="compact-project-links">
                   <div class="compact-project-links-title">Project Links</div>
-                  ${currentQuote.project_sheet_url ? `<a href="${currentQuote.project_sheet_url}" target="_blank" class="compact-link-button">📊 Project Sheet</a>` : ''}
-                  ${currentQuote.mpsf_link ? `<a href="${currentQuote.mpsf_link}" target="_blank" class="compact-link-button">📄 MPSF</a>` : ''}
+                  ${currentQuote.mpsf_link ? `<a href="${currentQuote.mpsf_link}" target="_blank" class="compact-link-button">📊 MPSF</a>` : ''}
                   ${currentQuote.folder_link ? `<a href="${currentQuote.folder_link}" target="_blank" class="compact-link-button">📁 Drive Folder</a>` : ''}
                   ${currentQuote.method_link ? `<a href="${currentQuote.method_link}" target="_blank" class="compact-link-button">🔧 Method</a>` : ''}
                 </div>
@@ -849,7 +839,6 @@ const QuotesModule = (function() {
     document.getElementById('editCustomer').value = currentQuote.customer;
     document.getElementById('editQuoteNo').value = currentQuote.quote_no;
     document.getElementById('editDescription').value = currentQuote.description || '';
-    document.getElementById('editProjectSheetUrl').value = currentQuote.project_sheet_url || '';
     document.getElementById('editMpsfLink').value = currentQuote.mpsf_link || '';
     document.getElementById('editFolderLink').value = currentQuote.folder_link || '';
     document.getElementById('editMethodLink').value = currentQuote.method_link || '';
@@ -895,7 +884,6 @@ const QuotesModule = (function() {
       quote_no: document.getElementById('editQuoteNo').value,
       description: document.getElementById('editDescription').value,
       sales_rep: document.getElementById('editSalesRepDropdown').value,
-      project_sheet_url: document.getElementById('editProjectSheetUrl').value,
       mpsf_link: document.getElementById('editMpsfLink').value,
       folder_link: document.getElementById('editFolderLink').value,
       method_link: document.getElementById('editMethodLink').value,
@@ -1066,16 +1054,11 @@ const QuotesModule = (function() {
     };
     
     const createProject = document.getElementById('createProject').checked;
-    
-    // Get spreadsheet ID from settings
-    const config = await SettingsModule.getApiConfig();
-    const spreadsheetId = config.default_spreadsheet_id;
-    
+
     // Add project creation data if checked and we have the necessary data
-    if (createProject && formData.sales_rep && spreadsheetId) {
+    if (createProject && formData.sales_rep) {
       formData.create_project = true;
       formData.project_description = formData.description;
-      formData.spreadsheet_id = spreadsheetId;
     }
     
     try {

@@ -21,8 +21,7 @@ class ConfigService:
         
         return {
             'gas_api_url': '',
-            'gas_api_key': '',
-            'default_spreadsheet_id': ''
+            'gas_api_key': ''
         }
     
     @staticmethod

@@ -30,7 +30,6 @@ def get_quote(quote_id):
         'quote_no': quote.quote_no,
         'description': quote.description,
         'sales_rep': quote.sales_rep,
-        'project_sheet_url': quote.project_sheet_url,
         'mpsf_link': quote.mpsf_link,
         'folder_link': quote.folder_link,
         'method_link': quote.method_link,
@@ -85,7 +84,7 @@ def create_quote():
         )
         
         # If create_project flag is set, handle project creation
-        if data.get('create_project') and sales_rep and data.get('spreadsheet_id'):
+        if data.get('create_project') and sales_rep:
             try:
                 gas_api = ConfigService.get_gas_api()
                 
@@ -94,15 +93,14 @@ def create_quote():
                     'customerName': customer,
                     'projectDescription': data.get('project_description', description),
                     'estimateNumber': quote_no,
-                    'salesRep': sales_rep,
-                    'spreadsheetId': data.get('spreadsheet_id')
+                    'salesRep': sales_rep
                 })
                 
-                # Update the quote with project links
+                # Update the quote with project links (map GAS response to database fields)
                 Quote.update(quote_id, customer, quote_no, description, sales_rep,
-                             project_result.get('sheetUrl'),
-                             project_result.get('mpsfLink'),
-                             project_result.get('folderLink'))
+                             project_result.get('fileUrl'),    # MPSF link
+                             project_result.get('folderUrl'),  # Drive folder link
+                             None)                          # No method link
                              
                 print(f"Project creation result: {project_result}")  # Debug logging
                              
@@ -130,7 +128,6 @@ def update_quote(quote_id):
     quote_no = data.get('quote_no')
     description = data.get('description')
     sales_rep = data.get('sales_rep')
-    project_sheet_url = data.get('project_sheet_url')
     mpsf_link = data.get('mpsf_link')
     folder_link = data.get('folder_link')
     method_link = data.get('method_link')
@@ -144,7 +141,7 @@ def update_quote(quote_id):
         return jsonify({'error': 'Quote not found'}), 404
 
     if Quote.update(quote_id, customer, quote_no, description, sales_rep,
-                    project_sheet_url, mpsf_link, folder_link, method_link, hidden):
+                    mpsf_link, folder_link, method_link, hidden):
         return jsonify({'message': 'Quote updated successfully'})
     else:
         return jsonify({'error': 'Quote not found or no changes made'}), 404

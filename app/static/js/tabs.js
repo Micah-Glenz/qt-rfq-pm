@@ -177,7 +177,7 @@ const TabsModule = (function() {
      */
     function hasLinkForTab(tabName) {
         if (!currentQuote) return false;
-        
+
         switch(tabName) {
             case 'mpsf':
                 return !!currentQuote.mpsf_link;
@@ -193,7 +193,7 @@ const TabsModule = (function() {
      */
     function getLinkForTab(tabName) {
         if (!currentQuote) return null;
-        
+
         switch(tabName) {
             case 'mpsf':
                 return currentQuote.mpsf_link;

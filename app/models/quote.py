@@ -4,15 +4,14 @@ from app.models.event import Event
 import json
 
 class Quote:
-    def __init__(self, id=None, customer=None, quote_no=None, description=None, 
-                 sales_rep=None, project_sheet_url=None, mpsf_link=None, 
+    def __init__(self, id=None, customer=None, quote_no=None, description=None,
+                 sales_rep=None, mpsf_link=None,
                  folder_link=None, method_link=None, hidden=False, created_at=None, updated_at=None):
         self.id = id
         self.customer = customer
         self.quote_no = quote_no
         self.description = description
         self.sales_rep = sales_rep
-        self.project_sheet_url = project_sheet_url
         self.mpsf_link = mpsf_link
         self.folder_link = folder_link
         self.method_link = method_link
@@ -21,17 +20,17 @@ class Quote:
         self.updated_at = updated_at
     
     @staticmethod
-    def create(customer, quote_no, description=None, sales_rep=None, 
-               project_sheet_url=None, mpsf_link=None, folder_link=None, method_link=None):
+    def create(customer, quote_no, description=None, sales_rep=None,
+               mpsf_link=None, folder_link=None, method_link=None):
         """Create a new quote in the database"""
         with DatabaseContext() as conn:
             cursor = conn.cursor()
             cursor.execute('''
                 INSERT INTO quotes (customer, quote_no, description, sales_rep,
-                                  project_sheet_url, mpsf_link, folder_link, method_link)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (customer, quote_no, description, sales_rep, 
-                  project_sheet_url, mpsf_link, folder_link, method_link))
+                                  mpsf_link, folder_link, method_link)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', (customer, quote_no, description, sales_rep,
+                  mpsf_link, folder_link, method_link))
             
             quote_id = cursor.lastrowid
             conn.commit()
@@ -59,13 +58,13 @@ class Quote:
         with DatabaseContext() as conn:
             cursor = conn.cursor()
             cursor.execute('''
-                SELECT id, customer, quote_no, description, sales_rep, 
-                       project_sheet_url, mpsf_link, folder_link, method_link, hidden,
+                SELECT id, customer, quote_no, description, sales_rep,
+                       mpsf_link, folder_link, method_link, hidden,
                        created_at, updated_at
                 FROM quotes
                 WHERE id = ?
             ''', (quote_id,))
-            
+
             row = cursor.fetchone()
             if row:
                 return Quote(
@@ -74,7 +73,6 @@ class Quote:
                     quote_no=row['quote_no'],
                     description=row['description'],
                     sales_rep=row['sales_rep'],
-                    project_sheet_url=row['project_sheet_url'],
                     mpsf_link=row['mpsf_link'],
                     folder_link=row['folder_link'],
                     method_link=row['method_link'],
@@ -174,7 +172,7 @@ class Quote:
     
     @staticmethod
     def update(quote_id, customer, quote_no, description, sales_rep,
-               project_sheet_url=None, mpsf_link=None, folder_link=None, method_link=None, hidden=None):
+               mpsf_link=None, folder_link=None, method_link=None, hidden=None):
         """Update a quote and log changes as an event"""
         old_quote = Quote.get_by_id(quote_id)
 
@@ -188,14 +186,13 @@ class Quote:
                         quote_no = ?,
                         description = ?,
                         sales_rep = ?,
-                        project_sheet_url = ?,
                         mpsf_link = ?,
                         folder_link = ?,
                         method_link = ?,
                         updated_at = CURRENT_TIMESTAMP
                     WHERE id = ?
                 ''', (customer, quote_no, description, sales_rep,
-                      project_sheet_url, mpsf_link, folder_link, method_link, quote_id))
+                      mpsf_link, folder_link, method_link, quote_id))
             else:
                 cursor.execute('''
                     UPDATE quotes
@@ -203,7 +200,6 @@ class Quote:
                         quote_no = ?,
                         description = ?,
                         sales_rep = ?,
-                        project_sheet_url = ?,
                         mpsf_link = ?,
                         folder_link = ?,
                         method_link = ?,
@@ -211,7 +207,7 @@ class Quote:
                         updated_at = CURRENT_TIMESTAMP
                     WHERE id = ?
                 ''', (customer, quote_no, description, sales_rep,
-                      project_sheet_url, mpsf_link, folder_link, method_link, hidden, quote_id))
+                      mpsf_link, folder_link, method_link, hidden, quote_id))
 
             conn.commit()
             success = cursor.rowcount > 0
@@ -224,7 +220,6 @@ class Quote:
                 ('quote_no', quote_no),
                 ('description', description),
                 ('sales_rep', sales_rep),
-                ('project_sheet_url', project_sheet_url),
                 ('mpsf_link', mpsf_link),
                 ('folder_link', folder_link),
                 ('method_link', method_link)
