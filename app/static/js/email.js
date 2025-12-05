@@ -240,8 +240,8 @@ const EmailModule = (function() {
   function initializeEmailModal() {
     if (!currentVendorQuote) return;
 
-    // Set recipient email - prioritize vendor email
-    const vendorEmail = currentVendorQuote.vendor?.email || '';
+    // Set recipient email - prioritize vendor email from availableVariables
+    const vendorEmail = availableVariables.vendor_email || '';
     const testEmail = 'micah+gasapitest@commfitness.com';
 
     // Use vendor email if available, otherwise show test email as placeholder
