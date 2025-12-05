@@ -197,6 +197,7 @@
                         <button class="settings-tab" data-tab="sales-reps">Sales Reps</button>
                         <button class="settings-tab" data-tab="vendors">Vendors</button>
                         <button class="settings-tab" data-tab="integration">Integration</button>
+                        <button class="settings-tab" data-tab="email-templates">Email Templates</button>
                     </div>
                     
                     <!-- Appearance Tab -->
@@ -306,7 +307,33 @@
                             </div>
                         </div>
                     </div>
-                    
+
+                    <!-- Email Templates Tab -->
+                    <div id="email-templatesTab" class="settings-content">
+                        <div class="settings-section">
+                            <h3>Email Template Management</h3>
+                            <p>Create and manage email templates for vendor communication. Templates support variable substitution using {variable} syntax.</p>
+
+                            <!-- Template Search and Filter -->
+                            <div class="template-controls">
+                                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                                    <input type="text" id="templateSearchInput" placeholder="Search templates..." style="flex: 1;">
+                                    <select id="templateVendorFilter" style="min-width: 150px;">
+                                        <option value="">All Vendors</option>
+                                        <!-- Vendor options will be populated dynamically -->
+                                    </select>
+                                    <button id="createTemplateBtn" class="btn small primary">Create Template</button>
+                                </div>
+                            </div>
+
+                            <!-- Templates List -->
+                            <div id="templatesList" class="templates-list">
+                                <!-- Templates will be loaded here -->
+                                <div class="loading">Loading templates...</div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-actions">
                         <button type="button" class="btn cancel-modal">Cancel</button>
                         <button id="saveSettingsBtn" class="btn primary">Save Settings</button>
@@ -347,6 +374,9 @@
     <script src="{{ url_for('static', filename='js/gas-api.js') }}"></script>
     <script src="{{ url_for('static', filename='js/tasks.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor-quotes.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/email.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/email-history.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/template-manager.js') }}"></script>
     <script src="{{ url_for('static', filename='js/notes.js') }}"></script>
     <script src="{{ url_for('static', filename='js/events.js') }}"></script>
     <script src="{{ url_for('static', filename='js/settings.js') }}"></script>

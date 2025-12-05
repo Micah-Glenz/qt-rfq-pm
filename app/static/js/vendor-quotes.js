@@ -96,6 +96,13 @@ const VendorQuotesModule = (function() {
           <td style="color: #6b7280; font-size: 13px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${notes}">${notes || '—'}</td>
           <td>
             <div class="corporate-action-buttons">
+              <button class="corporate-btn-sm secondary email-vendor-quote" data-id="${vq.id}" title="Send Email">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+                Email
+              </button>
               <button class="corporate-btn-sm primary edit-vendor-quote" data-id="${vq.id}" title="Edit">Edit</button>
               <button class="corporate-btn-sm delete-vendor-quote" data-id="${vq.id}" title="Delete">Delete</button>
             </div>
@@ -149,6 +156,11 @@ const VendorQuotesModule = (function() {
     // Delete buttons
     document.querySelectorAll('.delete-vendor-quote').forEach(btn => {
       btn.addEventListener('click', handleDeleteVendorQuote);
+    });
+
+    // Email buttons
+    document.querySelectorAll('.email-vendor-quote').forEach(btn => {
+      btn.addEventListener('click', handleEmailVendorQuote);
     });
 
     // Add hover effect to table rows
@@ -711,25 +723,25 @@ const VendorQuotesModule = (function() {
   async function handleDeleteVendorQuote(event) {
     event.stopPropagation();
     const vendorQuoteId = parseInt(event.target.dataset.id, 10);
-    
+
     if (confirm('Are you sure you want to delete this vendor quote?')) {
       try {
         await API.deleteVendorQuote(vendorQuoteId);
         showToast('Vendor quote deleted successfully', 'success');
-        
+
         // Get current quote and refresh vendor quotes list
         const currentQuote = QuotesModule.getCurrentQuote();
         if (currentQuote) {
           try {
             // Fetch fresh vendor quotes data
             const updatedQuote = await API.getQuoteById(currentQuote.id);
-            
+
             // Update the vendor quotes section directly
             const vendorQuotesContainer = document.getElementById('vendorQuotesList');
             if (vendorQuotesContainer) {
               vendorQuotesContainer.innerHTML = renderVendorQuotes(updatedQuote.vendor_quotes);
               initVendorQuoteControls();
-              
+
               // Also update the current quote data
               currentQuote.vendor_quotes = updatedQuote.vendor_quotes;
             } else {
@@ -744,6 +756,33 @@ const VendorQuotesModule = (function() {
       } catch (error) {
         showToast(`Failed to delete vendor quote: ${error.message}`, 'error');
       }
+    }
+  }
+
+  /**
+   * Handle email vendor quote
+   * @param {Event} event - Click event
+   */
+  async function handleEmailVendorQuote(event) {
+    event.stopPropagation();
+    const vendorQuoteId = parseInt(event.target.dataset.id, 10);
+
+    console.log('Email button clicked for vendor quote:', vendorQuoteId);
+
+    try {
+      // Check if EmailModule is available
+      if (typeof EmailModule === 'undefined') {
+        console.error('EmailModule is not available');
+        showToast('Email module not loaded', 'error');
+        return;
+      }
+
+      console.log('Opening email modal for vendor quote:', vendorQuoteId);
+      // Open email modal using EmailModule
+      EmailModule.openEmailModal(vendorQuoteId);
+    } catch (error) {
+      console.error('Failed to open email modal:', error);
+      showToast('Failed to open email composer: ' + error.message, 'error');
     }
   }
   

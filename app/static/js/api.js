@@ -373,5 +373,145 @@ const API = {
     return this.fetch(`${this.baseUrl}/vendors/${vendorId}`, {
       method: 'DELETE'
     });
+  },
+
+  /**
+   * Get all email templates with optional filtering
+   * @param {string} search - Optional search string
+   * @returns {Promise<Array>} - Array of email templates
+   */
+  async getEmailTemplates(search = '') {
+    const params = new URLSearchParams();
+    if (search) {
+      params.append('search', search);
+    }
+
+    const url = `${this.baseUrl}/email-templates${params.toString() ? `?${params.toString()}` : ''}`;
+    const response = await this.fetch(url);
+    return response.data || [];
+  },
+
+  /**
+   * Get an email template by ID
+   * @param {number} templateId - The template ID
+   * @returns {Promise<Object>} - The template object
+   */
+  async getEmailTemplate(templateId) {
+    const response = await this.fetch(`${this.baseUrl}/email-templates/${templateId}`);
+    return response.data;
+  },
+
+  /**
+   * Create a new email template
+   * @param {Object} templateData - The template data
+   * @returns {Promise<Object>} - The created template
+   */
+  async createEmailTemplate(templateData) {
+    const response = await this.fetch(`${this.baseUrl}/email-templates`, {
+      method: 'POST',
+      body: JSON.stringify(templateData)
+    });
+    return response.data;
+  },
+
+  /**
+   * Update an email template
+   * @param {number} templateId - The template ID
+   * @param {Object} templateData - The updated template data
+   * @returns {Promise<Object>} - Response message
+   */
+  async updateEmailTemplate(templateId, templateData) {
+    const response = await this.fetch(`${this.baseUrl}/email-templates/${templateId}`, {
+      method: 'PUT',
+      body: JSON.stringify(templateData)
+    });
+    return response.data;
+  },
+
+  /**
+   * Delete an email template
+   * @param {number} templateId - The template ID
+   * @returns {Promise<Object>} - Response message
+   */
+  async deleteEmailTemplate(templateId) {
+    return this.fetch(`${this.baseUrl}/email-templates/${templateId}`, {
+      method: 'DELETE'
+    });
+  },
+
+  /**
+   * Preview an email template with variable substitution
+   * @param {number} templateId - The template ID
+   * @param {Object} variables - Variables for substitution
+   * @returns {Promise<Object>} - Preview data
+   */
+  async previewEmailTemplate(templateId, variables = {}) {
+    const params = new URLSearchParams();
+    Object.entries(variables).forEach(([key, value]) => {
+      params.append(key, value);
+    });
+
+    const url = `${this.baseUrl}/email-templates/${templateId}/preview${params.toString() ? `?${params.toString()}` : ''}`;
+    const response = await this.fetch(url);
+    return response.data;
+  },
+
+  /**
+   * Send email to vendor
+   * @param {number} vendorQuoteId - The vendor quote ID
+   * @param {Object} emailData - The email data
+   * @returns {Promise<Object>} - Response data
+   */
+  async sendVendorEmail(vendorQuoteId, emailData) {
+    const response = await this.fetch(`${this.baseUrl}/vendor-quotes/${vendorQuoteId}/send-email`, {
+      method: 'POST',
+      body: JSON.stringify(emailData)
+    });
+    return response.data;
+  },
+
+  /**
+   * Get email history for a quote
+   * @param {number} quoteId - The quote ID
+   * @returns {Promise<Array>} - Array of email history
+   */
+  getEmailHistoryByQuote(quoteId) {
+    return this.fetch(`${this.baseUrl}/quotes/${quoteId}/email-history`);
+  },
+
+  /**
+   * Get email history for a vendor
+   * @param {number} vendorId - The vendor ID
+   * @param {number} limit - Optional limit
+   * @param {number} offset - Optional offset
+   * @returns {Promise<Array>} - Array of email history
+   */
+  async getEmailHistoryByVendor(vendorId, limit = 100, offset = 0) {
+    const params = new URLSearchParams();
+    params.append('limit', limit.toString());
+    params.append('offset', offset.toString());
+
+    const url = `${this.baseUrl}/vendors/${vendorId}/email-history${params.toString() ? `?${params.toString()}` : ''}`;
+    const response = await this.fetch(url);
+    return response.data || [];
+  },
+
+  /**
+   * Get all email history with pagination and search
+   * @param {string} search - Optional search string
+   * @param {number} limit - Optional limit
+   * @param {number} offset - Optional offset
+   * @returns {Promise<Object>} - Email history with pagination
+   */
+  async getAllEmailHistory(search = '', limit = 100, offset = 0) {
+    const params = new URLSearchParams();
+    if (search) {
+      params.append('search', search);
+    }
+    params.append('limit', limit.toString());
+    params.append('offset', offset.toString());
+
+    const url = `${this.baseUrl}/email-history${params.toString() ? `?${params.toString()}` : ''}`;
+    return this.fetch(url);
   }
 };

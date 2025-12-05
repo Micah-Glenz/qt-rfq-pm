@@ -1,0 +1,43 @@
+{
+  "timestamp": "2025-11-25T10:08:43.797162",
+  "route": "test_route",
+  "input_data": {
+    "customerName": "Test Customer",
+    "projectDescription": "Test Project Description",
+    "testData": "This is test data for logging"
+  },
+  "request": {
+    "url": "https://script.google.com/macros/s/placeholder/exec",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "payload": {
+      "key": "test_key_12345",
+      "route": "test_route",
+      "customerName": "Test Customer",
+      "projectDescription": "Test Project Description",
+      "testData": "This is test data for logging"
+    }
+  },
+  "response": {
+    "status_code": 500,
+    "headers": {
+      "Cache-Control": "no-cache, no-store, max-age=0, must-revalidate",
+      "Pragma": "no-cache",
+      "Expires": "Mon, 01 Jan 1990 00:00:00 GMT",
+      "Date": "Tue, 25 Nov 2025 18:08:44 GMT",
+      "Content-Type": "text/html; charset=utf-8",
+      "Content-Encoding": "gzip",
+      "X-Content-Type-Options": "nosniff",
+      "X-XSS-Protection": "1; mode=block",
+      "Server": "GSE",
+      "Alt-Svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000",
+      "Transfer-Encoding": "chunked"
+    },
+    "body": "<!DOCTYPE html><html lang=\"en\"><head><meta name=\"description\" content=\"Web word processing, presentations and spreadsheets\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0\"><link rel=\"shortcut icon\" href=\"//docs.google.com/favicon.ico\"><title>Error</title><meta name=\"referrer\" content=\"origin\"><link href=\"//fonts.googleapis.com/css?family=Product+Sans\" rel=\"stylesheet\" type=\"text/css\" nonce=\"wRP3Aoe7HAty5xm2HfSAfQ\"><style nonce=\"wRP3Aoe7HAty5xm2HfSAfQ\">.goog-inline-block{position:relative;display:-moz-inline-box;display:inline-block}* html .goog-inline-block{display:inline}*:first-child+html .goog-inline-block{display:inline}#drive-logo{margin:18px 0;position:absolute;white-space:nowrap}.docs-drivelogo-img{background-image:url(//ssl.gstatic.com/images/branding/googlelogo/1x/googlelogo_color_116x41dp.png);-webkit-background-size:116px 41px;background-size:116px 41px;display:inline-block;height:41px;vertical-align:bottom;width:116px}.docs-drivelogo-text{color:#000;display:inline-block;opacity:.54;text-decoration:none;font-family:\"Product Sans\",Arial,Helvetica,sans-serif;font-size:32px;text-rendering:optimizeLegibility;position:relative;top:-6px;left:-7px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}@media (-webkit-min-device-pixel-ratio:1.5),(min-resolution:144dpi){.docs-drivelogo-img{background-image:url(//ssl.gstatic.com/images/branding/googlelogo/2x/googlelogo_color_116x41dp.png)}}sentinel{}</style><style type=\"text/css\" nonce=\"wRP3Aoe7HAty5xm2HfSAfQ\">body {background-color: #fff; font-family: Arial,sans-serif; font-size: 13px; margin: 0; padding: 0;}a, a:link, a:visited {color: #112ABB;}</style><style type=\"text/css\" nonce=\"wRP3Aoe7HAty5xm2HfSAfQ\">.errorMessage {font-size: 12pt; font-weight: bold; line-height: 150%;}</style></head><body><div id=\"outerContainer\"><div id=\"innerContainer\"><div style=\"position: absolute; top: -80px;\"><div id=\"drive-logo\"><a href=\"/\"><span class=\"docs-drivelogo-img\" title=\"Google logo\"></span><span class=\"docs-drivelogo-text\">&nbsp;Drive</span></a></div></div><p style=\"padding-top: 15px\">Google Docs encountered an error. Please try reloading this page, or coming back to it in a few minutes.</p><p>To learn more about the Google Docs editors, please visit our <a href=\"https://support.google.com/docs/?hl=en&p=error_help\" target=\"_blank\">help center</a>.</p><p><br><b>We're sorry for the inconvenience.</b><br><i>- The Google Docs Team</i></p></div></div></body><style nonce=\"wRP3Aoe7HAty5xm2HfSAfQ\">html {height: 100%; overflow: auto;}body {height: 100%; overflow: auto;}#outerContainer {margin: auto; max-width: 750px;}#innerContainer {margin-bottom: 20px; margin-left: 40px; margin-right: 40px; margin-top: 80px; position: relative;}</style></html>"
+  },
+  "error": {
+    "type": "NETWORK_ERROR",
+    "message": "500 Server Error: Internal Server Error for url: https://script.google.com/macros/s/placeholder/exec"
+  }
+}

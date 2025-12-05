@@ -122,6 +122,61 @@ class DatabaseManager:
                 if 'present' not in event_columns:
                     cursor.execute("ALTER TABLE events ADD COLUMN present TEXT")
                 
+                # Create vendors table
+                cursor.execute('''
+                CREATE TABLE IF NOT EXISTS vendors (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    contact_name TEXT,
+                    email TEXT,
+                    phone TEXT,
+                    specialization TEXT,
+                    is_active BOOLEAN DEFAULT 1,
+                    notes TEXT,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+                ''')
+
+                # Create email_templates table
+                cursor.execute('''
+                CREATE TABLE IF NOT EXISTS email_templates (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    vendor_id INTEGER NOT NULL UNIQUE,
+                    subject_template TEXT NOT NULL,
+                    body_template TEXT NOT NULL,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY(vendor_id) REFERENCES vendors(id) ON DELETE CASCADE
+                )
+                ''')
+
+                # Create email_history table
+                cursor.execute('''
+                CREATE TABLE IF NOT EXISTS email_history (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    quote_id INTEGER NOT NULL,
+                    vendor_quote_id INTEGER NOT NULL,
+                    vendor_id INTEGER NOT NULL,
+                    to_email TEXT NOT NULL,
+                    subject TEXT NOT NULL,
+                    body TEXT NOT NULL,
+                    template_id INTEGER,
+                    sent_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    status TEXT DEFAULT 'sent',
+                    gas_response TEXT NULL,
+                    FOREIGN KEY(quote_id) REFERENCES quotes(id),
+                    FOREIGN KEY(vendor_quote_id) REFERENCES vendor_quotes(id),
+                    FOREIGN KEY(vendor_id) REFERENCES vendors(id),
+                    FOREIGN KEY(template_id) REFERENCES email_templates(id)
+                )
+                ''')
+
+                # Create indexes for email tables
+                cursor.execute("CREATE INDEX IF NOT EXISTS idx_email_templates_vendor_id ON email_templates(vendor_id)")
+                cursor.execute("CREATE INDEX IF NOT EXISTS idx_email_history_quote_id ON email_history(quote_id)")
+                cursor.execute("CREATE INDEX IF NOT EXISTS idx_email_history_vendor_id ON email_history(vendor_id)")
+                cursor.execute("CREATE INDEX IF NOT EXISTS idx_email_history_vendor_quote_id ON email_history(vendor_quote_id)")
+
                 # Create default_tasks table
                 cursor.execute('''
                 CREATE TABLE IF NOT EXISTS default_tasks (
@@ -132,7 +187,7 @@ class DatabaseManager:
                     created_at   DATETIME DEFAULT CURRENT_TIMESTAMP
                 )
                 ''')
-                
+
                 # Enable foreign key constraints
                 cursor.execute("PRAGMA foreign_keys = ON")
                 

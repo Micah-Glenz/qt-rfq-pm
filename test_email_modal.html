@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Email Modal Test</title>
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+        }
+        .close-modal {
+            float: right;
+            font-size: 28px;
+            cursor: pointer;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn.primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn.secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+    <h1>Email Modal Test</h1>
+
+    <button onclick="testEmailModal()" class="btn primary">Test Email Modal</button>
+
+    <div id="debugInfo">
+        <h3>Debug Info:</h3>
+        <pre id="debugOutput">No debug info yet...</pre>
+    </div>
+
+    <script>
+        // Mock API and dependencies for testing
+        const API = {
+            getEmailTemplates: async () => [],
+            getVendor: async (id) => ({ name: 'Test Vendor', email: 'test@example.com' })
+        };
+
+        const QuotesModule = {
+            getCurrentQuote: () => ({
+                id: 243,
+                customer: 'Test Customer',
+                quote_no: 'TEST-001',
+                description: 'Test Description',
+                sales_rep: 'Test Rep',
+                vendor_quotes: [
+                    {
+                        id: 256,
+                        type: 'freight',
+                        vendor_id: 10,
+                        vendor: { name: 'Test Vendor', contact_name: 'John Doe' }
+                    }
+                ]
+            })
+        };
+
+        function showToast(message, type = 'success') {
+            document.getElementById('debugOutput').textContent += `\nToast: ${message} (${type})`;
+        }
+
+        function updateDebugInfo(message) {
+            const output = document.getElementById('debugOutput');
+            const timestamp = new Date().toLocaleTimeString();
+            output.textContent = `[${timestamp}] ${message}\n${output.textContent}`;
+        }
+
+        async function testEmailModal() {
+            updateDebugInfo('Testing email modal...');
+
+            try {
+                if (typeof EmailModule === 'undefined') {
+                    updateDebugInfo('❌ EmailModule is undefined');
+                    return;
+                }
+
+                updateDebugInfo('✅ EmailModule is available');
+
+                if (typeof EmailModule.openEmailModal === 'function') {
+                    updateDebugInfo('✅ openEmailModal function exists');
+
+                    // Test the function
+                    await EmailModule.openEmailModal(256);
+                    updateDebugInfo('✅ Email modal opened successfully');
+                } else {
+                    updateDebugInfo('❌ openEmailModal function does not exist');
+                }
+
+            } catch (error) {
+                updateDebugInfo(`❌ Error: ${error.message}`);
+                console.error('Test error:', error);
+            }
+        }
+
+        // Load the EmailModule
+        updateDebugInfo('Loading EmailModule...');
+        const script = document.createElement('script');
+        script.src = 'http://localhost:6002/static/js/email.js';
+        script.onload = () => {
+            updateDebugInfo('✅ EmailModule script loaded');
+
+            // Initialize the module
+            if (typeof EmailModule !== 'undefined') {
+                EmailModule.init();
+                updateDebugInfo('✅ EmailModule initialized');
+            } else {
+                updateDebugInfo('❌ EmailModule still undefined after script load');
+            }
+        };
+        script.onerror = (error) => {
+            updateDebugInfo(`❌ Failed to load EmailModule: ${error}`);
+        };
+        document.head.appendChild(script);
+    </script>
+</body>
+</html>

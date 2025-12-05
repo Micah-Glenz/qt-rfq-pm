@@ -654,20 +654,25 @@ const SettingsModule = (function() {
   function initSettingsTabs() {
     const tabs = document.querySelectorAll('.settings-tab');
     const contents = document.querySelectorAll('.settings-content');
-    
+
     tabs.forEach(tab => {
       tab.addEventListener('click', () => {
         const tabName = tab.dataset.tab;
-        
+
         // Remove active class from all tabs and contents
         tabs.forEach(t => t.classList.remove('active'));
         contents.forEach(c => c.classList.remove('active'));
-        
+
         // Add active class to clicked tab and corresponding content
         tab.classList.add('active');
         const content = document.getElementById(`${tabName}Tab`);
         if (content) {
           content.classList.add('active');
+        }
+
+        // Initialize TemplateManager when email templates tab is activated
+        if (tabName === 'email-templates' && typeof TemplateManager !== 'undefined') {
+          TemplateManager.init();
         }
       });
     });

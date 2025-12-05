@@ -1,0 +1,57 @@
+{
+  "timestamp": "2025-11-25T16:48:14.287412",
+  "route": "sendEmail",
+  "input_data": {
+    "to": "micah+gasapitest@commfitness.com",
+    "subject": "Freight Quote Request - Q2025-004 - Construction Co",
+    "body": "Dear Sarah Johnson,\n\nWe would like to request a freight quote for Construction Co.\n\nQuote Details:\n- Quote Number: Q2025-004\n- Project Description: Building materials and installation services\n- Contact Person: Mike Brown\n- Date: 2025-11-25\n\nPlease provide pricing for:\n- Freight transportation\n- Loading/unloading services\n- Insurance coverage\n- Delivery timeline\n\nThank you for your consideration.\n\nBest regards,\nMike Brown\n\nMike Brown\nSales Representative\nLane County Project Management",
+    "quote_id": 243,
+    "vendor_quote_id": 256,
+    "vendor_id": 10
+  },
+  "request": {
+    "url": "https://script.google.com/macros/s/AKfycbz42G2mwe1VROOnmVx-DSI26jqohkKFX0agzzZu-uz_hgWTZ4bQtkgPBc9zThYOevpprQ/exec",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "payload": {
+      "key": "micah_admin_key_2025",
+      "route": "sendEmail",
+      "to": "micah+gasapitest@commfitness.com",
+      "subject": "Freight Quote Request - Q2025-004 - Construction Co",
+      "body": "Dear Sarah Johnson,\n\nWe would like to request a freight quote for Construction Co.\n\nQuote Details:\n- Quote Number: Q2025-004\n- Project Description: Building materials and installation services\n- Contact Person: Mike Brown\n- Date: 2025-11-25\n\nPlease provide pricing for:\n- Freight transportation\n- Loading/unloading services\n- Insurance coverage\n- Delivery timeline\n\nThank you for your consideration.\n\nBest regards,\nMike Brown\n\nMike Brown\nSales Representative\nLane County Project Management",
+      "quote_id": 243,
+      "vendor_quote_id": 256,
+      "vendor_id": 10
+    }
+  },
+  "response": {
+    "status_code": 200,
+    "headers": {
+      "Content-Type": "application/json; charset=utf-8",
+      "Vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site",
+      "X-Content-Type-Options": "nosniff",
+      "Access-Control-Allow-Origin": "*",
+      "Cache-Control": "no-cache, no-store, max-age=0, must-revalidate",
+      "Pragma": "no-cache",
+      "Expires": "Mon, 01 Jan 1990 00:00:00 GMT",
+      "Date": "Wed, 26 Nov 2025 00:48:16 GMT",
+      "Content-Encoding": "gzip",
+      "Reporting-Endpoints": "default=\"/macros/web-reports?bl=editors.maestro_20251114.01_p1&context=eJwVzH1Q0_cBx3H95fv94BxPApGAIpAgDVopaYfS8RBjzIP2BK2dlqtXrkVcFSkqVtGpA6xcZZa1dcVNW0HCQ9ZgVKwt0k0r0im4neicVa-2TjEoAVHAAY6DffbH6-7913tyR4B1lldJp0e3vMoYHdzXr3xBs-_2Ky-RfGFA8aOTiweUb8hZ9FQ5TsaSp4qNbucOKfcp2D2k6OhJyrAyQh2pw8oN-v2aYeUA_fx3w0owre8ZVnbQx1kjyhGKbR9R4qm56pnSQi_sHFWM1Dw-prSQb8S4EkLTt40rMfTp1gmqWmpsVVTNlL9cpdpKy4tVqjdosFSlGqVbNSrVj_93X6Xy0K2fCdVdqur7pXDSX1KSxbJlyWJ_a7Jw0MqnySKLrpenCA81HkgRzTRTmyoSyTcpVYTQ6Yg00UbzhtKEjVpXzhd_p-N2k2gi0ysmsYhcvSZxkkJ3LBCRNOhaIEbp84YFopaKN5jFXtq6xSx-S43VZnGeDh8zizoaaTSLiSfNYuMps9hGiRULhYXqZ1vEMZqVaRHJ9GCtRTymJRst4le04YxFFFLZBYv4hOwei1hKzkSrOE7luXZRQYPX7UJ8bxeXgxaJ76nQZ7EoIu-rlXKAgnZXSh09R0mkb6qUCbS8qUpmU-JglUyl6N1HpIF2TauWpWTPqJZL6cp3DnmTTvzgkKfpH30O-S-yra2RGVSyvkaWkaa8RuppRWeNfJPEiVrpS2HpdTKa_l1cJ59Q6F_rZCT9enu9zKfEPfUylW731MteekITe-tlOM2i2kinPEpDS5zSJ90pH2c65TCVPfxCfkKhc1wykizpLrmETq92yXM0s9Al51LHTpe8QdF_dsk4spU1yAw6O-uovEDR547KODqY7ZbVlP6uW66gWHe3jCdPkFf-h6oueqWTCu545fv0B2OP_IxcLT3yJO15vVd-SAcO9spK2lPbKytox6o-uY9C7_sikvSBfkigsa_9gCY_XL3kh3u0SOOPTGov8cdVWviVP16j7O_8kUvKSwGYTC9XBsBEZ2oD8Te61zgFXtqfEIRD5E4Pwhlapg1GJl14KxiXafLtEATRuYlqXKFYlRpzKSddjTwq2qbGB2QrVSOD7rWpMUCyXQ016SmJSqmCzl5T4zLpX5mKJPrpyFR0UfYPU5FLd3ND0U0_jofCQ3vXaPAxvePWYANFtWv41OC1I2FYRaPVYRCOMEh3GNTkpwlHBCWXhcNMV_vCcYuWDYcjk6Z_NA0x1PnH6eihr7fMwFma0jADE_pmYBK5v4zEVzTPJwpGCk2KQiRZ1kXhcFMU6uiSIxr_pDuPovGABuO1GKW497QwUEGpFr-hyL1aPEcDlVr8l9RjWkRQv0GHZ3Q0RYdTNJqmgzDqELJOh-nUdU2HPtroikEH9dEQbXHHYBedPxaDSzTpVAwCqXRlLMop9_VYFNA6fz020dzn9Uijbo8e_XQnIA4PqGNKHG5QTkgc8kinjsNs8mlIRgBNmJOCQDqQnoJKOjQhFQ6KqkiFnmyaNGSQ2J8GX2qOMaKFWh1GXKOyGiMOkpgzH750qHU-HGSYacLLVGw2YS9d-cCEm7T4cxNepYhuE2bSrtAFKKchjRnjNMdqRiJ9uN6MTymu0AwD3X9jIXqp7dFCXKG1OyzYSCV9FuynTUFWbKe2nVb8VGRFF43VWYF6K_ovWPGMTmy24TS92WDDGgp326Clb-LtOE_Bd-yYRrOjFiGZtpfdRQm1LO1EOyVkdSKJ7I2dWErvjnRiC40XeeBT7MGqFg9W09uaLqyjwz1deJL3ACN0c3c3HtJ7t7uxk_J62DRxhRexhV7E07xyL6o-8sJJN409eEglOb0oo2-P9-Ei1eQ_hnffYwT5Tur47E9tCLzYdH2fEi4s2e_ka2fkrF67OX9TQXzeWzkFmzflZ72Y8GKiwWD4RXyCIWuD4X9I7d-y&build-label=editors.maestro_20251114.01_p1&is-cached-offline=false\"",
+      "Document-Policy": "include-js-call-stacks-in-crash-reports",
+      "X-Frame-Options": "SAMEORIGIN",
+      "Content-Security-Policy": "frame-ancestors 'self'",
+      "X-XSS-Protection": "1; mode=block",
+      "Server": "GSE",
+      "Alt-Svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000",
+      "Transfer-Encoding": "chunked"
+    },
+    "body": "{\"status\":\"success\",\"code\":200,\"message\":\"Success\",\"data\":{\"sent\":true,\"recipient\":\"micah+gasapitest@commfitness.com\",\"subject\":\"Freight Quote Request - Q2025-004 - Construction Co\",\"timestamp\":\"2025-11-26T00:48:16.078Z\"}}"
+  },
+  "response_data": {
+    "sent": true,
+    "recipient": "micah+gasapitest@commfitness.com",
+    "subject": "Freight Quote Request - Q2025-004 - Construction Co",
+    "timestamp": "2025-11-26T00:48:16.078Z"
+  }
+}

@@ -269,7 +269,7 @@ const QuotesModule = (function() {
       
       if (needsInitialRender) {
         // Full render for initial load
-        renderQuoteDetail();
+        await renderQuoteDetail();
       } else {
         // Efficient update for quote switching
         updateQuoteDetailContent(previousQuote, quote);
@@ -324,7 +324,10 @@ const QuotesModule = (function() {
       eventsList.innerHTML = eventsHtml;
       EventsModule.initEventControls();
     }
-    
+
+    // Update email history section
+    updateEmailHistorySection(newQuote);
+
     // Update event listeners for the new quote
     updateDetailEventListeners();
   }
@@ -513,7 +516,7 @@ const QuotesModule = (function() {
   /**
    * Render quote details
    */
-  function renderQuoteDetail() {
+  async function renderQuoteDetail() {
     if (!currentQuote) {
       elements.quoteDetail.innerHTML = '<div class="empty-state">Select a quote to view details</div>';
       return;
@@ -523,6 +526,17 @@ const QuotesModule = (function() {
     const vendorQuotesHtml = VendorQuotesModule.renderVendorQuotes(currentQuote.vendor_quotes);
     const notesHtml = NotesModule.renderNotes(currentQuote.notes);
     const eventsHtml = EventsModule.renderEvents(currentQuote.events);
+
+    // Get email history for this quote
+    let emailHistoryHtml = '';
+    try {
+      const emailHistoryResponse = await API.getEmailHistoryByQuote(currentQuote.id);
+      const emailHistoryData = emailHistoryResponse.data || emailHistoryResponse; // Handle both response formats
+      emailHistoryHtml = EmailHistoryModule.renderEmailHistory(emailHistoryData);
+    } catch (error) {
+      console.error('Failed to load email history:', error);
+      emailHistoryHtml = '<div class="empty-state">Failed to load email history</div>';
+    }
     
     // Create sales rep dropdown HTML
     const salesReps = SettingsModule.getSalesReps();
@@ -600,6 +614,21 @@ const QuotesModule = (function() {
               <div id="notesList" class="compact-notes-list">
                 ${notesHtml}
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Full-width Email History Section -->
+      <div class="email-history-section">
+        <div class="compact-section">
+          <div class="compact-header">
+            <h3 class="compact-title">Email History</h3>
+            <span class="section-description">Communication with vendors for this quote</span>
+          </div>
+          <div class="compact-content">
+            <div id="emailHistoryList" class="email-history-list">
+              ${emailHistoryHtml}
             </div>
           </div>
         </div>
@@ -913,7 +942,7 @@ const QuotesModule = (function() {
       }
 
       // Refresh the quote detail view
-      renderQuoteDetail();
+      await renderQuoteDetail();
 
       // Close modal
       closeModals();
@@ -964,7 +993,7 @@ const QuotesModule = (function() {
       }
       
       // Refresh the quote detail view
-      renderQuoteDetail();
+      await renderQuoteDetail();
       
       // Remove edit-mode class from the details section
       const detailsSection = document.querySelector('.details-section');
@@ -1101,6 +1130,25 @@ const QuotesModule = (function() {
     loadQuotes(searchValue, includeHidden);
   }
   
+  /**
+   * Update email history section for quote switching
+   * @param {Object} quote - The quote object
+   */
+  async function updateEmailHistorySection(quote) {
+    const emailHistoryList = document.getElementById('emailHistoryList');
+    if (emailHistoryList) {
+      try {
+        const emailHistoryResponse = await API.getEmailHistoryByQuote(quote.id);
+        const emailHistoryData = emailHistoryResponse.data || emailHistoryResponse; // Handle both response formats
+        const emailHistoryHtml = EmailHistoryModule.renderEmailHistory(emailHistoryData);
+        emailHistoryList.innerHTML = emailHistoryHtml;
+      } catch (error) {
+        console.error('Failed to update email history:', error);
+        emailHistoryList.innerHTML = '<div class="empty-state">Failed to load email history</div>';
+      }
+    }
+  }
+
   /**
    * Format a date string
    * @param {string} dateString - The date string

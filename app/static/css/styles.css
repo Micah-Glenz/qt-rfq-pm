@@ -2251,6 +2251,10 @@ main {
   overflow: auto;
 }
 
+.modal.show {
+  display: block;
+}
+
 .modal-content {
   background-color: var(--card-bg);
   margin: 2.5rem auto;
@@ -3178,24 +3182,739 @@ textarea.inline-edit-input {
   margin-bottom: 1rem;
 }
 
+/* Template Management Styles */
+.template-controls {
+  margin-bottom: 1rem;
+}
+
+.templates-list {
+  border: 1px solid var(--border-color);
+  border-radius: 0.25rem;
+  max-height: 400px;
+  overflow-y: auto;
+  background-color: var(--card-bg);
+}
+
+.template-item {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s;
+}
+
+.template-item:last-child {
+  border-bottom: none;
+}
+
+.template-item:hover {
+  background-color: var(--bg-hover);
+}
+
+.template-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.template-name {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0;
+  flex: 1;
+  margin-right: 1rem;
+}
+
+.template-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.template-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.template-vendor {
+  font-weight: 500;
+}
+
+.template-date {
+  opacity: 0.8;
+}
+
+.template-preview {
+  margin: 0;
+}
+
+.template-preview p {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: 1.4;
+  font-style: italic;
+}
+
+/* Template Modal Styles */
+.character-count {
+  text-align: right;
+  margin-top: 0.25rem;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.template-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.variables-section {
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 0.25rem;
+  padding: 1rem;
+}
+
+.variables-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.variable-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background-color: var(--card-bg);
+  border-radius: 0.25rem;
+  border: 1px solid var(--border-light);
+}
+
+.variable-item strong {
+  color: var(--primary-color);
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  font-size: var(--font-size-sm);
+  flex-shrink: 0;
+}
+
+.variable-description {
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  line-height: 1.3;
+}
+
+.preview-section {
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 0.25rem;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.template-preview-content {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-light);
+  border-radius: 0.25rem;
+  padding: 1rem;
+  margin-top: 0.5rem;
+}
+
+.preview-email {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.preview-subject {
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.preview-subject strong {
+  color: var(--text-color);
+}
+
+.preview-body {
+  line-height: 1.5;
+}
+
+.preview-body strong {
+  color: var(--text-color);
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.preview-body pre {
+  background-color: var(--bg-color);
+  padding: 0.75rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--border-light);
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  font-size: var(--font-size-sm);
+  color: var(--text-color);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0;
+  overflow-x: auto;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* Template Preview Full Modal */
+.template-preview-full {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.template-preview-full .preview-subject {
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.template-preview-full .preview-body pre {
+  max-height: 300px;
+}
+
+/* Error state for template list */
+.error-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--error-color);
+}
+
+.error-state p {
+  margin-bottom: 1rem;
+}
+
+/* Dark mode adjustments for template management */
+.dark-mode .template-item:hover {
+  background-color: var(--bg-hover);
+}
+
+.dark-mode .variables-section {
+  background-color: var(--bg-color);
+  border-color: var(--border-color);
+}
+
+.dark-mode .variable-item {
+  background-color: var(--card-bg);
+  border-color: var(--border-light);
+}
+
+.dark-mode .preview-section {
+  background-color: var(--bg-color);
+  border-color: var(--border-color);
+}
+
+.dark-mode .template-preview-content {
+  background-color: var(--card-bg);
+  border-color: var(--border-light);
+}
+
+.dark-mode .preview-body pre {
+  background-color: var(--bg-color);
+  border-color: var(--border-light);
+  color: var(--text-color);
+}
+
+/* Email History Styles */
+.email-history-section {
+  margin-top: 1rem;
+}
+
+.email-history-list {
+  width: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: var(--card-bg);
+}
+
+.vendor-email-group {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.vendor-email-group:last-child {
+  border-bottom: none;
+}
+
+.vendor-group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background-color: var(--bg-hover);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.vendor-name {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0;
+}
+
+.email-count {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.vendor-emails {
+  background-color: var(--card-bg);
+}
+
+.email-history-item {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border-light);
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 2.5rem;
+}
+
+.email-history-item:last-child {
+  border-bottom: none;
+}
+
+.email-history-item:hover {
+  background-color: var(--bg-hover);
+}
+
+.email-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.email-subject {
+  font-weight: 600;
+  color: var(--text-color);
+  cursor: pointer;
+  flex: 1;
+  margin: 0;
+  font-size: var(--font-size-sm);
+  line-height: 1.3;
+  transition: color 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.email-subject:hover {
+  color: var(--primary-color);
+}
+
+.email-actions {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.email-history-item:hover .email-actions {
+  opacity: 1;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 3px;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+}
+
+.btn-icon:hover {
+  background-color: var(--bg-hover);
+  color: var(--primary-color);
+}
+
+.btn-icon.small {
+  padding: 0.125rem;
+}
+
+.btn-icon.small svg {
+  width: 14px;
+  height: 14px;
+}
+
+.email-meta {
+  display: none; /* Hide meta info in compact single-line view */
+}
+
+.email-preview {
+  display: none; /* Hide preview in compact single-line view */
+}
+
+/* Status Badge Styles */
+.status-badge {
+  padding: 0.125rem 0.375rem;
+  border-radius: 8px;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.25px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.status-sent {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
+}
+
+.status-delivered {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+}
+
+.status-opened {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.status-replied {
+  background-color: rgba(168, 85, 247, 0.1);
+  color: #a855f7;
+}
+
+.status-failed {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--error-color);
+}
+
+.status-bounced {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--warning-color);
+}
+
+/* Email Detail Modal Styles */
+#emailDetailModal.modal-content {
+  max-width: 900px;
+}
+
+.email-detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.email-detail-header {
+  background-color: var(--bg-hover);
+  padding: 1.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--border-light);
+}
+
+.email-detail-subject {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.email-detail-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 0.75rem;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.meta-item strong {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.email-detail-body {
+  background-color: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--border-light);
+}
+
+.email-detail-body h4 {
+  font-size: var(--font-size-lg);
+  color: var(--text-color);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.email-content {
+  line-height: 1.6;
+  color: var(--text-color);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 1rem;
+  background-color: var(--bg-color);
+  border-radius: 4px;
+  border: 1px solid var(--border-light);
+}
+
+.email-detail-template {
+  background-color: var(--bg-hover);
+  padding: 1rem;
+  border-radius: 4px;
+  border: 1px solid var(--border-light);
+}
+
+.email-detail-template h4 {
+  font-size: var(--font-size-base);
+  color: var(--text-color);
+  margin-bottom: 0.5rem;
+}
+
+.email-detail-template p {
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.email-detail-response {
+  background-color: var(--bg-hover);
+  border-radius: 4px;
+  border: 1px solid var(--border-light);
+}
+
+.email-detail-response summary {
+  padding: 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--text-color);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.email-detail-response summary:hover {
+  background-color: var(--bg-color);
+}
+
+.gas-response-content {
+  background-color: var(--card-bg);
+  padding: 1rem;
+  border-top: 1px solid var(--border-light);
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  font-size: var(--font-size-sm);
+  color: var(--text-color);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 300px;
+  overflow-y: auto;
+  margin: 0;
+}
+
+.email-detail-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-light);
+}
+
+.email-detail-actions .btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: var(--font-size-sm);
+  border-radius: 4px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.email-detail-actions .btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.email-detail-actions .btn.primary {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.email-detail-actions .btn.primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.email-detail-actions .btn.secondary {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+.email-detail-actions .btn.secondary:hover {
+  background-color: var(--bg-hover);
+}
+
+/* Dark mode adjustments for email history */
+.dark-mode .email-history-list {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+.dark-mode .vendor-group-header {
+  background-color: var(--bg-hover);
+  border-color: var(--border-color);
+}
+
+.dark-mode .email-history-item:hover {
+  background-color: var(--bg-hover);
+}
+
+.dark-mode .btn-icon:hover {
+  background-color: var(--bg-color);
+}
+
+.dark-mode .email-detail-header {
+  background-color: var(--bg-hover);
+  border-color: var(--border-light);
+}
+
+.dark-mode .email-detail-body {
+  background-color: var(--card-bg);
+  border-color: var(--border-light);
+}
+
+.dark-mode .email-content {
+  background-color: var(--bg-color);
+  border-color: var(--border-light);
+  color: var(--text-color);
+}
+
+.dark-mode .email-detail-template {
+  background-color: var(--bg-hover);
+  border-color: var(--border-light);
+}
+
+.dark-mode .email-detail-response {
+  background-color: var(--bg-hover);
+  border-color: var(--border-light);
+}
+
+.dark-mode .email-detail-response summary:hover {
+  background-color: var(--bg-color);
+}
+
+.dark-mode .gas-response-content {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border-color: var(--border-light);
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .tab-bar.expanded {
     min-height: 150px;
     max-height: 85vh;
   }
-  
+
   .app-container.tab-expanded {
     /* Padding set dynamically */
   }
-  
+
   .tab-button {
     padding: 0.4rem 0.6rem;
     font-size: 0.75rem;
   }
-  
+
   .tab-resizer::after {
     width: 60px; /* Wider handle on mobile for easier touch */
     height: 6px;
+  }
+
+  /* Template management responsive */
+  .template-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .template-actions {
+    align-self: flex-end;
+  }
+
+  .template-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .variables-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-content {
+    margin: 1rem auto;
+    width: 95%;
+    max-width: none;
+  }
+
+  /* Email history responsive */
+  .email-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .email-actions {
+    opacity: 1;
+    align-self: flex-end;
+  }
+
+  .email-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .email-detail-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .email-detail-actions {
+    flex-direction: column;
+  }
+
+  .email-detail-actions .btn {
+    width: 100%;
+    justify-content: center;
   }
 }

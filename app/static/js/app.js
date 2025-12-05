@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initialize the modules
   SettingsModule.init();
   QuotesModule.init();
+  EmailModule.init();
   TabsModule.init();
   
   // Initialize dropdown in the new quote modal

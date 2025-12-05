@@ -21,7 +21,8 @@ class ConfigService:
         
         return {
             'gas_api_url': '',
-            'gas_api_key': ''
+            'gas_api_key': '',
+            'email_test_mode': False  # Set to True to force all emails to test address
         }
     
     @staticmethod

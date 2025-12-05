@@ -146,3 +146,54 @@ class GASAPI:
         """
         return self._make_request("createFolder", project_data)
 
+    def send_vendor_email(self, email_data):
+        """
+        Send email via Google Apps Script
+
+        Args:
+            email_data: Dictionary containing email information
+                - to: Recipient email address (required)
+                - subject: Email subject (required)
+                - body: Email body (required)
+                - cc: CC recipient (optional)
+                - bcc: BCC recipient (optional)
+                - fromName: Sender name (optional)
+                - replyTo: Reply-to email address (optional)
+                - quote_id: Quote ID for logging (optional)
+                - vendor_quote_id: Vendor Quote ID for logging (optional)
+                - vendor_id: Vendor ID for logging (optional)
+
+        Returns:
+            Dictionary containing GAS API response data
+        """
+        # Prepare email data for GAS API
+        gas_email_data = {
+            'to': email_data['to'],
+            'subject': email_data['subject'],
+            'body': email_data['body']
+        }
+
+        # Add optional fields if provided
+        if 'cc' in email_data:
+            gas_email_data['cc'] = email_data['cc']
+        if 'bcc' in email_data:
+            gas_email_data['bcc'] = email_data['bcc']
+        if 'fromName' in email_data:
+            gas_email_data['fromName'] = email_data['fromName']
+        if 'replyTo' in email_data:
+            gas_email_data['replyTo'] = email_data['replyTo']
+
+        # Add logging metadata (these won't be used by Gmail.gs but will be logged)
+        logging_metadata = {}
+        if 'quote_id' in email_data:
+            logging_metadata['quote_id'] = email_data['quote_id']
+        if 'vendor_quote_id' in email_data:
+            logging_metadata['vendor_quote_id'] = email_data['vendor_quote_id']
+        if 'vendor_id' in email_data:
+            logging_metadata['vendor_id'] = email_data['vendor_id']
+
+        # Combine email data with logging metadata
+        combined_data = {**gas_email_data, **logging_metadata}
+
+        return self._make_request("sendEmail", combined_data)
+

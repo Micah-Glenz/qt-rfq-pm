@@ -1,0 +1,57 @@
+{
+  "timestamp": "2025-11-25T15:26:47.582493",
+  "route": "createFolder",
+  "input_data": {
+    "customerName": "Victoria Place at Ward Village",
+    "projectDescription": "1 Pebi+",
+    "estimateNumber": "30127598",
+    "salesRep": "Chad May"
+  },
+  "request": {
+    "url": "https://script.google.com/macros/s/AKfycbzj6eIWOUKF6vjLRt9W0mfqT_FAUbDzYEB9QxJ5R-7B_Y6SUCoEWj6FMbDQh8hZJPX4NQ/exec",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "payload": {
+      "key": "micah_admin_key_2025",
+      "route": "createFolder",
+      "customerName": "Victoria Place at Ward Village",
+      "projectDescription": "1 Pebi+",
+      "estimateNumber": "30127598",
+      "salesRep": "Chad May"
+    }
+  },
+  "response": {
+    "status_code": 200,
+    "headers": {
+      "Content-Type": "application/json; charset=utf-8",
+      "Vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site",
+      "X-Content-Type-Options": "nosniff",
+      "Access-Control-Allow-Origin": "*",
+      "Cache-Control": "no-cache, no-store, max-age=0, must-revalidate",
+      "Pragma": "no-cache",
+      "Expires": "Mon, 01 Jan 1990 00:00:00 GMT",
+      "Date": "Tue, 25 Nov 2025 23:26:59 GMT",
+      "Content-Encoding": "gzip",
+      "Reporting-Endpoints": "default=\"/macros/web-reports?bl=editors.maestro_20251114.01_p1&context=eJwVzX9Q1HUCxnH97ufz4Bm_AlYWFIFdpEWT2DqUjh_rui672giapTE5MYVaiIaKKXrqAZ6MckaZhaUlyPJjc3FVPAupNJEy8G78kZU6WZ7ioiy4KijQMXDP_fGaef_1PGOvBKRP9igZdO-aRxmmvTsfKgdpys2HynMkn-lV_OjYnF7lK3IUPVKOkLHkkWKl63n9ym0KdvUrOnqQMqAM0oXUAeUKvbdsQNlDT_xjQAmmFd0DyibalT2oHKDY9kElnpqr_lBa6JnNQ4qRmkeGlRbyjRhRQmjChhElhj5aP0pVS42tiqqZ8heoVOtpQbFK9Sr1lapUQ3StRqX67f9uq1RuuvYnobpJVd6_CAd9nZIs5s9PFrtbk4WdFj1KFtn0c3mKcFPjnhTRTLsaUsQnNEmbKhLJNylVhNCJiDTRRtP704SVWhfNEP-iIzaTaCLTCyYxm5w9JnGMQjfNFJHU55wphuizhpmilopXmcUOWr_OLP5GjdVmcYb2HzaLOhpsNIvRx8xi9XGz2ECJFbOEheqnWMRhmpxlEcl0J9ci7tPc1RbxMq06aRGFVHbWIj4gm9si5pEjMV0cofI8m6igvp9tQvxiE-eDZotfqNBnjigiz4uVspcycyvlIgraWil19BQlkb6pUibQgqYqmUOJfVUylaK3HpAG2jK-WpaSLbNazqOL39nlVTr6q12eoH977fInsubW8KNGlqyokWWkKa-RelrYUSNfI3G0VvpSWEadjKb_FNfJBxT6TZ2MpDc31st8StxWL1Ppene97KEHNLqnXobTZKqNdMhD1D_XIX0yHPJ-lkMOUNndg_IDsncdlE4KneqUkWTJcMq5dGKJU56mSYVOOY0ubHbKKxT9uVPGkbWsQWbSqcmH5FmKPn1IxtHeHJespoy3XXIhxbq6ZDy5gzzyMVX94JEOKrjhkX-nD43d8lNytnTLY7TtlR75Lu3Z2yMraVttj6ygTYu9cieF3vZFJOkD_ZBAw1_6AU1-uHTOD7dotsYfWdRe4o9LNOsLf7xEOd_5I4-U5wIwlp6vDICJTtYG4nu61fgkPLQ7IQj7yJURhJM0XxuMLDr7ejDO09jrIQii06PVuEixKjWmUdEGNbaTtVSNTLrVpkYvyXY11KSnJCqlCjp1WY3zpH9hHJLo9wPj0Ek5v45DHt3MC0UX_TYSCjftWKbBLnrLpcEqimrXcFODlw6EYTENVYdB2MMgXWFQk58mHBGUXBYOM13yhuMazR8IRxZNeH88Yqjj4wnopi_XTcQpGt8wEaO8EzGGXP-MxBc03ScKRgpNikIkZS6Pwv6mKNTROXs0fqQb96Jxh_ritRiiuHe0MFBBqRZ_pcgdWjxFvZVa_JfUw1pE0EODDn_QoRQdjtNQmg7CqEPIch0mUOdlHby02hmDC-SlflrnisEWOnM4BudozPEYBFLpoliUU94rsSig5f56rKFpT-uRRl1uPR7SjYA43KELT8bhCi0NicNK0qnjMIV8GpIRQKOmpiCQ9mSkoJL2jUqFnaIqUqEnqyYNmSR2p8GXmmOMaKFWuxGXqazGiL0kps6AL-1rnQE7GSaZ8DwVm03YQRe3m3CV5nxmwosU0WXCJNoSOhPl1K8xY4SmppuRSO-uMOMjiis0w0C3X52FHmq7NwsXKXeTBaupxGvBbloTlI6N1LY5Hb8XpaOThuvSgfp0HF1rxQl6rcGKZRTuskJLX8XbcIaCb9gwnqZEzUYybSy7iRJqmdeBdkrI7kAS2Ro7MI_eHuzAOhopcsOn2I3FLW4soTc0nVhO-7s78WDlHQzS1a1duEvvXO_CZlrZzabRCz2ILfQgnqaXe1D1vgcOumrsxl0qWdqDMvr2iBc_UE3-fXh23keQ75gzjz9uQ-D2x6f3q8KFJeetfO3EpUty1-avKYhf-frSgrVr8rOfTXg20WAw_Dk-wZC9yvA_dgrkog&build-label=editors.maestro_20251114.01_p1&is-cached-offline=false\"",
+      "Document-Policy": "include-js-call-stacks-in-crash-reports",
+      "X-Frame-Options": "SAMEORIGIN",
+      "Content-Security-Policy": "frame-ancestors 'self'",
+      "X-XSS-Protection": "1; mode=block",
+      "Server": "GSE",
+      "Alt-Svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000",
+      "Transfer-Encoding": "chunked"
+    },
+    "body": "{\"status\":\"success\",\"code\":200,\"message\":\"Success\",\"data\":{\"folderUrl\":\"https://drive.google.com/drive/folders/1NXQ4etBbojbgPJQqDHuwwraMoJXFI1UK\",\"fileUrl\":\"https://docs.google.com/spreadsheets/d/1j364lWoPzUZUdJGuFQOsADvYs4-c7diHg9a-mgw1qDU/edit?usp=drivesdk\",\"fileName\":\"[MPSF] Victoria Place at Ward Village 30127598 11-25-25\",\"folderId\":\"1NXQ4etBbojbgPJQqDHuwwraMoJXFI1UK\",\"fileId\":\"1j364lWoPzUZUdJGuFQOsADvYs4-c7diHg9a-mgw1qDU\",\"timings\":{\"total\":9975}}}"
+  },
+  "response_data": {
+    "folderUrl": "https://drive.google.com/drive/folders/1NXQ4etBbojbgPJQqDHuwwraMoJXFI1UK",
+    "fileUrl": "https://docs.google.com/spreadsheets/d/1j364lWoPzUZUdJGuFQOsADvYs4-c7diHg9a-mgw1qDU/edit?usp=drivesdk",
+    "fileName": "[MPSF] Victoria Place at Ward Village 30127598 11-25-25",
+    "folderId": "1NXQ4etBbojbgPJQqDHuwwraMoJXFI1UK",
+    "fileId": "1j364lWoPzUZUdJGuFQOsADvYs4-c7diHg9a-mgw1qDU",
+    "timings": {
+      "total": 9975
+    }
+  }
+}
