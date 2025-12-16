@@ -148,27 +148,15 @@ const QuotesModule = (function() {
                               (!hasAnyVendorQuotes || hasAllVendorQuotesCompleted);
       
       return `
-      <div class="quote-item ${currentQuote && quote.id === currentQuote.id ? 'selected' : ''} ${quote.hidden ? 'hidden' : ''}" 
+      <div class="quote-item ${currentQuote && quote.id === currentQuote.id ? 'selected' : ''} ${quote.hidden ? 'hidden' : ''}"
            data-id="${quote.id}">
         <div class="quote-customer-row">
           <div class="quote-line-1">${quote.customer}</div>
-          <div class="quote-completion-status">
-            ${(hasAnyTasks || hasAnyVendorQuotes) ? `
-              <div class="completion-indicator ${isFullyComplete ? 'all-completed' : 'incomplete'}" 
-                   title="${isFullyComplete ? 'All tasks and vendor quotes completed' : 'Tasks or vendor quotes remaining'}">
-                <div class="completion-dot"></div>
-              </div>
-            ` : ''}
-          </div>
         </div>
-        <div class="quote-details">
-          <div class="quote-line-2">
-            <span class="quote-number">${quote.quote_no}</span>
-            ${quote.sales_rep ? `<span class="quote-sales-rep">${quote.sales_rep}</span>` : ''}
-          </div>
-          ${quote.description ? `<div class="quote-line-description">${quote.description}</div>` : ''}
-        </div>
-        <div class="quote-line-3">
+        <div class="quote-line-2">
+          <span class="quote-number">${quote.quote_no}</span>
+          ${quote.sales_rep ? `<span class="quote-sales-rep prominent">${quote.sales_rep.split(' ')[0]}</span>` : ''}
+          ${quote.description ? `<span class="quote-description">${quote.description}</span>` : ''}
           ${quote.task_count > 0 ? `
             <span class="quote-icon" title="Tasks">
               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -200,8 +188,6 @@ const QuotesModule = (function() {
               ${quote.note_count}
             </span>
           ` : ''}
-        </div>
-          </div>
         </div>
       </div>
     `;
@@ -376,6 +362,12 @@ const QuotesModule = (function() {
     if (hideBtn) {
       hideBtn.textContent = quote.hidden ? 'Unhide' : 'Hide';
     }
+
+    // Update delete vendor quote button visibility
+    const deleteVendorQuoteBtn = document.getElementById('deleteVendorQuoteBtn');
+    if (deleteVendorQuoteBtn) {
+      deleteVendorQuoteBtn.style.display = quote.vendor_quotes?.length > 0 ? 'inline-block' : 'none';
+    }
   }
   
   /**
@@ -538,14 +530,17 @@ const QuotesModule = (function() {
       emailHistoryHtml = '<div class="empty-state">Failed to load email history</div>';
     }
     
-    // Create sales rep dropdown HTML
+    // Create sales rep dropdown HTML using enhanced sales rep data
     const salesReps = SettingsModule.getSalesReps();
     let salesRepDropdownHTML = `
       <select id="salesRepSelect" class="sales-rep-select">
         <option value="">Select a sales rep</option>
-        ${salesReps.map(rep => `
-          <option value="${rep}" ${currentQuote.sales_rep === rep ? 'selected' : ''}>${rep}</option>
-        `).join('')}
+        ${salesReps.filter(rep => rep.is_active).map(rep => {
+          const value = rep.id ? rep.id : rep.name; // Use ID if available, fallback to name for legacy reps
+          const selected = (currentQuote.sales_rep_id && currentQuote.sales_rep_id === rep.id) ||
+                          (!currentQuote.sales_rep_id && currentQuote.sales_rep === rep.name) ? 'selected' : '';
+          return `<option value="${value}" ${selected}>${rep.name}</option>`;
+        }).join('')}
       </select>
     `;
     
@@ -559,6 +554,7 @@ const QuotesModule = (function() {
               <h3 class="compact-title">Quote Details</h3>
               <div class="quote-actions">
                 <button class="compact-action-btn" id="editModeBtn">Edit</button>
+                <button class="compact-action-btn danger" id="deleteVendorQuoteBtn" style="display: none;">Delete Vendor Quote</button>
                 <button class="compact-action-btn" id="hideQuoteBtn" style="display: none;">${currentQuote.hidden ? 'Unhide' : 'Hide'}</button>
                 <button class="compact-action-btn primary" id="saveQuoteBtn" style="display: none;">Save</button>
                 <button class="compact-action-btn" id="cancelEditBtn" style="display: none;">Cancel</button>
@@ -624,7 +620,6 @@ const QuotesModule = (function() {
         <div class="compact-section">
           <div class="compact-header">
             <h3 class="compact-title">Email History</h3>
-            <span class="section-description">Communication with vendors for this quote</span>
           </div>
           <div class="compact-content">
             <div id="emailHistoryList" class="email-history-list">
@@ -648,6 +643,7 @@ const QuotesModule = (function() {
     document.getElementById('saveQuoteBtn').addEventListener('click', saveQuoteChanges);
     document.getElementById('cancelEditBtn').addEventListener('click', cancelEditMode);
     document.getElementById('addNoteBtn').addEventListener('click', () => NotesModule.openAddNoteModal(currentQuote.id));
+    document.getElementById('deleteVendorQuoteBtn').addEventListener('click', handleDeleteVendorQuoteFromHeader);
     
     // Add click-to-copy functionality for view mode
     document.querySelectorAll('.clickable-copy').forEach(element => {
@@ -873,15 +869,18 @@ const QuotesModule = (function() {
     document.getElementById('editMethodLink').value = currentQuote.method_link || '';
     document.getElementById('editHidden').checked = currentQuote.hidden || false;
 
-    // Populate sales rep dropdown
+    // Populate sales rep dropdown in edit modal
     const salesRepSelect = document.getElementById('editSalesRepDropdown');
     if (salesRepSelect) {
       const salesReps = SettingsModule.getSalesReps();
       salesRepSelect.innerHTML = `
         <option value="">Select a sales rep</option>
-        ${salesReps.map(rep => `
-          <option value="${rep}" ${currentQuote.sales_rep === rep ? 'selected' : ''}>${rep}</option>
-        `).join('')}
+        ${salesReps.filter(rep => rep.is_active).map(rep => {
+          const value = rep.id ? rep.id : rep.name; // Use ID if available, fallback to name for legacy reps
+          const selected = (currentQuote.sales_rep_id && currentQuote.sales_rep_id === rep.id) ||
+                          (!currentQuote.sales_rep_id && currentQuote.sales_rep === rep.name) ? 'selected' : '';
+          return `<option value="${value}" ${selected}>${rep.name}</option>`;
+        }).join('')}
       `;
     }
 
@@ -908,16 +907,25 @@ const QuotesModule = (function() {
     btnText.style.display = 'none';
     btnLoading.style.display = 'inline-flex';
 
+    const salesRepDropdownValue = document.getElementById('editSalesRepDropdown').value;
+
+    // Determine if we're working with ID-based or legacy sales rep system
     const formData = {
       customer: document.getElementById('editCustomer').value,
       quote_no: document.getElementById('editQuoteNo').value,
       description: document.getElementById('editDescription').value,
-      sales_rep: document.getElementById('editSalesRepDropdown').value,
       mpsf_link: document.getElementById('editMpsfLink').value,
       folder_link: document.getElementById('editFolderLink').value,
       method_link: document.getElementById('editMethodLink').value,
       hidden: document.getElementById('editHidden').checked
     };
+
+    // Check if the selected value is a numeric ID (new system) or string name (legacy)
+    if (salesRepDropdownValue && !isNaN(salesRepDropdownValue)) {
+      formData.sales_rep_id = parseInt(salesRepDropdownValue, 10);
+    } else if (salesRepDropdownValue) {
+      formData.sales_rep = salesRepDropdownValue;
+    }
 
     try {
       // Validate required fields
@@ -1075,17 +1083,26 @@ const QuotesModule = (function() {
     btnText.style.display = 'none';
     btnLoading.style.display = 'inline-flex';
     
+    const salesRepDropdownValue = document.getElementById('salesRepDropdown').value;
+
+    // Determine if we're working with ID-based or legacy sales rep system
     const formData = {
       customer: document.getElementById('customer').value,
       quote_no: document.getElementById('quoteNo').value,
-      description: document.getElementById('description').value,
-      sales_rep: document.getElementById('salesRepDropdown').value
+      description: document.getElementById('description').value
     };
+
+    // Check if the selected value is a numeric ID (new system) or string name (legacy)
+    if (salesRepDropdownValue && !isNaN(salesRepDropdownValue)) {
+      formData.sales_rep_id = parseInt(salesRepDropdownValue, 10);
+    } else if (salesRepDropdownValue) {
+      formData.sales_rep = salesRepDropdownValue;
+    }
     
     const createProject = document.getElementById('createProject').checked;
 
     // Add project creation data if checked and we have the necessary data
-    if (createProject && formData.sales_rep) {
+    if (createProject && (formData.sales_rep_id || formData.sales_rep)) {
       formData.create_project = true;
       formData.project_description = formData.description;
     }
@@ -1204,7 +1221,92 @@ const QuotesModule = (function() {
       timeout = setTimeout(() => func.apply(this, args), wait);
     };
   }
-  
+
+  /**
+   * Handle delete vendor quote from header button
+   * @param {Event} event - Click event
+   */
+  async function handleDeleteVendorQuoteFromHeader(event) {
+    const currentQuote = QuotesModule.getCurrentQuote();
+    if (!currentQuote || !currentQuote.vendor_quotes?.length) return;
+
+    const vendorQuotes = currentQuote.vendor_quotes;
+
+    if (vendorQuotes.length === 1) {
+      // Single vendor quote - simple confirmation
+      const vq = vendorQuotes[0];
+      const vendorName = vq.vendor?.name || vq.vendor || 'Unknown';
+      const confirmed = confirm(`Delete vendor quote from ${vendorName} (${vq.type})?\n\nThis action cannot be undone.`);
+
+      if (confirmed) {
+        await handleDeleteVendorQuote({ target: { dataset: { id: vq.id } }, stopPropagation: () => {} });
+      }
+    } else {
+      // Multiple vendor quotes - list them in confirmation
+      const vendorList = vendorQuotes.map(vq =>
+        `• ${vq.vendor?.name || vq.vendor || 'Unknown'} (${vq.type})`
+      ).join('\n');
+
+      const confirmed = confirm(`Delete ALL vendor quotes?\n\n${vendorList}\n\nThis action cannot be undone.`);
+
+      if (confirmed) {
+        // Delete each one
+        for (const vq of vendorQuotes) {
+          await handleDeleteVendorQuote({ target: { dataset: { id: vq.id } }, stopPropagation: () => {} });
+        }
+      }
+    }
+  }
+
+  /**
+   * Handle delete vendor quote (reuses existing VendorQuotesModule function)
+   * @param {Event} event - Click event from delete button
+   */
+  async function handleDeleteVendorQuote(event) {
+    event.stopPropagation();
+    const vendorQuoteId = parseInt(event.target.dataset.id, 10);
+
+    if (confirm('Are you sure you want to delete this vendor quote?')) {
+      try {
+        await API.deleteVendorQuote(vendorQuoteId);
+        showToast('Vendor quote deleted successfully', 'success');
+
+        // Get current quote and refresh vendor quotes list
+        const currentQuote = QuotesModule.getCurrentQuote();
+        if (currentQuote) {
+          try {
+            // Fetch fresh vendor quotes data
+            const updatedQuote = await API.getQuoteById(currentQuote.id);
+
+            // Update the vendor quotes section directly
+            const vendorQuotesContainer = document.getElementById('vendorQuotesList');
+            if (vendorQuotesContainer) {
+              vendorQuotesContainer.innerHTML = VendorQuotesModule.renderVendorQuotes(updatedQuote.vendor_quotes);
+              VendorQuotesModule.initVendorQuoteControls();
+
+              // Also update the current quote data
+              currentQuote.vendor_quotes = updatedQuote.vendor_quotes;
+
+              // Update delete button visibility
+              const deleteBtn = document.getElementById('deleteVendorQuoteBtn');
+              if (deleteBtn) {
+                deleteBtn.style.display = updatedQuote.vendor_quotes?.length > 0 ? 'inline-block' : 'none';
+              }
+            } else {
+              // If container not found, do a full refresh
+              QuotesModule.refreshCurrentQuote();
+            }
+          } catch (error) {
+            console.error('Failed to refresh vendor quotes:', error);
+            QuotesModule.refreshCurrentQuote();
+          }
+        }
+      } catch (error) {
+        showToast(`Failed to delete vendor quote: ${error.message}`, 'error');
+      }
+    }
+  }
+
   // Public API
   return {
     init,

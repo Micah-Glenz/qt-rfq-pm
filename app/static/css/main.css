@@ -1,0 +1,32 @@
+/* Main CSS file - Imports all modular CSS components */
+
+/* Import design tokens and themes first (foundational layer) */
+@import url('_variables.css');
+@import url('_themes.css');
+
+/* Import base layer (global styles, resets, utilities) */
+@import url('_base.css');
+@import url('_utilities.css');
+
+/* Import layout components */
+@import url('_layout.css');
+@import url('_header.css');
+
+/* Import UI components */
+@import url('_buttons.css');
+@import url('_forms.css');
+@import url('_cards.css');
+
+/* Import feature-specific components */
+@import url('_quotes.css');
+@import url('_tasks.css');
+@import url('_vendor-quotes.css');
+@import url('_notes.css');
+@import url('_modals.css');
+@import url('_email.css');
+@import url('_settings.css');
+@import url('_toasts.css');
+
+/* Legacy support - keep quote-detail-layout.css for now */
+/* This will be gradually migrated into the modular structure */
+@import url('quote-detail-layout.css');

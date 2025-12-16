@@ -1,0 +1,479 @@
+/* Card Component Styles */
+
+/* Base card styling */
+.quote-card {
+  background-color: var(--card-background);
+  border-radius: 0.35rem;
+  box-shadow: var(--card-shadow);
+  padding: calc(var(--font-size-xs) * 0.5);
+  min-width: 350px;
+  max-width: 650px;
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+  width: 100%;
+}
+
+/* Tasks card specific - height adjusts to content */
+.quote-card.tasks-card {
+  max-height: calc(100vh - 100px);
+  height: auto;
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+
+/* Details card doesn't need max height */
+.quote-card.details-card .card-content {
+  max-height: none;
+  overflow-y: visible;
+}
+
+/* Quote info display */
+.quote-info {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  font-size: var(--font-size-input);
+}
+
+.quote-info-dates {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  font-size: var(--font-size-input);
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.info-group {
+  margin-bottom: 0.4rem;
+}
+
+.info-label {
+  font-size: var(--font-size-label);
+  font-weight: bold;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.info-value {
+  margin-top: 0.15rem;
+}
+
+/* Compact info display */
+.compact-info-group {
+  display: flex;
+  align-items: center;
+  padding: calc(var(--font-size-xs) * 0.5) 0;
+  border-bottom: 1px solid var(--border-light);
+  min-height: calc(var(--font-size-base) * 1.6);
+}
+
+.compact-info-group:last-child {
+  border-bottom: none;
+}
+
+.compact-info-label {
+  width: calc(var(--font-size-base) * 7);
+  font-size: var(--font-size-button-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+  line-height: 1.2;
+  text-align: left;
+}
+
+.compact-info-value {
+  flex: 1;
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  font-weight: 500;
+  min-height: calc(var(--font-size-base) * 1.2);
+  display: flex;
+  align-items: center;
+  line-height: 1.3;
+  text-align: left;
+}
+
+.compact-info-value.editable {
+  cursor: text;
+  padding: var(--font-size-xs) calc(var(--font-size-xs) * 1.5);
+  border-radius: 2px;
+  transition: all 0.2s ease;
+}
+
+.compact-info-value.editable:hover {
+  background-color: var(--hover-bg);
+}
+
+/* Compact project links */
+.compact-project-links {
+  padding: var(--font-size-sm) 0;
+  border-top: 1px solid var(--border-color);
+  margin-top: var(--font-size-sm);
+}
+
+.compact-project-links-title {
+  font-size: var(--font-size-button-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--font-size-xs);
+}
+
+.compact-link-button {
+  display: inline-block;
+  padding: var(--font-size-xs) var(--font-size-sm);
+  margin: var(--font-size-xs) var(--font-size-xs) var(--font-size-xs) 0;
+  font-size: var(--font-size-tiny);
+  color: var(--primary-color);
+  background: var(--button-bg);
+  border: 1px solid var(--button-border);
+  border-radius: 3px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.compact-link-button:hover {
+  background: var(--primary-color);
+  color: var(--button-text);
+  border-color: var(--primary-color);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+}
+
+/* Quote info card styles */
+.quote-info-card {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  background: var(--card-background);
+  padding: 0.75rem;
+  border-radius: 0.35rem;
+  box-shadow: var(--card-shadow);
+}
+
+/* Google links edit section */
+.google-links-edit {
+  margin-top: 1rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.google-links-edit .info-group {
+  margin-bottom: 0.75rem;
+}
+
+.google-links-edit .info-group:last-child {
+  margin-bottom: 0;
+}
+
+/* Legacy column containers for backward compatibility */
+.quote-columns-container {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.left-column,
+.tasks-column,
+.events-column {
+  flex: 1;
+  min-width: 450px;
+  max-width: 750px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Column alignment */
+.tasks-column,
+.events-column {
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+/* Details content */
+.details-content {
+  padding: var(--font-size-base);
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Vendor quotes table container with scroll */
+.vendor-quotes-container {
+  flex: 1;
+  overflow: hidden;
+  background: white;
+  border-radius: 0.35rem;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+.vendor-quotes-table-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+  min-height: 0;
+  height: 100%;
+}
+
+/* Corporate table container */
+.corporate-table-container {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.corporate-table-scroll {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+}
+
+/* Override card-content constraints for vendor quotes */
+#vendorQuotesCardContent {
+  flex: 1 !important;
+  max-height: none !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Vendor quotes list container */
+.vendor-quotes-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Empty state for vendor quotes */
+.vendor-quotes-empty {
+  text-align: center;
+  padding: calc(var(--font-size-base) * 2);
+  color: var(--text-secondary);
+  background: var(--card-background);
+  border-radius: 0.35rem;
+  box-shadow: var(--card-shadow);
+}
+
+/* Compact vendor quotes section */
+.compact-vendor-quotes {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--card-background);
+  overflow: hidden;
+}
+
+/* Vendor items */
+.vendor-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--font-size-sm);
+  border-bottom: 1px solid var(--border-light);
+  background: var(--card-background);
+  border-radius: 4px;
+  margin-bottom: var(--font-size-xs);
+}
+
+.vendor-info {
+  flex: 1;
+}
+
+.vendor-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+}
+
+.vendor-specialization {
+  font-size: var(--font-size-tiny);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+
+.vendor-contact {
+  font-size: var(--font-size-tiny);
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.vendor-actions {
+  display: flex;
+  gap: var(--font-size-xs);
+}
+
+/* Sales reps list */
+.sales-reps-list {
+  border: 1px solid var(--border-color);
+  border-radius: 0.25rem;
+  margin-bottom: 1rem;
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: var(--font-size-input);
+}
+
+.sales-rep-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sales-rep-item:last-child {
+  border-bottom: none;
+}
+
+.sales-rep-delete {
+  color: var(--error-color);
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.sales-rep-delete:hover {
+  opacity: 1;
+}
+
+/* Theme-specific card adjustments */
+.midnight-purple .quote-card,
+.midnight-purple header,
+.midnight-purple .search-container,
+.midnight-purple .left-pane,
+.midnight-purple .modal-content {
+  border: 1px solid var(--border-color);
+}
+
+.midnight-purple .toast {
+  background-color: var(--toast-bg);
+  color: var(--text-color);
+}
+
+.midnight-purple .tab-bar {
+  background-color: var(--card-bg);
+  border-top-color: var(--border-color);
+}
+
+.midnight-purple .tab-iframe {
+  background-color: var(--bg-color);
+}
+
+/* Cyberpunk theme neon glow effects */
+.cyberpunk .quote-card {
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+  border: 1px solid var(--primary-color);
+}
+
+.cyberpunk .quote-item.selected {
+  background-color: rgba(0, 255, 255, 0.1);
+  box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+.cyberpunk .btn:hover {
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+.cyberpunk .btn.primary {
+  background-color: var(--primary-color);
+  color: #000000;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+}
+
+.cyberpunk input:focus,
+.cyberpunk select:focus,
+.cyberpunk textarea:focus {
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+  border-color: var(--primary-color);
+}
+
+.cyberpunk .modal-content {
+  border: 1px solid var(--primary-color);
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+}
+
+/* Dingy Dank theme moss and mold effects */
+.dingy-dank {
+  background-image:
+    radial-gradient(ellipse at top left, rgba(124, 179, 66, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(86, 115, 50, 0.05) 0%, transparent 50%);
+}
+
+.dingy-dank .quote-card {
+  background-color: var(--card-bg);
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(124, 179, 66, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(86, 115, 50, 0.03) 0%, transparent 50%);
+  border: 1px solid rgba(51, 105, 30, 0.5);
+}
+
+.dingy-dank .quote-item:hover {
+  background-color: rgba(124, 179, 66, 0.06);
+}
+
+.dingy-dank .btn {
+  background-color: rgba(60, 80, 50, 0.9);
+  border-color: rgba(51, 105, 30, 0.6);
+}
+
+.dingy-dank .card-header {
+  border-bottom-color: rgba(51, 105, 30, 0.3);
+}
+
+.dingy-dank .task-separator {
+  background-color: rgba(38, 48, 38, 0.8);
+  border-bottom-color: rgba(51, 105, 30, 0.4);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .quote-columns-container {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .left-column,
+  .tasks-column,
+  .events-column {
+    min-width: auto;
+    max-width: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .quote-card {
+    min-width: auto;
+    max-width: none;
+    margin-bottom: 1rem;
+  }
+
+  .compact-info-label {
+    width: 80px;
+    font-size: 11px;
+  }
+
+  .compact-info-value {
+    font-size: 12px;
+  }
+
+  .compact-link-button {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+}

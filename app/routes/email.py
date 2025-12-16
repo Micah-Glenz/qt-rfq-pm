@@ -6,6 +6,7 @@ from app.models.vendor_quote import VendorQuote
 from app.models.quote import Quote
 from app.services.config_service import ConfigService
 from datetime import datetime
+import re
 
 # Create blueprint
 email_bp = Blueprint('email', __name__, url_prefix='/api')
@@ -13,18 +14,161 @@ email_bp = Blueprint('email', __name__, url_prefix='/api')
 # Initialize GAS API with proper config service
 gas_api = ConfigService.get_gas_api()
 
+# ================== EMAIL VALIDATION HELPERS ==================
+
+def validate_email(email):
+    """Validate a single email address"""
+    if not email or not email.strip():
+        return False
+
+    email = email.strip()
+    # Basic email regex pattern
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return bool(re.match(pattern, email))
+
+def parse_email_recipients(email_string):
+    """Parse comma-separated email string into a list of valid emails"""
+    if not email_string:
+        return []
+
+    # Split by comma and clean up
+    emails = [email.strip() for email in email_string.split(',')]
+
+    # Filter out empty strings and validate each email
+    valid_emails = []
+    for email in emails:
+        if email and validate_email(email):
+            valid_emails.append(email)
+
+    return valid_emails
+
+def validate_cc_bcc_emails(cc_data, bcc_data):
+    """Validate and parse CC/BCC email data"""
+    cc_emails = []
+    bcc_emails = []
+
+    # Handle CC emails
+    if cc_data:
+        if isinstance(cc_data, list):
+            cc_emails = [email for email in cc_data if validate_email(email)]
+        elif isinstance(cc_data, str):
+            cc_emails = parse_email_recipients(cc_data)
+
+    # Handle BCC emails
+    if bcc_data:
+        if isinstance(bcc_data, list):
+            bcc_emails = [email for email in bcc_data if validate_email(email)]
+        elif isinstance(bcc_data, str):
+            bcc_emails = parse_email_recipients(bcc_data)
+
+    return cc_emails, bcc_emails
+
 # ================== EMAIL TEMPLATES ==================
+
+@email_bp.route('/email-templates/specialties', methods=['GET'])
+def get_template_specialties():
+    """Get all available template specialties with counts"""
+    try:
+        specialties = EmailTemplate.get_specialties()
+        return jsonify({
+            'success': True,
+            'data': specialties
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@email_bp.route('/email-templates/specialty/<specialty>', methods=['GET'])
+def get_templates_by_specialty(specialty):
+    """Get email templates for a specific specialty"""
+    try:
+        templates = EmailTemplate.get_by_specialty(specialty)
+        return jsonify({
+            'success': True,
+            'data': templates
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@email_bp.route('/email-templates/specialty/<specialty>/default', methods=['GET'])
+def get_default_template_for_specialty(specialty):
+    """Get the default email template for a specific specialty"""
+    try:
+        template = EmailTemplate.get_default_for_specialty(specialty)
+
+        if not template:
+            return jsonify({
+                'success': False,
+                'error': f'No default template found for specialty: {specialty}'
+            }), 404
+
+        return jsonify({
+            'success': True,
+            'data': template
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@email_bp.route('/email-templates/for-vendor/<int:vendor_id>', methods=['GET'])
+def get_template_for_vendor(vendor_id):
+    """Get the best template for a vendor based on their specialization"""
+    try:
+        # Get vendor information to determine specialization
+        vendor = Vendor.get_by_id(vendor_id)
+        if not vendor:
+            return jsonify({
+                'success': False,
+                'error': 'Vendor not found'
+            }), 404
+
+        # Get template based on vendor's specialization
+        template = EmailTemplate.get_template_for_vendor(vendor.get('specialization', 'general'))
+
+        if not template:
+            return jsonify({
+                'success': False,
+                'error': 'No templates available for this vendor type'
+            }), 404
+
+        return jsonify({
+            'success': True,
+            'data': template
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
 
 @email_bp.route('/email-templates', methods=['GET'])
 def get_email_templates():
-    """Get all email templates with optional filtering"""
+    """Get all email templates grouped by specialty with optional filtering"""
     try:
         query = request.args.get('search')
+        specialty = request.args.get('specialty')
+        include_all = request.args.get('include_all', 'false').lower() == 'true'
+        flat_format = request.args.get('flat', 'true').lower() == 'true'  # Default to flat for backward compatibility
 
-        if query:
+        if specialty:
+            # Get templates for specific specialty
+            templates = EmailTemplate.get_by_specialty(specialty, include_all)
+        elif query:
+            # Search templates - always return flat array
             templates = EmailTemplate.search(query)
-        else:
+        elif flat_format:
+            # Return flat array for backward compatibility
             templates = EmailTemplate.get_all()
+        else:
+            # Get all templates grouped by specialty
+            templates = EmailTemplate.get_by_specialties()
 
         return jsonify({
             'success': True,
@@ -38,29 +182,32 @@ def get_email_templates():
 
 @email_bp.route('/email-templates', methods=['POST'])
 def create_email_template():
-    """Create a new email template"""
+    """Create a new email template with specialty-based categorization"""
     try:
         data = request.get_json()
 
         # Validate required fields
-        if not data or 'vendor_id' not in data or 'subject_template' not in data or 'body_template' not in data:
+        required_fields = ['name', 'specialty', 'subject_template', 'body_template']
+        if not data or not all(field in data for field in required_fields):
             return jsonify({
                 'success': False,
-                'error': 'vendor_id, subject_template, and body_template are required'
+                'error': f'Required fields: {", ".join(required_fields)}'
             }), 400
 
-        # Validate vendor exists
-        vendor = Vendor.get_by_id(data['vendor_id'])
-        if not vendor:
+        # Validate specialty
+        valid_specialties = ['freight', 'install', 'forward', 'general']
+        if data['specialty'] not in valid_specialties:
             return jsonify({
                 'success': False,
-                'error': 'Vendor not found'
-            }), 404
+                'error': f'Invalid specialty. Must be one of: {", ".join(valid_specialties)}'
+            }), 400
 
         template_id = EmailTemplate.create(
-            vendor_id=data['vendor_id'],
+            name=data['name'],
+            specialty=data['specialty'],
             subject_template=data['subject_template'],
-            body_template=data['body_template']
+            body_template=data['body_template'],
+            is_default=data.get('is_default', False)
         )
 
         # Return the created template
@@ -109,10 +256,22 @@ def update_email_template(template_id):
                 'error': 'No data provided'
             }), 400
 
+        # Validate specialty if provided
+        if 'specialty' in data:
+            valid_specialties = ['freight', 'install', 'forward', 'general']
+            if data['specialty'] not in valid_specialties:
+                return jsonify({
+                    'success': False,
+                    'error': f'Invalid specialty. Must be one of: {", ".join(valid_specialties)}'
+                }), 400
+
         success = EmailTemplate.update(
             template_id=template_id,
+            name=data.get('name'),
+            specialty=data.get('specialty'),
             subject_template=data.get('subject_template'),
-            body_template=data.get('body_template')
+            body_template=data.get('body_template'),
+            is_default=data.get('is_default')
         )
 
         if success:
@@ -143,6 +302,29 @@ def delete_email_template(template_id):
         if success:
             return jsonify({
                 'success': True
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Cannot delete default template or template not found'
+            }), 404
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@email_bp.route('/email-templates/<int:template_id>/set-default', methods=['POST'])
+def set_template_as_default(template_id):
+    """Set a template as the default for its specialty"""
+    try:
+        success = EmailTemplate.set_as_default(template_id)
+
+        if success:
+            return jsonify({
+                'success': True,
+                'message': 'Template set as default for its specialty'
             })
         else:
             return jsonify({
@@ -195,7 +377,7 @@ def preview_email_template(template_id):
 
 @email_bp.route('/vendor-quotes/<int:vendor_quote_id>/send-email', methods=['POST'])
 def send_vendor_email(vendor_quote_id):
-    """Send email to vendor with optional template and variable substitution"""
+    """Send email to vendor with automatic template selection based on vendor specialty"""
     try:
         data = request.get_json()
 
@@ -225,19 +407,32 @@ def send_vendor_email(vendor_quote_id):
                 'error': 'Quote not found'
             }), 404
 
-        # Update variables with actual quote data
+        # Update variables with actual quote data and enhanced sales rep information
+        sales_rep_name = quote['sales_rep'] or ''
+        sales_rep_email = ''
+        sales_rep_phone = ''
+
+        # If we have sales_rep_info (from JOIN with sales_reps table), use it
+        if 'sales_rep_info' in quote and quote['sales_rep_info']:
+            rep_info = quote['sales_rep_info']
+            sales_rep_name = rep_info.get('name', sales_rep_name)
+            sales_rep_email = rep_info.get('email', '')
+            sales_rep_phone = rep_info.get('phone', '')
+
         variables.update({
-            'customer': quote.customer,
-            'quote_no': quote.quote_no,
-            'description': quote.description or '',
-            'sales_rep': quote.sales_rep or ''
+            'customer': quote['customer'],
+            'quote_no': quote['quote_no'],
+            'description': quote['description'] or '',
+            'sales_rep': sales_rep_name,
+            'sales_rep_email': sales_rep_email,
+            'sales_rep_phone': sales_rep_phone
         })
 
         # Determine email content
         subject = data.get('subject')
         body = data.get('body')
 
-        # If template_id is provided, use template
+        # Auto-select template based on vendor specialty if no template_id provided
         if 'template_id' in data:
             template = EmailTemplate.get_by_id(data['template_id'])
             if not template:
@@ -245,10 +440,18 @@ def send_vendor_email(vendor_quote_id):
                     'success': False,
                     'error': 'Template not found'
                 }), 404
+        else:
+            # Auto-select template based on vendor's specialization
+            template = EmailTemplate.get_template_for_vendor(vendor.get('specialization', 'general'))
+            if not template:
+                return jsonify({
+                    'success': False,
+                    'error': f'No template available for vendor specialty: {vendor.get("specialization", "general")}'
+                }), 404
 
-            # Substitute variables in template
-            subject = EmailTemplate.substitute_variables(template['subject_template'], variables)
-            body = EmailTemplate.substitute_variables(template['body_template'], variables)
+        # Substitute variables in template
+        subject = EmailTemplate.substitute_variables(template['subject_template'], variables)
+        body = EmailTemplate.substitute_variables(template['body_template'], variables)
 
         # Override with custom content if provided
         if data.get('subject'):
@@ -257,7 +460,6 @@ def send_vendor_email(vendor_quote_id):
             body = EmailTemplate.substitute_variables(data['body'], variables)
 
         # Determine recipient - prioritize vendor email
-        # Check if we're in test mode (can be overridden via config or request)
         is_test_mode = data.get('test_mode', False)
         config = ConfigService.get_config()
         is_test_mode = is_test_mode or config.get('email_test_mode', False)
@@ -274,7 +476,6 @@ def send_vendor_email(vendor_quote_id):
             if not to_email:
                 # No vendor email available, use test email as fallback
                 to_email = test_email
-                # Note: In production, you might want to handle this differently
                 print(f"Warning: No email found for vendor {vendor.get('name')}, using test email")
 
         # Prepare email data for GAS API
@@ -287,11 +488,21 @@ def send_vendor_email(vendor_quote_id):
             'vendor_id': vendor['id']
         }
 
+        # Validate primary recipient email
+        if not validate_email(to_email):
+            return jsonify({
+                'success': False,
+                'error': f'Invalid primary recipient email: {to_email}'
+            }), 400
+
+        # Validate and parse CC/BCC emails
+        cc_emails, bcc_emails = validate_cc_bcc_emails(data.get('cc'), data.get('bcc'))
+
         # Add optional fields
-        if 'cc' in data:
-            email_data['cc'] = data['cc']
-        if 'bcc' in data:
-            email_data['bcc'] = data['bcc']
+        if cc_emails:
+            email_data['cc'] = cc_emails
+        if bcc_emails:
+            email_data['bcc'] = bcc_emails
         if 'fromName' in data:
             email_data['fromName'] = data['fromName']
         if 'replyTo' in data:
@@ -309,8 +520,8 @@ def send_vendor_email(vendor_quote_id):
         gas_response = gas_api.send_vendor_email(email_data)
 
         # Create email history record
-        # Determine status based on whether we're using test email
         status = 'test_sent' if to_email == test_email else 'sent'
+        email_status = 'current'  # New emails are always 'current' by default
 
         history_id = EmailHistory.create(
             quote_id=variables['quote_id'],
@@ -319,10 +530,29 @@ def send_vendor_email(vendor_quote_id):
             to_email=to_email,
             subject=subject,
             body=body,
-            template_id=data.get('template_id'),
+            template_id=template['id'],
             status=status,
-            gas_response=str(gas_response)
+            email_status=email_status,
+            gas_response=str(gas_response),
+            cc_emails=cc_emails,
+            bcc_emails=bcc_emails
         )
+
+        # Update vendor quote status to 'sent' when email is successfully sent
+        if gas_response and not is_test_mode:
+            try:
+                from app.db import DatabaseContext
+                with DatabaseContext() as conn:
+                    cursor = conn.cursor()
+                    cursor.execute('''
+                        UPDATE vendor_quotes
+                        SET status = 'sent'
+                        WHERE id = ?
+                    ''', (vendor_quote_id,))
+                    conn.commit()
+                    print(f"Updated vendor quote {vendor_quote_id} status to 'sent'")
+            except Exception as update_error:
+                print(f"Warning: Failed to update vendor quote status: {update_error}")
 
         return jsonify({
             'success': True,
@@ -330,6 +560,7 @@ def send_vendor_email(vendor_quote_id):
                 'email_id': history_id,
                 'final_subject': subject,
                 'final_body': body,
+                'template_used': template,
                 'variables_used': variables,
                 'gas_response': gas_response
             }
@@ -363,8 +594,23 @@ def get_email_history_by_quote(quote_id):
 def get_email_history_by_vendor(vendor_id):
     """Get email history for a specific vendor"""
     try:
-        # Note: We would need to add pagination to EmailHistory.get_by_vendor
         history = EmailHistory.get_by_vendor(vendor_id)
+
+        return jsonify({
+            'success': True,
+            'data': history
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@email_bp.route('/vendor-quotes/<int:vendor_quote_id>/email-history', methods=['GET'])
+def get_email_history_by_vendor_quote(vendor_quote_id):
+    """Get email history for a specific vendor quote"""
+    try:
+        history = EmailHistory.get_by_vendor_quote(vendor_quote_id)
 
         return jsonify({
             'success': True,
@@ -407,13 +653,58 @@ def get_all_email_history():
             'error': str(e)
         }), 500
 
+@email_bp.route('/email-history/<int:email_id>/status', methods=['PUT'])
+def update_email_status(email_id):
+    """Update the email_status of an email history record"""
+    try:
+        data = request.get_json()
+
+        # Validate required fields
+        if not data or 'email_status' not in data:
+            return jsonify({
+                'success': False,
+                'error': 'email_status field is required'
+            }), 400
+
+        # Validate email_status value
+        valid_statuses = ['current', 'superceded']
+        email_status = data['email_status']
+
+        if email_status not in valid_statuses:
+            return jsonify({
+                'success': False,
+                'error': f'email_status must be one of: {", ".join(valid_statuses)}'
+            }), 400
+
+        # Update the email status
+        success = EmailHistory.update_email_status(email_id, email_status)
+
+        if success:
+            # Get updated email record
+            updated_email = EmailHistory.get_by_id(email_id)
+            return jsonify({
+                'success': True,
+                'data': updated_email,
+                'message': f'Email status updated to {email_status}'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Email not found or update failed'
+            }), 404
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
 # ================== HELPER FUNCTIONS ==================
 
 def _gather_variables_for_vendor_quote(vendor_quote_id):
     """Gather available variables for a vendor quote"""
     try:
         # We need to find the vendor quote by checking all quotes
-        # This is a workaround since we don't have a direct VendorQuote.get_by_id method
         all_quotes = Quote.get_all()
 
         for quote in all_quotes:
@@ -434,17 +725,37 @@ def _gather_variables_for_vendor_quote(vendor_quote_id):
                     if not quote_obj:
                         continue
 
+                    # Extract sales rep information with enhanced details
+                    sales_rep_name = quote_obj['sales_rep'] or ''
+                    sales_rep_email = ''
+                    sales_rep_phone = ''
+
+                    # If we have sales_rep_info (from JOIN with sales_reps table), use it
+                    if 'sales_rep_info' in quote_obj and quote_obj['sales_rep_info']:
+                        rep_info = quote_obj['sales_rep_info']
+                        sales_rep_name = rep_info.get('name', sales_rep_name)
+                        sales_rep_email = rep_info.get('email', '')
+                        sales_rep_phone = rep_info.get('phone', '')
+
                     # Return all available variables
                     return {
-                        'customer': quote_obj.customer,
-                        'quote_no': quote_obj.quote_no,
-                        'description': quote_obj.description or '',
-                        'sales_rep': quote_obj.sales_rep or '',
+                        'customer': quote_obj['customer'],
+                        'quote_no': quote_obj['quote_no'],
+                        'description': quote_obj['description'] or '',
+                        'sales_rep': sales_rep_name,
+                        'sales_rep_email': sales_rep_email,
+                        'sales_rep_phone': sales_rep_phone,
                         'vendor_name': vendor.get('name', ''),
                         'contact_name': vendor.get('contact_name', ''),
                         'vendor_email': vendor.get('email', ''),
                         'vendor_phone': vendor.get('phone', ''),
                         'quote_type': vq.get('type', ''),
+                        'pickup_location': '',  # These can be added later if needed
+                        'delivery_location': '',
+                        'installation_location': '',
+                        'origin_location': '',
+                        'destination_location': '',
+                        'scope_of_work': '',
                         'quote_id': quote_id,
                         'vendor_id': vendor_id,
                         'vendor_quote_id': vendor_quote_id,

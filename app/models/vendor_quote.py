@@ -127,7 +127,7 @@ class VendorQuote:
             status=status,
             cost=None,
             lead_time_days=None,
-            quote_date=date,
+            quote_date=date,  # This will be defaulted in create_enhanced if None
             contact_person=None,
             notes=notes
         )
@@ -137,6 +137,11 @@ class VendorQuote:
                        lead_time_days=None, valid_until=None, quote_date=None,
                        contact_person=None, notes=None):
         """Create a new enhanced vendor quote"""
+        # Default quote_date to today if not provided
+        if not quote_date:
+            from datetime import datetime
+            quote_date = datetime.now().strftime('%Y-%m-%d')
+
         with DatabaseContext() as conn:
             cursor = conn.cursor()
             cursor.execute('''

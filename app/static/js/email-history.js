@@ -43,7 +43,7 @@ const EmailHistoryModule = (function() {
       `;
 
       vendorEmails.forEach(email => {
-        const statusBadge = getStatusBadge(email.status);
+        const statusBadge = getStatusBadge(email.status, email.email_status);
         const formattedDate = formatEmailDate(email.sent_at);
         const previewText = truncateText(email.body, 100);
 
@@ -52,21 +52,6 @@ const EmailHistoryModule = (function() {
             <div class="email-header">
               <div class="email-subject" onclick="EmailHistoryModule.showEmailDetail(${email.id})">
                 ${email.subject}
-              </div>
-              <div class="email-actions">
-                <button class="btn-icon small" onclick="EmailHistoryModule.showEmailDetail(${email.id})" title="View email">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                    <circle cx="12" cy="12" r="3"></circle>
-                  </svg>
-                </button>
-                <button class="btn-icon small" onclick="EmailHistoryModule.resendEmail(${email.id})" title="Resend email">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M23 4v6h-6"></path>
-                    <path d="M1 20v-6h6"></path>
-                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-                  </svg>
-                </button>
               </div>
             </div>
             <div class="email-meta">
@@ -118,9 +103,22 @@ const EmailHistoryModule = (function() {
   /**
    * Get status badge HTML for email status
    * @param {string} status - Email status
+   * @param {string} emailStatus - Email status (current/superceded)
    * @returns {string} - Status badge HTML
    */
-  function getStatusBadge(status) {
+  function getStatusBadge(status, emailStatus) {
+    // Show simple [Current/Superceded] status if email_status is available
+    if (emailStatus) {
+      const emailStatusConfig = {
+        'current': { class: 'status-current', text: 'Current', icon: '' },
+        'superceded': { class: 'status-superceded', text: 'Superceded', icon: '' }
+      };
+
+      const config = emailStatusConfig[emailStatus] || emailStatusConfig['current'];
+      return `<span class="status-badge ${config.class}">[${config.text}]</span>`;
+    }
+
+    // Fallback to original status system for backward compatibility
     const statusConfig = {
       'sent': { class: 'status-sent', text: 'Sent', icon: '✓' },
       'test_sent': { class: 'status-sent', text: 'Test Sent', icon: '✓' },
@@ -145,31 +143,15 @@ const EmailHistoryModule = (function() {
     if (!dateString) return 'Unknown date';
 
     const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now - date;
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-    if (diffDays === 0) {
-      // Today - show time
-      return date.toLocaleTimeString(undefined, {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-      });
-    } else if (diffDays === 1) {
-      // Yesterday
-      return 'Yesterday';
-    } else if (diffDays < 7) {
-      // This week - show day name
-      return date.toLocaleDateString(undefined, { weekday: 'short' });
-    } else {
-      // Older - show date
-      return date.toLocaleDateString(undefined, {
-        month: 'short',
-        day: 'numeric',
-        year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
-      });
-    }
+    // Format: Fri, 12/05/25
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const dayName = days[date.getDay()];
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = String(date.getFullYear()).slice(-2); // Last 2 digits
+
+    return `${dayName}, ${month}/${day}/${year}`;
   }
 
   /**
@@ -274,8 +256,15 @@ const EmailHistoryModule = (function() {
                   <div class="meta-item">
                     <strong>Sent:</strong> ${formattedDate}
                   </div>
-                  <div class="meta-item">
-                    <strong>Status:</strong> ${getStatusBadge(email.status)}
+                  <div class="meta-item email-detail-status">
+                    <strong>Status:</strong> ${getStatusBadge(email.status, email.email_status)}
+                    <div class="status-update-controls">
+                      <select id="statusSelect-${email.id}" class="status-select">
+                        <option value="current" ${email.email_status === 'current' ? 'selected' : ''}>Current</option>
+                        <option value="superceded" ${email.email_status === 'superceded' ? 'selected' : ''}>Superceded</option>
+                      </select>
+                      <button onclick="EmailHistoryModule.updateEmailStatus(${email.id}, document.getElementById('statusSelect-${email.id}').value)" class="update-status-btn">Update</button>
+                    </div>
                   </div>
                   ${email.template_id ? `
                     <div class="meta-item">
@@ -288,7 +277,7 @@ const EmailHistoryModule = (function() {
               <!-- Email Body -->
               <div class="email-detail-body">
                 <h4>Message</h4>
-                <div class="email-content">${escapeHtml(email.body).replace(/\n/g, '<br>')}</div>
+                <div class="email-content">${email.body ? escapeHtml(email.body).replace(/\n/g, '<br>') : '<em>No message content available</em>'}</div>
               </div>
 
               <!-- Template Info -->
@@ -305,39 +294,6 @@ const EmailHistoryModule = (function() {
                   <summary>Google Apps Script Response</summary>
                   <pre class="gas-response-content">${gasResponse}</pre>
                 </details>
-              </div>
-
-              <!-- Actions -->
-              <div class="email-detail-actions">
-                <button class="btn primary" onclick="EmailHistoryModule.resendEmail(${email.id})">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M23 4v6h-6"></path>
-                    <path d="M1 20v-6h6"></path>
-                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-                  </svg>
-                  Resend
-                </button>
-                <button class="btn secondary" onclick="EmailHistoryModule.forwardEmail(${email.id})">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 2L12 12"></path>
-                    <path d="M22 2l-7 20-4-9-9 4 20 7z"></path>
-                  </svg>
-                  Forward
-                </button>
-                <button class="btn secondary" onclick="EmailHistoryModule.createFollowUp(${email.id})">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 10h13a7 7 0 0 1 0 14h-3"></path>
-                    <polyline points="8 15 3 10 8 5"></polyline>
-                  </svg>
-                  Follow Up
-                </button>
-                <a href="#quote-${email.quote_id}" class="btn secondary" onclick="EmailHistoryModule.goToQuote(${email.quote_id})">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                  </svg>
-                  View Quote
-                </a>
               </div>
             </div>
           </div>
@@ -371,137 +327,7 @@ const EmailHistoryModule = (function() {
     }
   }
 
-  /**
-   * Resend email
-   * @param {number} emailId - Email ID
-   */
-  async function resendEmail(emailId) {
-    try {
-      // Find the email
-      const email = currentEmailHistory.find(e => e.id === emailId);
-      if (!email) {
-        showToast('Email not found', 'error');
-        return;
-      }
-
-      // Find the vendor quote
-      if (!email.vendor_quote_id) {
-        showToast('Vendor quote information not available', 'error');
-        return;
-      }
-
-      // Open email modal with pre-filled content
-      if (typeof EmailModule !== 'undefined' && EmailModule.openEmailModal) {
-        closeEmailDetailModal();
-        await EmailModule.openEmailModal(email.vendor_quote_id);
-
-        // Pre-fill the email modal with original content
-        setTimeout(() => {
-          const subjectField = document.getElementById('emailSubject');
-          const bodyField = document.getElementById('emailBody');
-
-          if (subjectField) subjectField.value = email.subject;
-          if (bodyField) bodyField.value = email.body;
-        }, 100);
-      } else {
-        showToast('Email module not available', 'error');
-      }
-
-    } catch (error) {
-      console.error('Failed to resend email:', error);
-      showToast('Failed to resend email', 'error');
-    }
-  }
-
-  /**
-   * Forward email
-   * @param {number} emailId - Email ID
-   */
-  async function forwardEmail(emailId) {
-    try {
-      const email = currentEmailHistory.find(e => e.id === emailId);
-      if (!email) {
-        showToast('Email not found', 'error');
-        return;
-      }
-
-      // Create forward content
-      const forwardSubject = `Fwd: ${email.subject}`;
-      const forwardBody = `\n\n---------- Forwarded message ---------\nFrom: ${email.vendor_name}\nDate: ${new Date(email.sent_at).toLocaleString()}\nSubject: ${email.subject}\nTo: ${email.to_email}\n\n${email.body}`;
-
-      // Open email modal with forward content
-      if (typeof EmailModule !== 'undefined' && EmailModule.openEmailModal) {
-        closeEmailDetailModal();
-        await EmailModule.openEmailModal(email.vendor_quote_id);
-
-        setTimeout(() => {
-          const subjectField = document.getElementById('emailSubject');
-          const bodyField = document.getElementById('emailBody');
-
-          if (subjectField) subjectField.value = forwardSubject;
-          if (bodyField) bodyField.value = forwardBody;
-        }, 100);
-      } else {
-        showToast('Email module not available', 'error');
-      }
-
-    } catch (error) {
-      console.error('Failed to forward email:', error);
-      showToast('Failed to forward email', 'error');
-    }
-  }
-
-  /**
-   * Create follow-up email
-   * @param {number} emailId - Email ID
-   */
-  async function createFollowUp(emailId) {
-    try {
-      const email = currentEmailHistory.find(e => e.id === emailId);
-      if (!email) {
-        showToast('Email not found', 'error');
-        return;
-      }
-
-      // Create follow-up content
-      const followUpSubject = `Follow-up: ${email.subject}`;
-      const followUpBody = `\n\n---------- Follow-up to previous message ----------\nOriginal message sent on ${new Date(email.sent_at).toLocaleString()}\nSubject: ${email.subject}\n\n${email.body}\n\n---------- Follow-up message ----------\n`;
-
-      // Open email modal with follow-up content
-      if (typeof EmailModule !== 'undefined' && EmailModule.openEmailModal) {
-        closeEmailDetailModal();
-        await EmailModule.openEmailModal(email.vendor_quote_id);
-
-        setTimeout(() => {
-          const subjectField = document.getElementById('emailSubject');
-          const bodyField = document.getElementById('emailBody');
-
-          if (subjectField) subjectField.value = followUpSubject;
-          if (bodyField) bodyField.value = followUpBody;
-        }, 100);
-      } else {
-        showToast('Email module not available', 'error');
-      }
-
-    } catch (error) {
-      console.error('Failed to create follow-up:', error);
-      showToast('Failed to create follow-up', 'error');
-    }
-  }
-
-  /**
-   * Go to quote
-   * @param {number} quoteId - Quote ID
-   */
-  function goToQuote(quoteId) {
-    closeEmailDetailModal();
-
-    // Load the quote if not already loaded
-    if (typeof QuotesModule !== 'undefined' && QuotesModule.loadQuoteDetail) {
-      QuotesModule.loadQuoteDetail(quoteId);
-    }
-  }
-
+  
   /**
    * Escape HTML to prevent XSS
    * @param {string} text - Text to escape
@@ -513,14 +339,54 @@ const EmailHistoryModule = (function() {
     return div.innerHTML;
   }
 
-  // Public API
+  /**
+   * Update email status
+   * @param {number} emailId - Email ID
+   * @param {string} newStatus - New status ('current' or 'superceded')
+   */
+  async function updateEmailStatus(emailId, newStatus) {
+    try {
+      const response = await API.updateEmailStatus(emailId, newStatus);
+
+      if (response.success) {
+        showToast(`Email status updated to ${newStatus}`, 'success');
+
+        // Update the email in current history
+        const emailIndex = currentEmailHistory.findIndex(e => e.id === emailId);
+        if (emailIndex !== -1) {
+          currentEmailHistory[emailIndex].email_status = newStatus;
+        }
+
+        // Refresh the modal if it's open
+        const modal = document.getElementById('emailDetailModal');
+        if (modal) {
+          // Update status display in modal
+          const statusElement = modal.querySelector('.email-detail-status');
+          if (statusElement) {
+            const email = currentEmailHistory.find(e => e.id === emailId);
+            if (email) {
+              statusElement.innerHTML = getStatusBadge(email.status, newStatus);
+            }
+          }
+        }
+
+        return true;
+      } else {
+        showToast(response.error || 'Failed to update email status', 'error');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error updating email status:', error);
+      showToast('Failed to update email status', 'error');
+      return false;
+    }
+  }
+
+// Public API
   return {
     init,
     renderEmailHistory,
     showEmailDetail,
-    resendEmail,
-    forwardEmail,
-    createFollowUp,
-    goToQuote
+    updateEmailStatus
   };
 })();

@@ -113,15 +113,34 @@ const EmailModule = (function() {
   }
 
   /**
-   * Load vendor-specific email templates
+   * Load vendor-specific email templates using specialty-based system
    * @param {number} vendorId - The vendor ID
    */
   async function loadVendorTemplates(vendorId) {
     try {
       const templates = await API.getEmailTemplates();
-      currentVendorTemplates = templates.filter(template =>
-        !vendorId || template.vendor_id == vendorId
-      );
+
+      // Get vendor information to determine specialization
+      const vendor = await API.getVendor(vendorId);
+      const vendorSpecialization = vendor?.specialization || 'general';
+
+      // Get default template for vendor's specialization
+      const defaultTemplate = templates.find(t => t.specialty === vendorSpecialization && t.is_default);
+
+      // Get templates that match vendor's specialization
+      const specialtyTemplates = templates.filter(t => t.specialty === vendorSpecialization);
+
+      // Include general templates as fallbacks
+      const generalTemplates = templates.filter(t => t.specialty === 'general');
+
+      // Combine templates: default → specialty (non-default) → general (non-default)
+      currentVendorTemplates = [
+        ...(defaultTemplate ? [defaultTemplate] : []),
+        ...specialtyTemplates.filter(t => !t.is_default),
+        ...generalTemplates.filter(t => !t.is_default)
+      ];
+
+      console.log(`Loaded ${currentVendorTemplates.length} templates for vendor ${vendorId} (${vendorSpecialization})`);
     } catch (error) {
       console.error('Failed to load email templates:', error);
       currentVendorTemplates = [];
@@ -140,80 +159,80 @@ const EmailModule = (function() {
 
     const modalHtml = `
       <div id="emailModal" class="modal">
-        <div class="modal-content" style="max-width: 800px;">
-          <div class="modal-header">
-            <h2>Send Email to Vendor</h2>
-            <span class="close-modal">&times;</span>
+        <div class="modal-content email-modal">
+          <!-- Header -->
+          <div class="email-header">
+            <div class="email-header-left">
+              <h2><span id="headerVendorName">Loading...</span> - Email Vendor</h2>
+            </div>
+            <div class="email-header-right">
+              <div class="test-mode-toggle">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="testMode" name="test_mode">
+                  <span>Test Mode</span>
+                </label>
+              </div>
+              <span class="close-modal">&times;</span>
+            </div>
           </div>
-          <div class="modal-body">
-            <form id="emailForm">
-              <!-- Recipient Information -->
-              <div class="form-group">
-                <label for="emailTo">To:</label>
-                <input type="email" id="emailTo" name="to" required placeholder="vendor@example.com">
-                <small class="form-help" id="emailHelpText">Email will be sent to the vendor's primary email address</small>
 
-                <!-- Test Mode Option -->
-                <div class="form-group" style="margin-top: 0.5rem;">
-                  <label style="display: flex; align-items: center; cursor: pointer;">
-                    <input type="checkbox" id="testMode" name="test_mode" style="margin-right: 0.5rem;">
-                    <span>Test Mode (send to test address only)</span>
-                  </label>
-                  <small class="form-help">When enabled, emails will be sent to the test address regardless of vendor email</small>
-                </div>
-              </div>
-
-              <!-- Template Selection -->
-              <div class="form-group">
-                <label for="emailTemplate">Email Template:</label>
-                <select id="emailTemplate" name="template_id">
-                  <option value="">Select a template (optional)</option>
-                  <option value="">─────────────────</option>
-                </select>
-                <button type="button" id="manageTemplatesBtn" class="btn small" style="margin-top: 0.5rem;">
-                  Manage Templates
-                </button>
-              </div>
-
-              <!-- Subject Line -->
-              <div class="form-group">
-                <label for="emailSubject">Subject:</label>
-                <input type="text" id="emailSubject" name="subject" required
-                       placeholder="Enter email subject" maxlength="200">
-                <div class="character-count">
-                  <span id="subjectCount">0</span>/200 characters
-                </div>
-              </div>
-
-              <!-- Email Body -->
-              <div class="form-group">
-                <label for="emailBody">Message:</label>
-                <textarea id="emailBody" name="body" rows="12" required
-                          placeholder="Enter your email message here..."></textarea>
-                <div class="email-actions">
-                  <button type="button" id="previewBtn" class="btn small secondary">Preview Variables</button>
-                  <button type="button" id="resetBtn" class="btn small secondary">Reset</button>
-                </div>
-              </div>
-
-              <!-- Available Variables -->
-              <div class="form-group" id="variablesSection" style="display: none;">
-                <label>Available Variables:</label>
-                <div class="variables-grid" id="variablesGrid">
-                  <!-- Variables will be populated here -->
-                </div>
-                <div class="preview-section" id="previewSection" style="display: none;">
-                  <h4>Preview:</h4>
-                  <div class="preview-content" id="previewContent">
-                    <!-- Preview will be shown here -->
+          <!-- Body with two-column layout -->
+          <div class="email-body">
+            <!-- Main form column -->
+            <div class="email-form-column">
+              <div class="email-form-content">
+                <form id="emailForm">
+                  <!-- Template selector -->
+                  <div class="form-group-inline">
+                    <label for="emailTemplate">Template:</label>
+                    <select id="emailTemplate" name="template_id" class="form-control">
+                      <option value="">No template</option>
+                    </select>
                   </div>
-                </div>
+
+                  <!-- Email fields -->
+                  <div class="form-group-inline">
+                    <label for="emailTo">To:</label>
+                    <div class="input-with-status">
+                      <input type="email" id="emailTo" name="to" required placeholder="vendor@example.com" class="form-control">
+                      <span class="status" id="emailStatus"></span>
+                    </div>
+                  </div>
+
+                  <div class="form-group-inline">
+                    <label for="emailCc">CC:</label>
+                    <input type="text" id="emailCc" name="cc" placeholder="email1@example.com, email2@example.com" class="form-control">
+                  </div>
+
+                  <div class="form-group-inline">
+                    <label for="emailBcc">BCC:</label>
+                    <input type="text" id="emailBcc" name="bcc" placeholder="email1@example.com, email2@example.com" class="form-control">
+                  </div>
+
+                  <!-- Subject -->
+                  <div class="form-group-inline">
+                    <label for="emailSubject">Subject:</label>
+                    <div class="input-with-counter">
+                      <input type="text" id="emailSubject" name="subject" required
+                             placeholder="Enter subject..." maxlength="200" class="form-control">
+                      <span class="char-counter" id="subjectCount">0/200</span>
+                    </div>
+                  </div>
+
+                  <!-- Message body -->
+                  <div class="form-group-inline">
+                    <div class="message-textarea-wrapper">
+                      <textarea id="emailBody" name="body" required
+                                placeholder="Type your message here..." class="form-control"></textarea>
+                    </div>
+                  </div>
+                </form>
               </div>
 
-              <!-- Form Actions -->
-              <div class="form-actions">
-                <button type="button" class="btn cancel-modal">Cancel</button>
-                <button type="submit" class="btn primary" id="sendEmailBtn">
+              <!-- Actions anchored to bottom -->
+              <div class="email-form-actions">
+                <button type="button" class="btn btn-secondary cancel-modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="sendEmailBtn">
                   <span class="btn-text">Send Email</span>
                   <span class="btn-loading" style="display: none;">
                     <span class="loading-spinner"></span>
@@ -221,7 +240,14 @@ const EmailModule = (function() {
                   </span>
                 </button>
               </div>
-            </form>
+            </div>
+
+            <!-- Sidebar column -->
+            <div class="email-sidebar">
+              <div class="variables-list" id="variablesList">
+                <!-- Variables will be populated here -->
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -240,6 +266,12 @@ const EmailModule = (function() {
   function initializeEmailModal() {
     if (!currentVendorQuote) return;
 
+    // Update vendor name in header
+    const headerVendorName = document.getElementById('headerVendorName');
+    if (headerVendorName) {
+      headerVendorName.textContent = availableVariables.vendor_name || 'Unknown Vendor';
+    }
+
     // Set recipient email - prioritize vendor email from availableVariables
     const vendorEmail = availableVariables.vendor_email || '';
     const testEmail = 'micah+gasapitest@commfitness.com';
@@ -247,14 +279,14 @@ const EmailModule = (function() {
     // Use vendor email if available, otherwise show test email as placeholder
     document.getElementById('emailTo').value = vendorEmail || testEmail;
 
-    // Update help text based on email availability
-    const helpText = document.getElementById('emailHelpText');
+    // Update email status indicator in input
+    const emailStatus = document.getElementById('emailStatus');
     if (vendorEmail) {
-      helpText.textContent = 'Email will be sent to the vendor\'s primary email address';
-      helpText.style.color = '#28a745';
+      emailStatus.textContent = '✓';
+      emailStatus.style.color = '#28a745';
     } else {
-      helpText.textContent = 'No vendor email on file - email will be sent to test address';
-      helpText.style.color = '#ffc107';
+      emailStatus.textContent = '⚠';
+      emailStatus.style.color = '#ffc107';
     }
 
     // Populate template dropdown
@@ -289,6 +321,45 @@ const EmailModule = (function() {
   }
 
   /**
+   * Handle test mode toggle
+   */
+  function handleTestModeToggle() {
+    const testMode = document.getElementById('testMode');
+    const emailTo = document.getElementById('emailTo');
+    const emailStatus = document.getElementById('emailStatus');
+    const testEmail = 'micah+gasapitest@commfitness.com';
+    const ccTestEmail = 'micah+cctest@commfitness.com';
+    const bccTestEmail = 'micah+bcctest@commfitness.com';
+
+    if (testMode.checked) {
+      // Test mode enabled - use test emails for all fields
+      emailTo.value = testEmail;
+      document.getElementById('emailCc').value = ccTestEmail;
+      document.getElementById('emailBcc').value = bccTestEmail;
+
+      emailStatus.textContent = '⚠';
+      emailStatus.style.color = '#ffc107';
+    } else {
+      // Test mode disabled - use vendor email and clear CC/BCC
+      const vendorEmail = availableVariables.vendor_email || '';
+      emailTo.value = vendorEmail || testEmail;
+
+      // Clear CC/BCC fields
+      document.getElementById('emailCc').value = '';
+      document.getElementById('emailBcc').value = '';
+
+      if (vendorEmail) {
+        emailStatus.textContent = '✓';
+        emailStatus.style.color = '#28a745';
+      } else {
+        emailStatus.textContent = '⚠';
+        emailStatus.style.color = '#ffc107';
+      }
+    }
+  }
+
+  
+  /**
    * Bind event listeners for email modal
    */
   function bindEmailModalEvents() {
@@ -298,8 +369,11 @@ const EmailModule = (function() {
     modal.querySelector('.close-modal').addEventListener('click', closeEmailModal);
     modal.querySelector('.cancel-modal').addEventListener('click', closeEmailModal);
 
-    // Form submission
+    // Form submission - bind to form submit event
     document.getElementById('emailForm').addEventListener('submit', handleEmailSubmit);
+
+    // Form submission - bind to send button click since buttons are outside form
+    document.getElementById('sendEmailBtn').addEventListener('click', handleSendEmailClick);
 
     // Template selection
     document.getElementById('emailTemplate').addEventListener('change', handleTemplateChange);
@@ -307,12 +381,8 @@ const EmailModule = (function() {
     // Character count
     document.getElementById('emailSubject').addEventListener('input', updateCharacterCount);
 
-    // Preview and reset buttons
-    document.getElementById('previewBtn').addEventListener('click', togglePreview);
-    document.getElementById('resetBtn').addEventListener('click', resetToDefault);
-
-    // Manage templates button
-    document.getElementById('manageTemplatesBtn').addEventListener('click', openTemplateManager);
+    // Test mode functionality (now in header)
+    document.getElementById('testMode').addEventListener('change', handleTestModeToggle);
 
     // Close modal on outside click
     modal.addEventListener('click', (e) => {
@@ -323,43 +393,85 @@ const EmailModule = (function() {
   }
 
   /**
-   * Populate template dropdown with vendor templates
+   * Handle send email button click
+   * @param {Event} event - Click event
+   */
+  function handleSendEmailClick(event) {
+    console.log('Send email button clicked');
+    event.preventDefault();
+
+    // Create and dispatch a submit event on the form
+    const form = document.getElementById('emailForm');
+    console.log('Form found:', form);
+    const submitEvent = new Event('submit', { cancelable: true });
+    console.log('Dispatching submit event');
+    form.dispatchEvent(submitEvent);
+  }
+
+  /**
+   * Populate template dropdown with specialty-based templates
    */
   function populateTemplateDropdown() {
     const select = document.getElementById('emailTemplate');
 
-    // Clear existing options (except the first two)
-    while (select.options.length > 2) {
-      select.remove(2);
+    // Clear existing options (except the first one)
+    while (select.options.length > 1) {
+      select.remove(1);
     }
 
-    // Add vendor templates
+    if (!currentVendorTemplates || currentVendorTemplates.length === 0) {
+      return;
+    }
+
+    // Group templates by specialty
+    const templatesBySpecialty = {};
     currentVendorTemplates.forEach(template => {
-      const option = document.createElement('option');
-      option.value = template.id;
-      option.textContent = template.subject_template || 'Untitled Template';
-      select.appendChild(option);
+      const specialty = template.specialty || 'general';
+      if (!templatesBySpecialty[specialty]) {
+        templatesBySpecialty[specialty] = [];
+      }
+      templatesBySpecialty[specialty].push(template);
     });
 
-    // Add general templates (if any)
-    const generalTemplates = currentVendorTemplates.filter(template => !template.vendor_id);
-    if (generalTemplates.length > 0 && currentVendorTemplates.some(t => t.vendor_id)) {
-      const separator = document.createElement('option');
-      separator.textContent = '─────────────────';
-      separator.disabled = true;
-      select.appendChild(separator);
+    // Define specialty display order
+    const specialtyOrder = ['freight', 'install', 'forward', 'general'];
+    const specialtyLabels = {
+      'freight': 'Freight',
+      'install': 'Install',
+      'forward': 'Forward',
+      'general': 'General'
+    };
 
-      generalTemplates.forEach(template => {
-        const option = document.createElement('option');
-        option.value = template.id;
-        option.textContent = template.subject_template || 'Untitled Template';
-        select.appendChild(option);
-      });
-    }
+    // Add templates grouped by specialty
+    specialtyOrder.forEach(specialty => {
+      const templates = templatesBySpecialty[specialty];
+      if (templates && templates.length > 0) {
+        const defaultTemplate = templates.find(t => t.is_default);
+        const nonDefaultTemplates = templates.filter(t => !t.is_default);
+
+        // Add default template first if it exists
+        if (defaultTemplate) {
+          const defaultOption = document.createElement('option');
+          defaultOption.value = defaultTemplate.id;
+          defaultOption.textContent = `${defaultTemplate.name || 'Default Template'} (Default)`;
+          defaultOption.title = `Default ${specialtyLabels[specialty]} template`;
+          select.appendChild(defaultOption);
+        }
+
+        // Add non-default templates
+        nonDefaultTemplates.forEach(template => {
+          const option = document.createElement('option');
+          option.value = template.id;
+          option.textContent = template.name || 'Template';
+          option.title = `${specialtyLabels[specialty]} template: ${template.subject_template || 'No subject'}`;
+          select.appendChild(option);
+        });
+      }
+    });
   }
 
   /**
-   * Handle template selection change
+   * Handle template selection change with specialty-based templates
    */
   async function handleTemplateChange() {
     const templateId = document.getElementById('emailTemplate').value;
@@ -371,9 +483,24 @@ const EmailModule = (function() {
     }
 
     try {
-      // Get template details
-      const template = currentVendorTemplates.find(t => t.id == templateId);
-      if (!template) return;
+      // Get template details from current loaded templates
+      let template = currentVendorTemplates.find(t => t.id == templateId);
+
+      // If template not found, try to fetch from API
+      if (!template) {
+        try {
+          template = await API.getEmailTemplate(templateId);
+        } catch (error) {
+          console.warn('Template not found, falling back to default template:', error);
+          // Fallback to first available default template
+          template = currentVendorTemplates.find(t => t.is_default);
+        }
+      }
+
+      if (!template) {
+        showToast('Template not found, using manual content', 'warning');
+        return;
+      }
 
       // Substitute variables
       const subject = substituteVariables(template.subject_template, availableVariables);
@@ -383,6 +510,13 @@ const EmailModule = (function() {
       document.getElementById('emailSubject').value = subject;
       document.getElementById('emailBody').value = body;
       updateCharacterCount();
+
+      // Show success message for template loading
+      const specialty = template.specialty || 'general';
+      const templateType = template.is_default ?
+        `${specialty.charAt(0).toUpperCase() + specialty.slice(1)} default template` :
+        `${specialty.charAt(0).toUpperCase() + specialty.slice(1)} template`;
+      console.log(`Loaded ${templateType}: ${template.template_name}`);
 
     } catch (error) {
       console.error('Failed to load template:', error);
@@ -419,100 +553,52 @@ const EmailModule = (function() {
   function updateCharacterCount() {
     const subject = document.getElementById('emailSubject').value;
     const count = subject.length;
-    document.getElementById('subjectCount').textContent = count;
+    const maxLength = 200;
+
+    // Update counter display
+    document.getElementById('subjectCount').textContent = `${count}/${maxLength}`;
 
     // Change color if approaching limit
     const countElement = document.getElementById('subjectCount');
-    if (count > 180) {
+    if (count > maxLength * 0.9) {
       countElement.style.color = '#dc3545';
-    } else if (count > 160) {
+    } else if (count > maxLength * 0.8) {
       countElement.style.color = '#ffc107';
     } else {
-      countElement.style.color = '#6c757d';
+      countElement.style.color = 'var(--text-tertiary)';
     }
   }
 
   /**
-   * Populate available variables display
+   * Populate available variables display in sidebar
    */
   function populateVariables() {
-    const variablesGrid = document.getElementById('variablesGrid');
-    if (!variablesGrid) return;
+    const variablesList = document.getElementById('variablesList');
+    if (!variablesList) return;
 
     const variablesHtml = Object.entries(availableVariables)
-      .filter(([key, value]) => value && value.toString().trim())
+      .filter(([, value]) => value && value.toString().trim())
       .map(([key, value]) => `
         <div class="variable-item">
           <strong>{${key}}</strong>
-          <span class="variable-value">${escapeHtml(value.toString())}</span>
+          <span>${escapeHtml(value.toString())}</span>
         </div>
       `).join('');
 
-    variablesGrid.innerHTML = variablesHtml || '<p>No variables available</p>';
+    variablesList.innerHTML = `<h3 style="margin: 0 0 1rem 0; padding-bottom: 0.8rem; border-bottom: 1px solid var(--border-light); font-size: 1rem; font-weight: 600; color: var(--text-color);">Available Variables</h3>${variablesHtml || '<p style="padding: 1rem; text-align: center; color: var(--text-secondary); font-style: italic;">No variables available</p>'}`;
   }
 
-  /**
-   * Toggle preview section
-   */
-  function togglePreview() {
-    const variablesSection = document.getElementById('variablesSection');
-    const previewBtn = document.getElementById('previewBtn');
-
-    if (variablesSection.style.display === 'none') {
-      variablesSection.style.display = 'block';
-      previewBtn.textContent = 'Hide Variables';
-      updatePreview();
-    } else {
-      variablesSection.style.display = 'none';
-      previewBtn.textContent = 'Preview Variables';
-    }
-  }
-
-  /**
-   * Update preview content
-   */
-  function updatePreview() {
-    const subject = document.getElementById('emailSubject').value;
-    const body = document.getElementById('emailBody').value;
-    const previewSection = document.getElementById('previewSection');
-    const previewContent = document.getElementById('previewContent');
-
-    if (!subject && !body) {
-      previewSection.style.display = 'none';
-      return;
-    }
-
-    previewSection.style.display = 'block';
-
-    const previewHtml = `
-      <div class="preview-email">
-        <div class="preview-subject"><strong>Subject:</strong> ${escapeHtml(subject)}</div>
-        <div class="preview-body">
-          <strong>Body:</strong>
-          <pre>${escapeHtml(body)}</pre>
-        </div>
-      </div>
-    `;
-
-    previewContent.innerHTML = previewHtml;
-  }
-
-  /**
-   * Reset email form to default content
-   */
-  function resetToDefault() {
-    document.getElementById('emailTemplate').value = '';
-    initializeEmailModal();
-  }
-
+  
   /**
    * Handle email form submission
    * @param {Event} event - Submit event
    */
   async function handleEmailSubmit(event) {
+    console.log('Email submit handler called');
     event.preventDefault();
 
     if (!currentVendorQuote) {
+      console.error('No vendor quote selected');
       showToast('No vendor quote selected', 'error');
       return;
     }
@@ -527,6 +613,20 @@ const EmailModule = (function() {
     btnLoading.style.display = 'inline-flex';
 
     try {
+      // Parse CC/BCC emails
+      const ccEmails = parseEmailList(document.getElementById('emailCc').value);
+      const bccEmails = parseEmailList(document.getElementById('emailBcc').value);
+
+      // Validate CC/BCC emails if provided
+      const invalidCcEmails = ccEmails.filter(email => !isValidEmail(email));
+      const invalidBccEmails = bccEmails.filter(email => !isValidEmail(email));
+
+      if (invalidCcEmails.length > 0 || invalidBccEmails.length > 0) {
+        const invalidEmails = [...invalidCcEmails, ...invalidBccEmails];
+        showToast(`Invalid email format: ${invalidEmails.join(', ')}`, 'error');
+        return;
+      }
+
       // Gather form data
       const emailData = {
         to: document.getElementById('emailTo').value,
@@ -536,11 +636,27 @@ const EmailModule = (function() {
         test_mode: document.getElementById('testMode').checked
       };
 
+      // Add CC/BCC if provided
+      if (ccEmails.length > 0) {
+        emailData.cc = ccEmails;
+      }
+      if (bccEmails.length > 0) {
+        emailData.bcc = bccEmails;
+      }
+
       // Send email
       const response = await API.sendVendorEmail(currentVendorQuote.id, emailData);
 
-      // Show success message
-      showToast(`Email sent successfully to ${emailData.to}`, 'success');
+      // Create success message with recipient info
+      let successMessage = `Email sent successfully to ${emailData.to}`;
+      if (ccEmails.length > 0) {
+        successMessage += ` and ${ccEmails.length} CC recipient${ccEmails.length > 1 ? 's' : ''}`;
+      }
+      if (bccEmails.length > 0) {
+        successMessage += ` with ${bccEmails.length} BCC recipient${bccEmails.length > 1 ? 's' : ''}`;
+      }
+
+      showToast(successMessage, 'success');
 
       // Show additional response info if available
       if (response.gas_response) {
@@ -562,6 +678,32 @@ const EmailModule = (function() {
   }
 
   /**
+   * Parse comma-separated email list
+   * @param {string} emailString - Comma-separated email string
+   * @returns {Array} - Array of trimmed email strings
+   */
+  function parseEmailList(emailString) {
+    if (!emailString || !emailString.trim()) {
+      return [];
+    }
+
+    return emailString
+      .split(',')
+      .map(email => email.trim())
+      .filter(email => email.length > 0);
+  }
+
+  /**
+   * Validate email format
+   * @param {string} email - Email address to validate
+   * @returns {boolean} - True if valid, false otherwise
+   */
+  function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  /**
    * Close email modal
    */
   function closeEmailModal() {
@@ -577,10 +719,21 @@ const EmailModule = (function() {
   }
 
   /**
-   * Open template manager (placeholder for Phase 4)
+   * Open template manager
    */
   function openTemplateManager() {
-    showToast('Template manager will be available in Phase 4', 'info');
+    // Close email modal first
+    closeEmailModal();
+
+    // Try to open template manager if it exists
+    try {
+      // Navigate to templates page or open modal
+      window.location.hash = '#templates';
+      showToast('Opening template manager...', 'info');
+    } catch (error) {
+      console.error('Failed to open template manager:', error);
+      showToast('Template manager not available', 'error');
+    }
   }
 
   /**

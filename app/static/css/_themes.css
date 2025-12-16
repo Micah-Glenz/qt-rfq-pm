@@ -1,0 +1,502 @@
+/* Theme Definitions */
+
+/* Scrollbar colors - moved to theme-scrollbars.css */
+
+/* Dark mode variables */
+.dark-mode {
+  /* Scrollbar colors */
+  --scrollbar-thumb-bg: rgba(255, 255, 255, 0.2);
+  --scrollbar-thumb-hover-bg: rgba(255, 255, 255, 0.3);
+  --scrollbar-thumb-active-bg: rgba(255, 255, 255, 0.4);
+
+  --primary-color: #3b82f6;
+  --primary-hover: #2563eb;
+  --text-color: #e5e7eb;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+  --border-color: #374151;
+  --bg-color: #111827;
+  --bg-hover: #1f2937;
+  --card-bg: #1f2937;
+  --list-bg: #1a2234;
+  --search-bg: #243047;
+  --success-color: #10b981;
+  --error-color: #ef4444;
+  --warning-color: #f59e0b;
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --modal-overlay: rgba(0, 0, 0, 0.7);
+  --freight-color: #9ca3af;
+  --install-color: #9ca3af;
+  --forward-color: #9ca3af;
+
+  /* Additional semantic colors */
+  --header-bg: #1f2937;
+  --resizer-color: #4b5563;
+  --quote-number-color: #3b82f6;
+  --sales-rep-color: #94a3b8;
+  --icon-color: #64748b;
+  --separator-bg: var(--bg-hover);
+  --separator-text: #aaa;
+  --checkbox-unchecked-bg: rgba(239, 68, 68, 0.25);
+  --checkbox-checked-bg: var(--success-color);
+  --editable-hover-bg: rgba(59, 130, 246, 0.1);
+  --note-date-color: #888;
+  --empty-state-color: #9ca3af;
+  --toast-bg: #1f2937;
+  --tab-header-bg: var(--bg-hover);
+
+  /* Extended theming variables for quote detail layout */
+  --card-background: #1f2937;
+  --text-primary: #e5e7eb;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border-light: #374151;
+  --border-dark: #4b5563;
+  --hover-bg: #374151;
+  --button-bg: #1e3a8a;
+  --button-border: #3b82f6;
+  --button-text: white;
+}
+
+/* Chill Coffee Theme */
+.chill-coffee {
+  /* Scrollbar colors */
+  --scrollbar-thumb-bg: rgba(139, 69, 19, 0.3);
+  --scrollbar-thumb-hover-bg: rgba(139, 69, 19, 0.4);
+  --scrollbar-thumb-active-bg: rgba(139, 69, 19, 0.5);
+
+  --primary-color: #8B4513;
+  --primary-hover: #7A3D10;
+  --text-color: #3E2723;
+  --text-secondary: #5D4037;
+  --text-tertiary: #6D4C41;
+  --border-color: #D7CCC8;
+  --bg-color: #FFF8E1;
+  --bg-hover: #FFF3E0;
+  --card-bg: #FFFDF7;
+  --list-bg: #FFF9E6;
+  --search-bg: #FFF3E0;
+  --success-color: #689F38;
+  --error-color: #D32F2F;
+  --warning-color: #F57C00;
+  --card-shadow: 0 1px 3px rgba(62, 39, 35, 0.1);
+  --modal-overlay: rgba(62, 39, 35, 0.5);
+  --freight-color: #5D4037;
+  --install-color: #5D4037;
+  --forward-color: #5D4037;
+
+  /* Additional semantic colors */
+  --header-bg: #EFEBE9;
+  --resizer-color: #D7CCC8;
+  --quote-number-color: #8B4513;
+  --sales-rep-color: #795548;
+  --icon-color: #5D4037;
+  --separator-bg: #EFEBE9;
+  --separator-text: #6D4C41;
+  --checkbox-unchecked-bg: rgba(211, 47, 47, 0.15);
+  --checkbox-checked-bg: #689F38;
+  --editable-hover-bg: rgba(139, 69, 19, 0.1);
+  --note-date-color: #8D6E63;
+  --empty-state-color: #6D4C41;
+  --toast-bg: #FFFDF7;
+  --tab-header-bg: #EFEBE9;
+
+  /* Extended theming variables for quote detail layout */
+  --card-background: #FFFDF7;
+  --text-primary: #3E2723;
+  --text-secondary: #5D4037;
+  --text-muted: #6D4C41;
+  --border-light: #F5DEB3;
+  --border-dark: #D7CCC8;
+  --hover-bg: #FFF3E0;
+  --button-bg: #FFF3E0;
+  --button-border: #8B4513;
+  --button-text: white;
+}
+
+/* Ocean Breeze Theme */
+.ocean-breeze {
+  /* Scrollbar colors */
+  --scrollbar-thumb-bg: rgba(0, 105, 148, 0.3);
+  --scrollbar-thumb-hover-bg: rgba(0, 105, 148, 0.4);
+  --scrollbar-thumb-active-bg: rgba(0, 105, 148, 0.5);
+
+  --primary-color: #006994;
+  --primary-hover: #005577;
+  --text-color: #263238;
+  --text-secondary: #455A64;
+  --text-tertiary: #607D8B;
+  --border-color: #B0BEC5;
+  --bg-color: #E8F5FF;
+  --bg-hover: #DAEFFF;
+  --card-bg: #F5FBFF;
+  --list-bg: #EBF5FF;
+  --search-bg: #DAEFFF;
+  --success-color: #00897B;
+  --error-color: #E91E63;
+  --warning-color: #FF6F00;
+  --card-shadow: 0 1px 3px rgba(0, 105, 148, 0.1);
+  --modal-overlay: rgba(38, 50, 56, 0.5);
+  --freight-color: #455A64;
+  --install-color: #455A64;
+  --forward-color: #455A64;
+
+  /* Additional semantic colors */
+  --header-bg: #CDEAFF;
+  --resizer-color: #B0BEC5;
+  --quote-number-color: #006994;
+  --sales-rep-color: #0277BD;
+  --icon-color: #455A64;
+  --separator-bg: #DAEFFF;
+  --separator-text: #607D8B;
+  --checkbox-unchecked-bg: rgba(233, 30, 99, 0.15);
+  --checkbox-checked-bg: #00897B;
+  --editable-hover-bg: rgba(0, 105, 148, 0.1);
+  --note-date-color: #78909C;
+  --empty-state-color: #607D8B;
+  --toast-bg: #F5FBFF;
+  --tab-header-bg: #CDEAFF;
+
+  /* Extended theming variables for quote detail layout */
+  --card-background: #F5FBFF;
+  --text-primary: #263238;
+  --text-secondary: #455A64;
+  --text-muted: #607D8B;
+  --border-light: #E1F5FE;
+  --border-dark: #B0BEC5;
+  --hover-bg: #E3F2FD;
+  --button-bg: #E1F5FE;
+  --button-border: #006994;
+  --button-text: white;
+}
+
+/* Sunset Glow Theme */
+.sunset-glow {
+  /* Scrollbar colors */
+  --scrollbar-thumb-bg: rgba(255, 107, 53, 0.3);
+  --scrollbar-thumb-hover-bg: rgba(255, 107, 53, 0.4);
+  --scrollbar-thumb-active-bg: rgba(255, 107, 53, 0.5);
+
+  --primary-color: #FF6B35;
+  --primary-hover: #E55A28;
+  --text-color: #2C1810;
+  --text-secondary: #5D3A2A;
+  --text-tertiary: #7D5040;
+  --border-color: #FFB79D;
+  --bg-color: #FFF2E8;
+  --bg-hover: #FFEADD;
+  --card-bg: #FFFBF7;
+  --list-bg: #FFF5ED;
+  --search-bg: #FFEADD;
+  --success-color: #388E3C;
+  --error-color: #C62828;
+  --warning-color: #F9A825;
+  --card-shadow: 0 1px 3px rgba(255, 107, 53, 0.15);
+  --modal-overlay: rgba(44, 24, 16, 0.5);
+  --freight-color: #5D3A2A;
+  --install-color: #5D3A2A;
+  --forward-color: #5D3A2A;
+
+  /* Additional semantic colors */
+  --header-bg: #FFE0CC;
+  --resizer-color: #FFB79D;
+  --quote-number-color: #FF6B35;
+  --sales-rep-color: #FF8A65;
+  --icon-color: #5D3A2A;
+  --separator-bg: #FFEADD;
+  --separator-text: #7D5040;
+  --checkbox-unchecked-bg: rgba(198, 40, 40, 0.15);
+  --checkbox-checked-bg: #388E3C;
+  --editable-hover-bg: rgba(255, 107, 53, 0.1);
+  --note-date-color: #8D6E63;
+  --empty-state-color: #7D5040;
+  --toast-bg: #FFFBF7;
+  --tab-header-bg: #FFE0CC;
+
+  /* Extended theming variables for quote detail layout */
+  --card-background: #FFFBF7;
+  --text-primary: #2C1810;
+  --text-secondary: #5D3A2A;
+  --text-muted: #7D5040;
+  --border-light: #FFE5CC;
+  --border-dark: #FFB79D;
+  --hover-bg: #FFF0E5;
+  --button-bg: #FFE5CC;
+  --button-border: #FF6B35;
+  --button-text: white;
+}
+
+/* Forest Mist Theme */
+.forest-mist {
+  /* Scrollbar colors */
+  --scrollbar-thumb-bg: rgba(46, 125, 50, 0.3);
+  --scrollbar-thumb-hover-bg: rgba(46, 125, 50, 0.4);
+  --scrollbar-thumb-active-bg: rgba(46, 125, 50, 0.5);
+
+  --primary-color: #2E7D32;
+  --primary-hover: #1B5E20;
+  --text-color: #1B3021;
+  --text-secondary: #2E3F34;
+  --text-tertiary: #455A47;
+  --border-color: #A8C3A6;
+  --bg-color: #F1F8E9;
+  --bg-hover: #E8F5E8;
+  --card-bg: #F9FBF5;
+  --list-bg: #F1F8EC;
+  --search-bg: #E8F5E8;
+  --success-color: #4CAF50;
+  --error-color: #BF360C;
+  --warning-color: #F57F17;
+  --card-shadow: 0 1px 3px rgba(46, 125, 50, 0.1);
+  --modal-overlay: rgba(27, 48, 33, 0.5);
+  --freight-color: #2E3F34;
+  --install-color: #2E3F34;
+  --forward-color: #2E3F34;
+
+  /* Additional semantic colors */
+  --header-bg: #DCEDC8;
+  --resizer-color: #A8C3A6;
+  --quote-number-color: #2E7D32;
+  --sales-rep-color: #388E3C;
+  --icon-color: #2E3F34;
+  --separator-bg: #E8F5E8;
+  --separator-text: #455A47;
+  --checkbox-unchecked-bg: rgba(191, 54, 12, 0.15);
+  --checkbox-checked-bg: #4CAF50;
+  --editable-hover-bg: rgba(46, 125, 50, 0.1);
+  --note-date-color: #689F38;
+  --empty-state-color: #455A47;
+  --toast-bg: #F9FBF5;
+  --tab-header-bg: #DCEDC8;
+
+  /* Extended theming variables for quote detail layout */
+  --card-background: #F9FBF5;
+  --text-primary: #1B3021;
+  --text-secondary: #2E3F34;
+  --text-muted: #455A47;
+  --border-light: #E8F5E8;
+  --border-dark: #A8C3A6;
+  --hover-bg: #F1F8E9;
+  --button-bg: #E8F5E8;
+  --button-border: #2E7D32;
+  --button-text: white;
+}
+
+/* Cherry Blossom Theme */
+.cherry-blossom {
+  /* Scrollbar colors */
+  --scrollbar-thumb-bg: rgba(233, 30, 99, 0.3);
+  --scrollbar-thumb-hover-bg: rgba(233, 30, 99, 0.4);
+  --scrollbar-thumb-active-bg: rgba(233, 30, 99, 0.5);
+
+  --primary-color: #E91E63;
+  --primary-hover: #C2185B;
+  --text-color: #2E1A1E;
+  --text-secondary: #5D3A40;
+  --text-tertiary: #795548;
+  --border-color: #F8BBD0;
+  --bg-color: #FFEEFF;
+  --bg-hover: #FFE5F1;
+  --card-bg: #FFFBFF;
+  --list-bg: #FFF2F7;
+  --search-bg: #FFE5F1;
+  --success-color: #388E3C;
+  --error-color: #AD1457;
+  --warning-color: #FF6F00;
+  --card-shadow: 0 1px 3px rgba(233, 30, 99, 0.1);
+  --modal-overlay: rgba(46, 26, 30, 0.5);
+  --freight-color: #5D3A40;
+  --install-color: #5D3A40;
+  --forward-color: #5D3A40;
+
+  /* Additional semantic colors */
+  --header-bg: #FFD6E8;
+  --resizer-color: #F8BBD0;
+  --quote-number-color: #E91E63;
+  --sales-rep-color: #EC407A;
+  --icon-color: #5D3A40;
+  --separator-bg: #FFE5F1;
+  --separator-text: #795548;
+  --checkbox-unchecked-bg: rgba(173, 20, 87, 0.15);
+  --checkbox-checked-bg: #388E3C;
+  --editable-hover-bg: rgba(233, 30, 99, 0.1);
+  --note-date-color: #AD1457;
+  --empty-state-color: #795548;
+  --toast-bg: #FFFBFF;
+  --tab-header-bg: #FFD6E8;
+
+  /* Extended theming variables for quote detail layout */
+  --card-background: #FFFBFF;
+  --text-primary: #2E1A1E;
+  --text-secondary: #5D3A40;
+  --text-muted: #795548;
+  --border-light: #FCE4EC;
+  --border-dark: #F8BBD0;
+  --hover-bg: #FFF0F5;
+  --button-bg: #FCE4EC;
+  --button-border: #E91E63;
+  --button-text: white;
+}
+
+/* Midnight Purple Theme */
+.midnight-purple {
+  /* Scrollbar colors */
+  --scrollbar-thumb-bg: rgba(186, 104, 200, 0.3);
+  --scrollbar-thumb-hover-bg: rgba(186, 104, 200, 0.4);
+  --scrollbar-thumb-active-bg: rgba(186, 104, 200, 0.5);
+
+  --primary-color: #6A1B9A;
+  --primary-hover: #4A148C;
+  --text-color: #E1BEE7;
+  --text-secondary: #BA68C8;
+  --text-tertiary: #9C27B0;
+  --border-color: #4A148C;
+  --bg-color: #1A0E2E;
+  --bg-hover: #2A1346;
+  --card-bg: #211640;
+  --list-bg: #1E1240;
+  --search-bg: #2A1346;
+  --success-color: #00C853;
+  --error-color: #FF1744;
+  --warning-color: #FFAB00;
+  --card-shadow: 0 1px 3px rgba(106, 27, 154, 0.3);
+  --modal-overlay: rgba(0, 0, 0, 0.7);
+  --freight-color: #BA68C8;
+  --install-color: #BA68C8;
+  --forward-color: #BA68C8;
+
+  /* Additional semantic colors */
+  --header-bg: #311B92;
+  --resizer-color: #6A1B9A;
+  --quote-number-color: #CE93D8;
+  --sales-rep-color: #BA68C8;
+  --icon-color: #AB47BC;
+  --separator-bg: #2A1346;
+  --separator-text: #BA68C8;
+  --checkbox-unchecked-bg: rgba(255, 23, 68, 0.2);
+  --checkbox-checked-bg: #00C853;
+  --editable-hover-bg: rgba(186, 104, 200, 0.2);
+  --note-date-color: #9C27B0;
+  --empty-state-color: #BA68C8;
+  --toast-bg: #311B92;
+  --tab-header-bg: #311B92;
+
+  /* Extended theming variables for quote detail layout */
+  --card-background: #211640;
+  --text-primary: #E1BEE7;
+  --text-secondary: #BA68C8;
+  --text-muted: #9C27B0;
+  --border-light: #4A148C;
+  --border-dark: #6A1B9A;
+  --hover-bg: #2A1346;
+  --button-bg: #311B92;
+  --button-border: #6A1B9A;
+  --button-text: white;
+}
+
+/* Cyberpunk Theme */
+.cyberpunk {
+  --primary-color: #00FFFF;
+  --primary-hover: #00E5E5;
+  --text-color: #FFFFFF;
+  --text-secondary: #00FF00;
+  --text-tertiary: #FF00FF;
+  --border-color: #FF00FF;
+  --bg-color: #0A0A0A;
+  --bg-hover: #1A1A1A;
+  --card-bg: #111111;
+  --list-bg: #0D0D0D;
+  --search-bg: #1A1A1A;
+  --success-color: #00FF00;
+  --error-color: #FF0080;
+  --warning-color: #FFFF00;
+  --card-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+  --modal-overlay: rgba(0, 0, 0, 0.85);
+  --freight-color: #00CCCC;
+  --install-color: #00CCCC;
+  --forward-color: #00CCCC;
+
+  /* Additional semantic colors */
+  --header-bg: #0A0A0A;
+  --resizer-color: #FF00FF;
+  --quote-number-color: #00FFFF;
+  --sales-rep-color: #00FF00;
+  --icon-color: #FF00FF;
+  --separator-bg: #1A1A1A;
+  --separator-text: #00FFFF;
+  --checkbox-unchecked-bg: rgba(255, 0, 128, 0.2);
+  --checkbox-checked-bg: #00FF00;
+  --editable-hover-bg: rgba(0, 255, 255, 0.1);
+  --note-date-color: #FF00FF;
+  --empty-state-color: #00CCCC;
+  --toast-bg: #111111;
+  --tab-header-bg: #0A0A0A;
+
+  /* Extended theming variables for quote detail layout */
+  --card-background: #111111;
+  --text-primary: #FFFFFF;
+  --text-secondary: #00FF00;
+  --text-muted: #FF00FF;
+  --border-light: #FF00FF;
+  --border-dark: #00FFFF;
+  --hover-bg: #1A1A1A;
+  --button-bg: #1A1A1A;
+  --button-border: #00FFFF;
+  --button-text: #000000;
+}
+
+/* Dingy Dank Theme */
+.dingy-dank {
+  /* Scrollbar colors */
+  --scrollbar-thumb-bg: rgba(124, 179, 66, 0.3);
+  --scrollbar-thumb-hover-bg: rgba(124, 179, 66, 0.4);
+  --scrollbar-thumb-active-bg: rgba(124, 179, 66, 0.5);
+
+  --primary-color: #7CB342;
+  --primary-hover: #558B2F;
+  --text-color: #E8F5E9;
+  --text-secondary: #AED581;
+  --text-tertiary: #9CCC65;
+  --border-color: #33691E;
+  --bg-color: #1A1F1A;
+  --bg-hover: #263026;
+  --card-bg: #212821;
+  --list-bg: #1E231E;
+  --search-bg: #263026;
+  --success-color: #64DD17;
+  --error-color: #D84315;
+  --warning-color: #FFB300;
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --modal-overlay: rgba(0, 0, 0, 0.8);
+  --freight-color: #827717;
+  --install-color: #827717;
+  --forward-color: #827717;
+
+  /* Additional semantic colors */
+  --header-bg: #212821;
+  --resizer-color: #33691E;
+  --quote-number-color: #7CB342;
+  --sales-rep-color: #8BC34A;
+  --icon-color: #689F38;
+  --separator-bg: #263026;
+  --separator-text: #AED581;
+  --checkbox-unchecked-bg: rgba(216, 67, 21, 0.2);
+  --checkbox-checked-bg: #64DD17;
+  --editable-hover-bg: rgba(124, 179, 66, 0.15);
+  --note-date-color: #9CCC65;
+  --empty-state-color: #AED581;
+  --toast-bg: #212821;
+  --tab-header-bg: #263026;
+
+  /* Extended theming variables for quote detail layout */
+  --card-background: #212821;
+  --text-primary: #E8F5E9;
+  --text-secondary: #AED581;
+  --text-muted: #9CCC65;
+  --border-light: #263026;
+  --border-dark: #33691E;
+  --hover-bg: #263026;
+  --button-bg: #1B5E20;
+  --button-border: #7CB342;
+  --button-text: white;
+}

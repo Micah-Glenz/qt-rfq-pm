@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 class EmailHistory:
     def __init__(self, id=None, quote_id=None, vendor_quote_id=None, vendor_id=None,
                  to_email=None, subject=None, body=None, template_id=None, sent_at=None,
-                 status='sent', gas_response=None):
+                 status='sent', gas_response=None, email_status='current', cc_emails=None, bcc_emails=None):
         self.id = id
         self.quote_id = quote_id
         self.vendor_quote_id = vendor_quote_id
@@ -21,29 +21,55 @@ class EmailHistory:
         self.sent_at = sent_at
         self.status = status
         self.gas_response = gas_response
+        self.email_status = email_status
+        self.cc_emails = cc_emails or []
+        self.bcc_emails = bcc_emails or []
+
+    @staticmethod
+    def _parse_cc_bcc_arrays(cc_emails_json, bcc_emails_json):
+        """Parse CC/BCC JSON arrays from database with error handling"""
+        try:
+            cc_emails = json.loads(cc_emails_json) if cc_emails_json else []
+        except (json.JSONDecodeError, TypeError):
+            cc_emails = []
+
+        try:
+            bcc_emails = json.loads(bcc_emails_json) if bcc_emails_json else []
+        except (json.JSONDecodeError, TypeError):
+            bcc_emails = []
+
+        return cc_emails, bcc_emails
 
     @staticmethod
     def create(quote_id, vendor_quote_id, vendor_id, to_email, subject, body,
-                template_id=None, status='sent', gas_response=None):
+                template_id=None, status='sent', gas_response=None, email_status='current', cc_emails=None, bcc_emails=None):
         """Create a new email history record"""
         try:
             # Convert gas_response to JSON string if it's a dict
             gas_response_json = json.dumps(gas_response) if isinstance(gas_response, dict) else gas_response
+
+            # Convert CC/BCC arrays to JSON strings
+            cc_emails_json = json.dumps(cc_emails or [])
+            bcc_emails_json = json.dumps(bcc_emails or [])
 
             with DatabaseContext() as conn:
                 cursor = conn.cursor()
                 cursor.execute('''
                     INSERT INTO email_history
                     (quote_id, vendor_quote_id, vendor_id, to_email, subject, body,
-                     template_id, status, gas_response)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                     template_id, status, gas_response, email_status, cc_emails, bcc_emails)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''', (quote_id, vendor_quote_id, vendor_id, to_email, subject, body,
-                      template_id, status, gas_response_json))
+                      template_id, status, gas_response_json, email_status, cc_emails_json, bcc_emails_json))
 
                 history_id = cursor.lastrowid
                 conn.commit()
 
                 logger.info(f"Email history created: ID={history_id}, Quote={quote_id}, Vendor={vendor_id}, To={to_email}")
+                if cc_emails:
+                    logger.info(f"CC recipients: {cc_emails}")
+                if bcc_emails:
+                    logger.info(f"BCC recipients: {bcc_emails}")
                 return history_id
 
         except Exception as e:
@@ -58,7 +84,8 @@ class EmailHistory:
             cursor.execute('''
                 SELECT eh.id, eh.quote_id, eh.vendor_quote_id, eh.vendor_id,
                        eh.to_email, eh.subject, eh.body, eh.template_id,
-                       eh.sent_at, eh.status, eh.gas_response,
+                       eh.sent_at, eh.status, eh.gas_response, eh.email_status,
+                       eh.cc_emails, eh.bcc_emails,
                        v.name as vendor_name, q.quote_no
                 FROM email_history eh
                 JOIN vendors v ON eh.vendor_id = v.id
@@ -68,6 +95,9 @@ class EmailHistory:
 
             row = cursor.fetchone()
             if row:
+                # Parse CC/BCC JSON arrays
+                cc_emails, bcc_emails = EmailHistory._parse_cc_bcc_arrays(row['cc_emails'], row['bcc_emails'])
+
                 return {
                     'id': row['id'],
                     'quote_id': row['quote_id'],
@@ -80,6 +110,9 @@ class EmailHistory:
                     'sent_at': row['sent_at'],
                     'status': row['status'],
                     'gas_response': row['gas_response'],
+                    'email_status': row['email_status'],
+                    'cc_emails': cc_emails,
+                    'bcc_emails': bcc_emails,
                     'vendor_name': row['vendor_name'],
                     'quote_no': row['quote_no']
                 }
@@ -93,7 +126,8 @@ class EmailHistory:
             cursor.execute('''
                 SELECT eh.id, eh.vendor_quote_id, eh.vendor_id,
                        eh.to_email, eh.subject, eh.template_id,
-                       eh.sent_at, eh.status, eh.gas_response,
+                       eh.sent_at, eh.status, eh.gas_response, eh.email_status,
+                       eh.cc_emails, eh.bcc_emails,
                        v.name as vendor_name, q.quote_no
                 FROM email_history eh
                 JOIN vendors v ON eh.vendor_id = v.id
@@ -106,6 +140,9 @@ class EmailHistory:
             history_list = []
 
             for row in rows:
+                # Parse CC/BCC JSON arrays
+                cc_emails, bcc_emails = EmailHistory._parse_cc_bcc_arrays(row['cc_emails'], row['bcc_emails'])
+
                 history = {
                     'id': row['id'],
                     'vendor_quote_id': row['vendor_quote_id'],
@@ -116,6 +153,9 @@ class EmailHistory:
                     'sent_at': row['sent_at'],
                     'status': row['status'],
                     'gas_response': row['gas_response'],
+                    'email_status': row['email_status'],
+                    'cc_emails': cc_emails,
+                    'bcc_emails': bcc_emails,
                     'vendor_name': row['vendor_name'],
                     'quote_no': row['quote_no']
                 }
@@ -131,7 +171,7 @@ class EmailHistory:
             cursor.execute('''
                 SELECT eh.id, eh.quote_id, eh.vendor_quote_id,
                        eh.to_email, eh.subject, eh.template_id,
-                       eh.sent_at, eh.status, eh.gas_response,
+                       eh.sent_at, eh.status, eh.gas_response, eh.email_status,
                        v.name as vendor_name, q.quote_no
                 FROM email_history eh
                 JOIN vendors v ON eh.vendor_id = v.id
@@ -154,6 +194,7 @@ class EmailHistory:
                     'sent_at': row['sent_at'],
                     'status': row['status'],
                     'gas_response': row['gas_response'],
+                    'email_status': row['email_status'],
                     'vendor_name': row['vendor_name'],
                     'quote_no': row['quote_no']
                 }
@@ -169,7 +210,7 @@ class EmailHistory:
             cursor.execute('''
                 SELECT eh.id, eh.quote_id, eh.vendor_id,
                        eh.to_email, eh.subject, eh.template_id,
-                       eh.sent_at, eh.status, eh.gas_response,
+                       eh.sent_at, eh.status, eh.gas_response, eh.email_status,
                        v.name as vendor_name, q.quote_no
                 FROM email_history eh
                 JOIN vendors v ON eh.vendor_id = v.id
@@ -192,6 +233,7 @@ class EmailHistory:
                     'sent_at': row['sent_at'],
                     'status': row['status'],
                     'gas_response': row['gas_response'],
+                    'email_status': row['email_status'],
                     'vendor_name': row['vendor_name'],
                     'quote_no': row['quote_no']
                 }
@@ -207,7 +249,8 @@ class EmailHistory:
             cursor.execute('''
                 SELECT eh.id, eh.quote_id, eh.vendor_quote_id, eh.vendor_id,
                        eh.to_email, eh.subject, eh.template_id,
-                       eh.sent_at, eh.status, eh.gas_response,
+                       eh.sent_at, eh.status, eh.gas_response, eh.email_status,
+                       eh.cc_emails, eh.bcc_emails,
                        v.name as vendor_name, q.quote_no
                 FROM email_history eh
                 JOIN vendors v ON eh.vendor_id = v.id
@@ -231,6 +274,7 @@ class EmailHistory:
                     'sent_at': row['sent_at'],
                     'status': row['status'],
                     'gas_response': row['gas_response'],
+                    'email_status': row['email_status'],
                     'vendor_name': row['vendor_name'],
                     'quote_no': row['quote_no']
                 }
@@ -247,7 +291,7 @@ class EmailHistory:
             cursor.execute('''
                 SELECT eh.id, eh.quote_id, eh.vendor_quote_id, eh.vendor_id,
                        eh.to_email, eh.subject, eh.template_id,
-                       eh.sent_at, eh.status, eh.gas_response,
+                       eh.sent_at, eh.status, eh.gas_response, eh.email_status,
                        v.name as vendor_name, q.quote_no
                 FROM email_history eh
                 JOIN vendors v ON eh.vendor_id = v.id
@@ -275,6 +319,7 @@ class EmailHistory:
                     'sent_at': row['sent_at'],
                     'status': row['status'],
                     'gas_response': row['gas_response'],
+                    'email_status': row['email_status'],
                     'vendor_name': row['vendor_name'],
                     'quote_no': row['quote_no']
                 }
@@ -301,6 +346,19 @@ class EmailHistory:
                     WHERE id = ?
                 ''', (status, history_id))
 
+            conn.commit()
+            return cursor.rowcount > 0
+
+    @staticmethod
+    def update_email_status(history_id, email_status):
+        """Update the email_status of an email history record"""
+        with DatabaseContext() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                UPDATE email_history
+                SET email_status = ?
+                WHERE id = ?
+            ''', (email_status, history_id))
             conn.commit()
             return cursor.rowcount > 0
 

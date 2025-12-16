@@ -2,30 +2,21 @@
  * Main application entry point
  */
 document.addEventListener('DOMContentLoaded', function() {
-  // Initialize theme
-  SettingsModule.initTheme();
-  
-  // Initialize font size
-  SettingsModule.initFontSize();
-  
   // Initialize toast notifications
   initToasts();
-  
-  // Initialize the resizable panes - DISABLED
-  // initResizablePanes();
-  
+
   // Initialize the modules
   SettingsModule.init();
   QuotesModule.init();
   EmailModule.init();
   TabsModule.init();
-  
+
   // Initialize dropdown in the new quote modal
   const salesRepDropdown = document.getElementById('salesRepDropdown');
   if (salesRepDropdown) {
     SettingsModule.updateSalesRepDropdown(salesRepDropdown);
   }
-  
+
   // Load initial data
   QuotesModule.loadQuotes();
 });

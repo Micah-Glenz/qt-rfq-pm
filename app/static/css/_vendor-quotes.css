@@ -1,0 +1,520 @@
+/* Vendor Quotes Component Styles */
+
+/* Vendor Quotes List */
+.vendor-quotes-list {
+  width: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
+  font-size: var(--font-size-input);
+  min-height: fit-content;
+}
+
+.vendor-quotes-list .empty-state {
+  padding: 1rem;
+  min-height: 40px;
+  margin: 0;
+}
+
+/* Vendor Quote Item */
+.vendor-quote-item {
+  display: grid;
+  grid-template-columns: auto 2fr auto;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+  min-height: 2rem;
+  transition: background-color 0.2s;
+}
+
+.vendor-quote-item:last-child {
+  border-bottom: none;
+}
+
+.vendor-quote-item:hover {
+  background-color: var(--bg-hover);
+}
+
+.vendor-quote-item:not(.fully-complete) {
+  background-color: rgba(239, 68, 68, 0.03);
+}
+
+.vendor-quote-item.fully-complete {
+  background-color: rgba(16, 185, 129, 0.05);
+}
+
+.dark-mode .vendor-quote-item:not(.fully-complete) {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.dark-mode .vendor-quote-item.fully-complete {
+  background-color: rgba(16, 185, 129, 0.1);
+}
+
+/* Badge style headers */
+.vendor-quote-header {
+  font-weight: bold;
+  font-size: var(--font-size-button-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* Type colors for badges - all gray */
+.vendor-quote-header.freight,
+.vendor-quote-header.install,
+.vendor-quote-header.forward {
+  background-color: rgba(55, 65, 81, 0.15);
+  color: var(--freight-color);
+  border: 1px solid rgba(55, 65, 81, 0.5);
+  font-weight: 700;
+}
+
+/* Dark mode badge adjustments */
+.dark-mode .vendor-quote-header.freight,
+.dark-mode .vendor-quote-header.install,
+.dark-mode .vendor-quote-header.forward {
+  background-color: rgba(156, 163, 175, 0.2);
+  color: #e5e7eb;
+  border-color: rgba(156, 163, 175, 0.5);
+}
+
+/* Vendor details */
+.vendor-quote-details {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.vendor-name {
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  color: var(--text-color);
+}
+
+.vendor-date {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  opacity: 0.8;
+}
+
+.dark-mode .vendor-date {
+  color: #aaa;
+}
+
+/* Notes section */
+.vendor-quote-notes {
+  flex: 1;
+  min-width: 0;
+}
+
+.editable-note {
+  cursor: text;
+  padding: 0.25rem;
+  border-radius: 3px;
+  min-height: 1.5em;
+  color: var(--text-color);
+  width: 100%;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.editable-note:hover {
+  background-color: rgba(37, 99, 235, 0.05);
+}
+
+.editable-note:focus {
+  outline: none;
+  background-color: rgba(37, 99, 235, 0.1);
+  border: 1px solid var(--primary-color);
+}
+
+.dark-mode .editable-note:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+/* Status section */
+.vendor-quote-status {
+  display: flex;
+  align-items: center;
+}
+
+.status-checkbox-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.status-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  cursor: pointer;
+  color: var(--text-color);
+  font-weight: 500;
+  font-size: var(--font-size-small);
+  white-space: nowrap;
+}
+
+.status-checkbox input {
+  margin: 0;
+}
+
+/* Actions */
+.vendor-quote-actions {
+  display: flex;
+  align-items: center;
+}
+
+.delete-vendor-quote {
+  padding: 0.1rem 0.4rem;
+  font-size: calc(var(--font-size-lg) + 2px);
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.15s;
+  color: var(--error-color);
+  cursor: pointer;
+}
+
+.vendor-quote-item:hover .delete-vendor-quote {
+  opacity: 0.7;
+}
+
+.delete-vendor-quote:hover {
+  opacity: 1 !important;
+}
+
+/* Status check styling */
+.status-check {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  position: relative;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border-radius: 3px;
+  border: 2px solid var(--error-color);
+  background-color: rgba(239, 68, 68, 0.15);
+  transition: all 0.2s;
+}
+
+.status-check:checked {
+  border-color: var(--success-color);
+  background-color: var(--success-color);
+}
+
+.status-check:checked::after {
+  content: '✓';
+  position: absolute;
+  top: -2px;
+  left: 2px;
+  color: white;
+  font-size: var(--font-size-sm);
+  font-weight: bold;
+}
+
+.dark-mode .status-check {
+  border-color: var(--error-color);
+  background-color: rgba(239, 68, 68, 0.25);
+}
+
+.dark-mode .status-check:checked {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+}
+
+/* Corporate Vendor Quotes Table */
+.corporate-vendor-quotes-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card-background);
+  font-size: 14px;
+  line-height: 1.2;
+  height: 1px;
+}
+
+/* Corporate table header */
+.corporate-vendor-quotes-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--header-bg);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.corporate-vendor-quotes-table thead th {
+  background: var(--header-bg);
+  color: var(--text-primary);
+  padding: var(--font-size-sm) var(--font-size-base);
+  text-align: left;
+  font-weight: 600;
+  font-size: var(--font-size-button-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+/* Corporate table body */
+.corporate-vendor-quotes-table tbody tr {
+  border-bottom: 1px solid var(--border-light);
+  transition: background-color 0.15s ease;
+}
+
+.corporate-vendor-quotes-table tbody tr:hover {
+  background-color: var(--hover-bg);
+}
+
+.corporate-vendor-quotes-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.corporate-vendor-quotes-table td {
+  padding: calc(var(--font-size-xs) * 0.75);
+  vertical-align: middle;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-light);
+  line-height: 1.2;
+}
+
+/* Enhanced Vendor Quotes Table */
+.vendor-quotes-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card-background);
+  border-radius: 0;
+  overflow: visible;
+  box-shadow: none;
+  height: 1px;
+}
+
+/* Sticky header for vendor quotes table */
+.vendor-quotes-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--primary-color);
+}
+
+.vendor-quotes-table thead th {
+  background: var(--primary-color);
+  color: var(--button-text);
+  padding: calc(var(--font-size-xs) * 0.75) calc(var(--font-size-xs) * 0.5);
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.75rem;
+  border-bottom: 2px solid var(--primary-color);
+  position: sticky;
+  top: 0;
+}
+
+.vendor-quotes-table td {
+  padding: calc(var(--font-size-xs) * 0.5);
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
+  font-size: 0.75rem;
+}
+
+.vendor-quotes-table tr:hover {
+  background-color: var(--hover-bg);
+}
+
+.vendor-quotes-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Status badges */
+.vendor-status {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.vendor-status.draft {
+  background: var(--hover-bg);
+  color: var(--text-secondary);
+}
+
+.vendor-status.requested {
+  background: var(--warning-color);
+  color: #92400e;
+}
+
+.vendor-status.received {
+  background: var(--success-color);
+  color: #065f46;
+}
+
+.vendor-status.reviewing {
+  background: var(--primary-color);
+  color: var(--button-text);
+}
+
+.vendor-status.selected {
+  background: var(--success-color);
+  color: #166534;
+}
+
+.vendor-status.rejected {
+  background: var(--error-color);
+  color: #b91c1c;
+}
+
+.vendor-status.expired {
+  background: var(--hover-bg);
+  color: var(--text-secondary);
+}
+
+/* Corporate vendor cost */
+.corporate-vendor-cost {
+  font-weight: 600;
+  color: var(--success-color);
+  text-align: right;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  font-size: 14px;
+}
+
+/* Corporate lead time */
+.corporate-lead-time {
+  text-align: center;
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+/* Corporate vendor type */
+.corporate-vendor-type {
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+/* Cost cell styling */
+.vendor-cost {
+  font-weight: 600;
+  color: var(--primary-color);
+  text-align: right;
+  font-family: 'Courier New', monospace;
+}
+
+/* Lead time styling */
+.vendor-lead-time {
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Type styling */
+.vendor-type {
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+/* Actions cell */
+.vendor-actions {
+  display: flex;
+  gap: 0.25rem;
+  justify-content: center;
+}
+
+.vendor-actions button {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--border-color);
+  background: white;
+  cursor: pointer;
+}
+
+.vendor-actions button:hover {
+  background: var(--bg-hover);
+  border-color: var(--primary-color);
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 767px) {
+  .vendor-quote-item {
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: auto auto auto;
+    gap: 0.5rem;
+  }
+
+  .vendor-quote-header {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .vendor-quote-details {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .vendor-quote-actions {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .vendor-quote-notes {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin-top: 0.25rem;
+  }
+
+  .vendor-quote-status {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    margin-top: 0.25rem;
+  }
+
+  .vendor-quotes-table {
+    font-size: 0.75rem;
+  }
+
+  .vendor-quotes-table thead th,
+  .vendor-quotes-table td {
+    padding: 0.4rem 0.3rem;
+  }
+
+  .corporate-vendor-quotes-table thead th {
+    padding: 6px 8px;
+    font-size: 10px;
+  }
+
+  .corporate-vendor-quotes-table td {
+    padding: 8px;
+    font-size: 11px;
+  }
+
+  .corporate-vendor-quotes-table td:nth-child(8),
+  .corporate-vendor-quotes-table th:nth-child(8) {
+    display: none;
+  }
+
+  .corporate-action-buttons {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .corporate-btn-sm {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  .corporate-status-badge {
+    font-size: 9px;
+    padding: 1px 6px;
+  }
+}

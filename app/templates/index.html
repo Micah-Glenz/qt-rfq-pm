@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quote Tracker</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/quote-detail-layout.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/project-links.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
     <div class="app-container">
@@ -240,14 +238,18 @@
                         <div class="settings-section">
                             <h3>Sales Representatives</h3>
                             <p>Manage the list of sales representatives available in the dropdown.</p>
-                            <div id="salesRepsList" class="sales-reps-list">
+                            <div id="salesRepsList" class="vendors-list">
                                 <!-- Sales reps will be loaded here -->
                                 <div class="loading">Loading sales reps...</div>
                             </div>
                             <div class="form-group">
-                                <div style="display: flex; gap: 0.5rem;">
-                                    <input type="text" id="newSalesRepInput" placeholder="Add new sales rep...">
-                                    <button id="addSalesRepBtn" class="btn small" onclick="SettingsModule.handleAddSalesRep()">Add</button>
+                                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                                    <input type="text" id="newSalesRepName" placeholder="Add new sales rep name..." style="flex: 1;">
+                                    <input type="email" id="newSalesRepEmail" placeholder="Email (optional)" style="flex: 1;">
+                                </div>
+                                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                                    <input type="tel" id="newSalesRepPhone" placeholder="Phone (optional)" style="flex: 1;">
+                                    <button id="addSalesRepBtn" class="btn small">Add Sales Rep</button>
                                 </div>
                             </div>
                         </div>
@@ -314,13 +316,15 @@
                             <h3>Email Template Management</h3>
                             <p>Create and manage email templates for vendor communication. Templates support variable substitution using {variable} syntax.</p>
 
-                            <!-- Template Search and Filter -->
+                            <!-- Template Controls -->
                             <div class="template-controls">
-                                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-                                    <input type="text" id="templateSearchInput" placeholder="Search templates..." style="flex: 1;">
-                                    <select id="templateVendorFilter" style="min-width: 150px;">
-                                        <option value="">All Vendors</option>
-                                        <!-- Vendor options will be populated dynamically -->
+                                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; justify-content: space-between; align-items: center;">
+                                    <select id="templateSpecialtyFilter" style="min-width: 150px;">
+                                        <option value="">All Specialties</option>
+                                        <option value="general">General</option>
+                                        <option value="freight">Freight</option>
+                                        <option value="install">Installation</option>
+                                        <option value="forward">Forwarding</option>
                                     </select>
                                     <button id="createTemplateBtn" class="btn small primary">Create Template</button>
                                 </div>

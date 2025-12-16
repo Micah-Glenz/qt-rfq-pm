@@ -16,7 +16,6 @@ const TemplateManager = (function() {
     console.log('TemplateManager initialized');
     bindEvents();
     loadTemplates();
-    loadVendors();
     setupAvailableVariables();
   }
 
@@ -30,15 +29,10 @@ const TemplateManager = (function() {
       createBtn.addEventListener('click', openCreateTemplateModal);
     }
 
-    // Search and filter
-    const searchInput = document.getElementById('templateSearchInput');
-    if (searchInput) {
-      searchInput.addEventListener('input', debounce(filterTemplates, 300));
-    }
-
-    const vendorFilter = document.getElementById('templateVendorFilter');
-    if (vendorFilter) {
-      vendorFilter.addEventListener('change', filterTemplates);
+    // Specialty filter
+    const specialtyFilter = document.getElementById('templateSpecialtyFilter');
+    if (specialtyFilter) {
+      specialtyFilter.addEventListener('change', filterTemplates);
     }
   }
 
@@ -51,6 +45,8 @@ const TemplateManager = (function() {
       quote_no: 'Quote number',
       description: 'Quote description',
       sales_rep: 'Sales representative name',
+      sales_rep_email: 'Sales representative email address',
+      sales_rep_phone: 'Sales representative phone number',
       vendor_name: 'Vendor company name',
       contact_name: 'Vendor contact person',
       vendor_email: 'Vendor email address',
@@ -69,46 +65,13 @@ const TemplateManager = (function() {
   async function loadTemplates() {
     try {
       templates = await API.getEmailTemplates();
+      console.log('Loaded templates:', templates);
       renderTemplatesList();
-      populateVendorFilter();
     } catch (error) {
       console.error('Failed to load templates:', error);
       showToast('Failed to load email templates', 'error');
       renderTemplatesListError();
     }
-  }
-
-  /**
-   * Load vendors for filter dropdown
-   */
-  async function loadVendors() {
-    try {
-      vendors = await API.getVendors();
-      populateVendorFilter();
-    } catch (error) {
-      console.error('Failed to load vendors:', error);
-    }
-  }
-
-  /**
-   * Populate vendor filter dropdown
-   */
-  function populateVendorFilter() {
-    const select = document.getElementById('templateVendorFilter');
-    if (!select) return;
-
-    // Clear existing options (except "All Vendors")
-    while (select.options.length > 1) {
-      select.remove(1);
-    }
-
-    // Add vendor options
-    vendors.forEach(vendor => {
-      const option = document.createElement('option');
-      option.value = vendor.id;
-      option.textContent = vendor.name;
-      select.appendChild(option);
-    });
   }
 
   /**
@@ -128,21 +91,27 @@ const TemplateManager = (function() {
     }
 
     const templatesHtml = templates.map(template => {
-      const vendor = vendors.find(v => v.id === template.vendor_id);
-      const vendorName = vendor ? vendor.name : 'General';
+      const specialtyLabels = {
+        'general': 'General',
+        'freight': 'Freight',
+        'install': 'Installation',
+        'forward': 'Forwarding'
+      };
+      const specialtyLabel = specialtyLabels[template.specialty] || 'Unknown';
+      const defaultBadge = template.is_default ? '<span class="badge default">Default</span>' : '';
 
       return `
         <div class="template-item" data-template-id="${template.id}">
           <div class="template-header">
-            <h4 class="template-name">${escapeHtml(template.subject_template || 'Untitled Template')}</h4>
+            <h4 class="template-name">${escapeHtml(template.name || template.subject_template || 'Untitled Template')}</h4>
             <div class="template-actions">
               <button class="btn small secondary" onclick="TemplateManager.previewTemplate(${template.id})">Preview</button>
               <button class="btn small secondary" onclick="TemplateManager.editTemplate(${template.id})">Edit</button>
-              <button class="btn small danger" onclick="TemplateManager.deleteTemplate(${template.id})">Delete</button>
+              <button class="btn small danger" onclick="TemplateManager.deleteTemplate(${template.id})" ${template.is_default ? 'disabled' : ''}>Delete</button>
             </div>
           </div>
           <div class="template-meta">
-            <span class="template-vendor">${escapeHtml(vendorName)}</span>
+            <span class="template-specialty">${escapeHtml(specialtyLabel)} ${defaultBadge}</span>
             <span class="template-date">${formatDate(template.created_at)}</span>
           </div>
           <div class="template-preview">
@@ -171,20 +140,14 @@ const TemplateManager = (function() {
   }
 
   /**
-   * Filter templates based on search and vendor filter
+   * Filter templates based on specialty filter
    */
   function filterTemplates() {
-    const searchTerm = document.getElementById('templateSearchInput').value.toLowerCase();
-    const vendorId = document.getElementById('templateVendorFilter').value;
+    const specialty = document.getElementById('templateSpecialtyFilter')?.value || '';
 
     const filteredTemplates = templates.filter(template => {
-      const matchesSearch = !searchTerm ||
-        (template.subject_template && template.subject_template.toLowerCase().includes(searchTerm)) ||
-        (template.body_template && template.body_template.toLowerCase().includes(searchTerm));
-
-      const matchesVendor = !vendorId || template.vendor_id == vendorId;
-
-      return matchesSearch && matchesVendor;
+      const matchesSpecialty = !specialty || template.specialty === specialty;
+      return matchesSpecialty;
     });
 
     renderFilteredTemplates(filteredTemplates);
@@ -275,18 +238,34 @@ const TemplateManager = (function() {
                 </div>
               </div>
 
-              <!-- Vendor Assignment -->
+              <!-- Template Assignment -->
               <div class="form-group">
-                <label for="templateVendor">Assign to Vendor</label>
-                <select id="templateVendor" name="vendor_id">
-                  <option value="">General Template (All Vendors)</option>
-                  ${vendors.map(vendor => `
-                    <option value="${vendor.id}" ${template?.vendor_id == vendor.id ? 'selected' : ''}>
-                      ${escapeHtml(vendor.name)}
-                    </option>
-                  `).join('')}
+                <label for="templateSpecialty">Template Specialty *</label>
+                <select id="templateSpecialty" name="specialty" required>
+                  <option value="general" ${template?.specialty === 'general' ? 'selected' : ''}>General (All Vendors)</option>
+                  <option value="freight" ${template?.specialty === 'freight' ? 'selected' : ''}>Freight</option>
+                  <option value="install" ${template?.specialty === 'install' ? 'selected' : ''}>Installation</option>
+                  <option value="forward" ${template?.specialty === 'forward' ? 'selected' : ''}>Forwarding/Consolidation</option>
                 </select>
-                <small class="form-help">Leave blank to make this template available to all vendors</small>
+                <small class="form-help">Select the specialty for this template. Templates will be auto-selected for vendors of this type.</small>
+              </div>
+
+              <!-- Template Name -->
+              <div class="form-group">
+                <label for="templateNameField">Template Name *</label>
+                <input type="text" id="templateNameField" name="name" required
+                       value="${escapeHtml(template?.name || '')}"
+                       placeholder="Enter a descriptive name for this template">
+              </div>
+
+              <!-- Default Template -->
+              <div class="form-group">
+                <label>
+                  <input type="checkbox" id="templateDefault" name="is_default"
+                         ${template?.is_default ? 'checked' : ''}>
+                  Set as default template for this specialty
+                </label>
+                <small class="form-help">Default templates will be automatically used when sending emails to vendors of this specialty.</small>
               </div>
 
               <!-- Template Body -->
@@ -456,6 +435,8 @@ const TemplateManager = (function() {
       quote_no: 'Q-2024-001',
       description: 'Sample project description',
       sales_rep: 'John Smith',
+      sales_rep_email: 'john.smith@company.com',
+      sales_rep_phone: '(555) 987-6543',
       vendor_name: 'Sample Vendor',
       contact_name: 'Jane Doe',
       vendor_email: 'vendor@example.com',
@@ -521,9 +502,11 @@ const TemplateManager = (function() {
       const formData = new FormData(event.target);
       const templateData = {
         id: formData.get('id'),
+        name: formData.get('name'),
+        specialty: formData.get('specialty'),
         subject_template: formData.get('subject_template'),
         body_template: formData.get('body_template'),
-        vendor_id: formData.get('vendor_id') || null
+        is_default: formData.get('is_default') === 'on'
       };
 
       let response;

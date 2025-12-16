@@ -1,0 +1,274 @@
+/* Task Component Styles */
+
+/* Tasks Table - Matching reference image */
+.tasks-list, .vendor-quotes-list, .notes-list {
+  width: 100%;
+  border: none;
+  font-size: var(--font-size-input);
+  overflow: visible;
+}
+
+/* Task row */
+.task-row {
+  display: grid;
+  grid-template-columns: 30px 1fr auto;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  min-height: 36px;
+  transition: background-color 0.2s;
+}
+
+.task-row:last-child {
+  border-bottom: none;
+}
+
+.task-row:not(.separator):not(.completed) {
+  background-color: rgba(239, 68, 68, 0.05);
+}
+
+.task-row.completed {
+  background-color: rgba(16, 185, 129, 0.05);
+}
+
+.dark-mode .task-row:not(.separator):not(.completed) {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.dark-mode .task-row.completed {
+  background-color: rgba(16, 185, 129, 0.1);
+}
+
+.task-row.completed .task-label {
+  text-decoration: line-through;
+  color: #888;
+}
+
+/* Task cells */
+.task-checkbox-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 0.5rem;
+}
+
+.task-label-cell {
+  padding: 0.5rem 0;
+  display: flex;
+  align-items: center;
+  cursor: move;
+}
+
+.task-row:hover .task-label-cell {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.dark-mode .task-row:hover .task-label-cell {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.task-label {
+  display: flex;
+  align-items: center;
+}
+
+.task-actions-cell {
+  padding-right: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.task-row:hover .task-actions-cell {
+  opacity: 1;
+}
+
+/* Task separator */
+.task-separator {
+  padding: 0.5rem;
+  background-color: var(--separator-bg);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: move;
+  transition: background-color 0.2s;
+}
+
+.dark-mode .task-separator {
+  background-color: var(--separator-bg);
+  color: var(--separator-text);
+}
+
+.task-separator:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.dark-mode .task-separator:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.task-separator-text {
+  color: var(--separator-text);
+}
+
+.dark-mode .task-separator-text {
+  color: var(--separator-text);
+}
+
+/* Sortable task styles */
+.task-row.sortable-ghost {
+  opacity: 0.4;
+}
+
+.task-row.sortable-drag {
+  opacity: 0.9;
+  background-color: white;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.dark-mode .task-row.sortable-drag {
+  background-color: #1f2937;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+}
+
+.task-separator.sortable-ghost {
+  opacity: 0.4;
+}
+
+.task-separator.sortable-drag {
+  opacity: 0.9;
+  background-color: var(--bg-hover);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.dark-mode .task-separator.sortable-drag {
+  background-color: var(--bg-hover);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+}
+
+/* Default tasks in settings */
+.default-tasks-list {
+  border: 1px solid var(--border-color);
+  border-radius: 0.25rem;
+  margin-bottom: 1rem;
+  min-height: 180px;
+  max-height: 350px;
+  overflow-y: auto;
+  font-size: var(--font-size-input);
+}
+
+.default-task-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+  cursor: move;
+}
+
+.default-task-item.separator {
+  font-weight: bold;
+  background-color: var(--bg-hover);
+}
+
+.task-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+/* Task checkbox */
+.task-checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  position: relative;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border-radius: 3px;
+  border: 2px solid var(--error-color);
+  background-color: var(--checkbox-unchecked-bg);
+  transition: all 0.2s;
+}
+
+.task-checkbox:checked {
+  border-color: var(--success-color);
+  background-color: var(--checkbox-checked-bg);
+}
+
+.task-checkbox:checked::after {
+  content: '✓';
+  position: absolute;
+  top: -2px;
+  left: 2px;
+  color: white;
+  font-size: var(--font-size-sm);
+  font-weight: bold;
+}
+
+.dark-mode .task-checkbox {
+  border-color: var(--error-color);
+  background-color: var(--checkbox-unchecked-bg);
+}
+
+.dark-mode .task-checkbox:checked {
+  background-color: var(--checkbox-checked-bg);
+  border-color: var(--success-color);
+}
+
+/* Tasks list specific styles */
+.tasks-list {
+  width: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
+  font-size: var(--font-size-input);
+  min-height: fit-content;
+}
+
+.tasks-list .empty-state {
+  padding: 1rem;
+  min-height: 40px;
+  margin: 0;
+}
+
+.dark-mode .tasks-list,
+.dark-mode .vendor-quotes-list,
+.dark-mode .notes-list {
+  border-color: var(--border-color);
+}
+
+/* Task completion status container */
+.quote-completion-status {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive task styles */
+@media (max-width: 768px) {
+  .task-row {
+    grid-template-columns: 25px 1fr auto;
+  }
+
+  .task-checkbox-cell {
+    padding-left: 0.25rem;
+  }
+
+  .task-actions-cell {
+    padding-right: 0.25rem;
+  }
+
+  .task-separator {
+    padding: 0.25rem 0.5rem;
+  }
+
+  .default-task-item {
+    padding: 0.25rem 0.5rem;
+  }
+}

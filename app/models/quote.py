@@ -1,6 +1,7 @@
 from datetime import datetime
 from app.db import DatabaseContext
 from app.models.event import Event
+from app.models.sales_rep import SalesRep
 import json
 
 class Quote:
@@ -21,65 +22,90 @@ class Quote:
     
     @staticmethod
     def create(customer, quote_no, description=None, sales_rep=None,
-               mpsf_link=None, folder_link=None, method_link=None):
+               mpsf_link=None, folder_link=None, method_link=None, sales_rep_id=None):
         """Create a new quote in the database"""
         with DatabaseContext() as conn:
             cursor = conn.cursor()
-            cursor.execute('''
-                INSERT INTO quotes (customer, quote_no, description, sales_rep,
-                                  mpsf_link, folder_link, method_link)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            ''', (customer, quote_no, description, sales_rep,
-                  mpsf_link, folder_link, method_link))
-            
+
+            # Handle sales_rep_id or legacy sales_rep string
+            if sales_rep_id:
+                # New system: use sales_rep_id
+                cursor.execute('''
+                    INSERT INTO quotes (customer, quote_no, description, sales_rep_id,
+                                      mpsf_link, folder_link, method_link)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                ''', (customer, quote_no, description, sales_rep_id,
+                      mpsf_link, folder_link, method_link))
+            else:
+                # Legacy system: use sales_rep string
+                cursor.execute('''
+                    INSERT INTO quotes (customer, quote_no, description, sales_rep,
+                                      mpsf_link, folder_link, method_link)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                ''', (customer, quote_no, description, sales_rep,
+                      mpsf_link, folder_link, method_link))
+
             quote_id = cursor.lastrowid
             conn.commit()
-            
+
             # Add default tasks
             cursor.execute('''
-                SELECT id, label, is_separator 
-                FROM default_tasks 
+                SELECT id, label, is_separator
+                FROM default_tasks
                 ORDER BY sort_order
             ''')
-            
+
             default_tasks = cursor.fetchall()
             for task in default_tasks:
                 cursor.execute('''
                     INSERT INTO tasks (quote_id, label, is_separator)
                     VALUES (?, ?, ?)
                 ''', (quote_id, task['label'], task['is_separator']))
-            
+
             conn.commit()
             return quote_id
     
     @staticmethod
     def get_by_id(quote_id):
-        """Get a quote by ID"""
+        """Get a quote by ID with enhanced sales rep information"""
         with DatabaseContext() as conn:
             cursor = conn.cursor()
             cursor.execute('''
-                SELECT id, customer, quote_no, description, sales_rep,
-                       mpsf_link, folder_link, method_link, hidden,
-                       created_at, updated_at
-                FROM quotes
-                WHERE id = ?
+                SELECT q.id, q.customer, q.quote_no, q.description, q.sales_rep, q.sales_rep_id,
+                       q.mpsf_link, q.folder_link, q.method_link, q.hidden,
+                       q.created_at, q.updated_at,
+                       sr.name as sales_rep_name, sr.email as sales_rep_email, sr.phone as sales_rep_phone
+                FROM quotes q
+                LEFT JOIN sales_reps sr ON q.sales_rep_id = sr.id
+                WHERE q.id = ?
             ''', (quote_id,))
 
             row = cursor.fetchone()
             if row:
-                return Quote(
-                    id=row['id'],
-                    customer=row['customer'],
-                    quote_no=row['quote_no'],
-                    description=row['description'],
-                    sales_rep=row['sales_rep'],
-                    mpsf_link=row['mpsf_link'],
-                    folder_link=row['folder_link'],
-                    method_link=row['method_link'],
-                    hidden=row['hidden'],
-                    created_at=row['created_at'],
-                    updated_at=row['updated_at']
-                )
+                # Determine sales rep info with backward compatibility
+                sales_rep_info = {
+                    'id': row['sales_rep_id'],
+                    'name': row['sales_rep_name'] or row['sales_rep'],  # Fallback to string if no ID match
+                    'email': row['sales_rep_email'],
+                    'phone': row['sales_rep_phone']
+                }
+
+                quote = {
+                    'id': row['id'],
+                    'customer': row['customer'],
+                    'quote_no': row['quote_no'],
+                    'description': row['description'],
+                    'sales_rep': sales_rep_info['name'],  # Maintain backward compatibility
+                    'sales_rep_info': sales_rep_info,
+                    'sales_rep_id': row['sales_rep_id'],
+                    'mpsf_link': row['mpsf_link'],
+                    'folder_link': row['folder_link'],
+                    'method_link': row['method_link'],
+                    'hidden': row['hidden'],
+                    'created_at': row['created_at'],
+                    'updated_at': row['updated_at']
+                }
+                return quote
             return None
     
     @staticmethod
@@ -163,43 +189,53 @@ class Quote:
             return quotes
     
     @staticmethod
-    def update(quote_id, customer, quote_no, description, sales_rep,
-               mpsf_link=None, folder_link=None, method_link=None, hidden=None):
+    def update(quote_id, customer, quote_no, description, sales_rep=None,
+               mpsf_link=None, folder_link=None, method_link=None, hidden=None, sales_rep_id=None):
         """Update a quote and log changes as an event"""
         old_quote = Quote.get_by_id(quote_id)
 
         with DatabaseContext() as conn:
             cursor = conn.cursor()
 
+            # Handle both legacy sales_rep and new sales_rep_id
             if hidden is None:
-                cursor.execute('''
-                    UPDATE quotes
-                    SET customer = ?,
-                        quote_no = ?,
-                        description = ?,
-                        sales_rep = ?,
-                        mpsf_link = ?,
-                        folder_link = ?,
-                        method_link = ?,
-                        updated_at = CURRENT_TIMESTAMP
-                    WHERE id = ?
-                ''', (customer, quote_no, description, sales_rep,
-                      mpsf_link, folder_link, method_link, quote_id))
+                if sales_rep_id is not None:
+                    # New system: update only sales_rep_id
+                    cursor.execute('''
+                        UPDATE quotes
+                        SET customer = ?, quote_no = ?, description = ?, sales_rep_id = ?,
+                            mpsf_link = ?, folder_link = ?, method_link = ?, updated_at = CURRENT_TIMESTAMP
+                        WHERE id = ?
+                    ''', (customer, quote_no, description, sales_rep_id,
+                          mpsf_link, folder_link, method_link, quote_id))
+                else:
+                    # Legacy system: update only sales_rep string
+                    cursor.execute('''
+                        UPDATE quotes
+                        SET customer = ?, quote_no = ?, description = ?, sales_rep = ?,
+                            mpsf_link = ?, folder_link = ?, method_link = ?, updated_at = CURRENT_TIMESTAMP
+                        WHERE id = ?
+                    ''', (customer, quote_no, description, sales_rep,
+                          mpsf_link, folder_link, method_link, quote_id))
             else:
-                cursor.execute('''
-                    UPDATE quotes
-                    SET customer = ?,
-                        quote_no = ?,
-                        description = ?,
-                        sales_rep = ?,
-                        mpsf_link = ?,
-                        folder_link = ?,
-                        method_link = ?,
-                        hidden = ?,
-                        updated_at = CURRENT_TIMESTAMP
-                    WHERE id = ?
-                ''', (customer, quote_no, description, sales_rep,
-                      mpsf_link, folder_link, method_link, hidden, quote_id))
+                if sales_rep_id is not None:
+                    # New system: update both sales_rep_id and hidden
+                    cursor.execute('''
+                        UPDATE quotes
+                        SET customer = ?, quote_no = ?, description = ?, sales_rep_id = ?, hidden = ?,
+                            mpsf_link = ?, folder_link = ?, method_link = ?, updated_at = CURRENT_TIMESTAMP
+                        WHERE id = ?
+                    ''', (customer, quote_no, description, sales_rep_id, hidden,
+                          mpsf_link, folder_link, method_link, quote_id))
+                else:
+                    # Legacy system: update both sales_rep and hidden
+                    cursor.execute('''
+                        UPDATE quotes
+                        SET customer = ?, quote_no = ?, description = ?, sales_rep = ?, hidden = ?,
+                            mpsf_link = ?, folder_link = ?, method_link = ?, updated_at = CURRENT_TIMESTAMP
+                        WHERE id = ?
+                    ''', (customer, quote_no, description, sales_rep, hidden,
+                          mpsf_link, folder_link, method_link, quote_id))
 
             conn.commit()
             success = cursor.rowcount > 0
@@ -207,23 +243,34 @@ class Quote:
         if success and old_quote:
             old_values = {}
             new_values = {}
+
+            # Determine what changed for event logging
             fields = [
                 ('customer', customer),
                 ('quote_no', quote_no),
                 ('description', description),
-                ('sales_rep', sales_rep),
                 ('mpsf_link', mpsf_link),
                 ('folder_link', folder_link),
                 ('method_link', method_link)
             ]
 
+            # Handle sales rep changes
+            if sales_rep_id is not None:
+                if old_quote.get('sales_rep_id') != sales_rep_id:
+                    old_values['sales_rep_id'] = old_quote.get('sales_rep_id')
+                    new_values['sales_rep_id'] = sales_rep_id
+            elif sales_rep is not None:
+                if old_quote.get('sales_rep') != sales_rep:
+                    old_values['sales_rep'] = old_quote.get('sales_rep')
+                    new_values['sales_rep'] = sales_rep
+
             for field, new_val in fields:
-                if getattr(old_quote, field) != new_val:
-                    old_values[field] = getattr(old_quote, field)
+                if old_quote.get(field) != new_val:
+                    old_values[field] = old_quote.get(field)
                     new_values[field] = new_val
 
-            if hidden is not None and old_quote.hidden != hidden:
-                old_values['hidden'] = old_quote.hidden
+            if hidden is not None and old_quote.get('hidden') != hidden:
+                old_values['hidden'] = old_quote.get('hidden')
                 new_values['hidden'] = hidden
 
             if old_values:

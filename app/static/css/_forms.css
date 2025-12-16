@@ -1,0 +1,489 @@
+/* Form Styles */
+
+/* Base form elements */
+input, textarea, select {
+  width: 100%;
+  padding: 0.4rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.25rem;
+  font-family: inherit;
+  font-size: var(--font-size-input);
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  background-color: var(--bg-color);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+
+/* Form groups */
+.form-group {
+  margin-bottom: 0.75rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: 500;
+  font-size: var(--font-size-input);
+}
+
+/* Form help text */
+.form-help {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  line-height: 1.3;
+  margin-top: 0.25rem;
+}
+
+.form-help-compact {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  line-height: 1.3;
+  margin-top: 0.25rem;
+}
+
+/* Input variations */
+.compact-input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: var(--font-size-sm);
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  transition: all 0.2s ease;
+}
+
+.compact-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  background-color: var(--bg-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.subject-input {
+  width: 100%;
+  padding: 0.75rem 2.5rem 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  resize: none;
+  transition: all 0.2s ease;
+}
+
+.subject-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.subject-input::placeholder {
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
+.message-textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: var(--font-size-base);
+  font-family: inherit;
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  resize: none;
+  line-height: 1.5;
+  transition: all 0.2s ease;
+}
+
+.message-textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.message-textarea::placeholder {
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
+/* Input status indicators */
+.input-status {
+  font-size: 1.1rem;
+  font-weight: bold;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Font size control */
+.font-size-control {
+  margin-bottom: 1rem;
+}
+
+.font-size-slider {
+  width: 100%;
+  margin: 0.5rem 0;
+}
+
+.font-size-preview {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.25rem;
+  background-color: var(--bg-color);
+  font-size: var(--font-size-body);
+}
+
+/* Checkbox styles */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.checkbox-label:hover {
+  background-color: var(--bg-hover);
+}
+
+.checkbox-label.compact {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+  border: 1px solid transparent;
+}
+
+.checkbox-label.compact:hover {
+  background-color: var(--bg-hover);
+}
+
+.checkbox-label.compact input[type="checkbox"] {
+  margin: 0;
+  width: 16px;
+  height: 16px;
+}
+
+.checkbox-text {
+  font-size: var(--font-size-sm);
+  color: var(--text-color);
+}
+
+/* Task checkbox */
+.task-checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  position: relative;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border-radius: 3px;
+  border: 2px solid var(--error-color);
+  background-color: var(--checkbox-unchecked-bg);
+  transition: all 0.2s;
+}
+
+.task-checkbox:checked {
+  border-color: var(--success-color);
+  background-color: var(--checkbox-checked-bg);
+}
+
+.task-checkbox:checked::after {
+  content: '✓';
+  position: absolute;
+  top: -2px;
+  left: 2px;
+  color: white;
+  font-size: var(--font-size-sm);
+  font-weight: bold;
+}
+
+.dark-mode .task-checkbox {
+  border-color: var(--error-color);
+  background-color: var(--checkbox-unchecked-bg);
+}
+
+.dark-mode .task-checkbox:checked {
+  background-color: var(--checkbox-checked-bg);
+  border-color: var(--success-color);
+}
+
+/* Status checkbox for vendor quotes */
+.status-check {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  position: relative;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border-radius: 3px;
+  border: 2px solid var(--error-color);
+  background-color: rgba(239, 68, 68, 0.15);
+  transition: all 0.2s;
+}
+
+.status-check:checked {
+  border-color: var(--success-color);
+  background-color: var(--success-color);
+}
+
+.status-check:checked::after {
+  content: '✓';
+  position: absolute;
+  top: -2px;
+  left: 2px;
+  color: white;
+  font-size: var(--font-size-sm);
+  font-weight: bold;
+}
+
+.dark-mode .status-check {
+  border-color: var(--error-color);
+  background-color: rgba(239, 68, 68, 0.25);
+}
+
+.dark-mode .status-check:checked {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+}
+
+/* Select dropdowns */
+.template-select {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: var(--font-size-sm);
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+.status-select {
+  flex: 1;
+  max-width: 150px;
+  padding: 0.375rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: var(--font-size-sm);
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  transition: all 0.2s ease;
+}
+
+.status-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  background-color: var(--bg-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.dark-mode .status-select {
+  background-color: var(--bg-hover);
+  border-color: var(--border-color);
+  color: var(--text-color);
+}
+
+.dark-mode .status-select:focus {
+  background-color: var(--bg-color);
+  border-color: var(--primary-color);
+}
+
+.theme-select {
+  width: 100%;
+  padding: 0.4rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.25rem;
+  font-size: 0.85rem;
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  margin-bottom: 1rem;
+}
+
+/* Dark mode toggle */
+.dark-mode-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+  font-size: var(--font-size-input);
+}
+
+.dark-mode-toggle input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+  cursor: pointer;
+}
+
+/* Make description textarea larger */
+textarea.inline-edit-input {
+  min-height: 4rem;
+  resize: vertical;
+}
+
+/* Dark mode form adjustments */
+.dark-mode input,
+.dark-mode select,
+.dark-mode textarea {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+.dark-mode input:focus,
+.dark-mode select:focus,
+.dark-mode textarea:focus {
+  background-color: var(--bg-hover);
+  border-color: var(--primary-color);
+}
+
+.dark-mode .compact-input,
+.dark-mode .template-select,
+.dark-mode .subject-input,
+.dark-mode .message-textarea {
+  background-color: var(--bg-color);
+  border-color: var(--border-color);
+  color: var(--text-color);
+}
+
+.dark-mode .compact-input:focus,
+.dark-mode .template-select:focus,
+.dark-mode .subject-input:focus,
+.dark-mode .message-textarea:focus {
+  background-color: var(--bg-color);
+  border-color: var(--primary-color);
+}
+
+.dark-mode .subject-counter {
+  background-color: var(--bg-color);
+  border-color: var(--border-light);
+}
+
+/* Theme-specific input styling */
+.chill-coffee input,
+.chill-coffee select,
+.chill-coffee textarea,
+.ocean-breeze input,
+.ocean-breeze select,
+.ocean-breeze textarea,
+.sunset-glow input,
+.sunset-glow select,
+.sunset-glow textarea,
+.forest-mist input,
+.forest-mist select,
+.forest-mist textarea,
+.cherry-blossom input,
+.cherry-blossom select,
+.cherry-blossom textarea,
+.midnight-purple input,
+.midnight-purple select,
+.midnight-purple textarea,
+.cyberpunk input,
+.cyberpunk select,
+.cyberpunk textarea,
+.dingy-dank input,
+.dingy-dank select,
+.dingy-dank textarea {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+/* Focus states for all themes */
+.chill-coffee input:focus,
+.chill-coffee select:focus,
+.chill-coffee textarea:focus,
+.ocean-breeze input:focus,
+.ocean-breeze select:focus,
+.ocean-breeze textarea:focus,
+.sunset-glow input:focus,
+.sunset-glow select:focus,
+.sunset-glow textarea:focus,
+.forest-mist input:focus,
+.forest-mist select:focus,
+.forest-mist textarea:focus,
+.cherry-blossom input:focus,
+.cherry-blossom select:focus,
+.cherry-blossom textarea:focus,
+.midnight-purple input:focus,
+.midnight-purple select:focus,
+.midnight-purple textarea:focus,
+.cyberpunk input:focus,
+.cyberpunk select:focus,
+.cyberpunk textarea:focus,
+.dingy-dank input:focus,
+.dingy-dank select:focus,
+.dingy-dank textarea:focus {
+  background-color: var(--bg-color);
+  border-color: var(--primary-color);
+}
+
+/* Dark themes need special handling for inputs */
+.midnight-purple input,
+.midnight-purple select,
+.midnight-purple textarea,
+.cyberpunk input,
+.cyberpunk select,
+.cyberpunk textarea,
+.dingy-dank input,
+.dingy-dank select,
+.dingy-dank textarea {
+  background-color: var(--bg-hover);
+}
+
+.midnight-purple input:focus,
+.midnight-purple select:focus,
+.midnight-purple textarea:focus,
+.cyberpunk input:focus,
+.cyberpunk select:focus,
+.cyberpunk textarea:focus,
+.dingy-dank input:focus,
+.dingy-dank select:focus,
+.dingy-dank textarea:focus {
+  background-color: var(--bg-color);
+}
+
+/* Placeholder text colors for all themes */
+.chill-coffee input::placeholder,
+.chill-coffee textarea::placeholder,
+.ocean-breeze input::placeholder,
+.ocean-breeze textarea::placeholder,
+.sunset-glow input::placeholder,
+.sunset-glow textarea::placeholder,
+.forest-mist input::placeholder,
+.forest-mist textarea::placeholder,
+.cherry-blossom input::placeholder,
+.cherry-blossom textarea::placeholder,
+.midnight-purple input::placeholder,
+.midnight-purple textarea::placeholder,
+.cyberpunk input::placeholder,
+.cyberpunk textarea::placeholder,
+.dingy-dank input::placeholder,
+.dingy-dank textarea::placeholder {
+  color: var(--text-tertiary);
+  opacity: 0.7;
+}

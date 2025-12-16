@@ -30,6 +30,11 @@ def create_vendor_quote():
     if type_ not in ['freight', 'install', 'forward']:
         return jsonify({'error': 'Type must be either "freight", "install", or "forward"'}), 400
 
+    # Default date to today if not provided
+    if not date:
+        from datetime import datetime
+        date = datetime.now().strftime('%Y-%m-%d')
+
     try:
         vendor_quote_id = VendorQuote.create(
             quote_id, type_, vendor, requested, entered, notes, date
@@ -67,7 +72,7 @@ def update_vendor_quote(vendor_quote_id):
 @vendor_quotes_bp.route('/vendor-quotes/<int:vendor_quote_id>', methods=['DELETE'])
 def delete_vendor_quote(vendor_quote_id):
     """Delete a vendor quote"""
-    if VendorQuote.delete(vendor_quote_id):
+    if VendorQuote.delete_enhanced(vendor_quote_id):
         return jsonify({'message': 'Vendor quote deleted successfully'})
     else:
         return jsonify({'error': 'Vendor quote not found'}), 404
@@ -133,6 +138,11 @@ def create_enhanced_vendor_quote(quote_id):
         valid_statuses = ['draft', 'requested', 'received', 'reviewing', 'selected', 'rejected', 'expired']
         if status not in valid_statuses:
             return jsonify({'error': f'Status must be one of: {", ".join(valid_statuses)}'}), 400
+
+        # Default quote_date to today if not provided
+        if not quote_date:
+            from datetime import datetime
+            quote_date = datetime.now().strftime('%Y-%m-%d')
 
         vendor_quote_id = VendorQuote.create_enhanced(
             quote_id=quote_id,

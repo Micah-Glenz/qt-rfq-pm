@@ -1,0 +1,485 @@
+/* Button Styles */
+
+/* Base button */
+.btn {
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  cursor: pointer;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  transition: background-color 0.2s;
+  font-size: var(--font-size-button);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+}
+
+.btn:hover {
+  background-color: var(--bg-hover);
+}
+
+/* Button variants */
+.btn.primary {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.btn.primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn.danger {
+  background-color: var(--error-color);
+  color: white;
+  border-color: var(--error-color);
+}
+
+.btn.danger:hover {
+  background-color: #dc2626;
+}
+
+.btn.small {
+  padding: 0.2rem 0.5rem;
+  font-size: var(--font-size-button-sm);
+}
+
+.btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Icon buttons */
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-color);
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-btn:hover {
+  background-color: var(--bg-hover);
+}
+
+.icon-btn svg {
+  display: block;
+}
+
+/* Tool buttons */
+.btn-tool {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-tool:hover {
+  background-color: var(--bg-hover);
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+/* Icon-only buttons */
+.btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-icon:hover {
+  background-color: var(--bg-hover);
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-icon.small {
+  padding: 0.125rem;
+}
+
+.btn-icon.small svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Compact action buttons */
+.compact-action-btn {
+  padding: var(--font-size-xs) var(--font-size-sm);
+  font-size: var(--font-size-button-sm);
+  font-weight: 500;
+  color: var(--primary-color);
+  background: transparent;
+  border: 1px solid var(--primary-color);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.compact-action-btn:hover {
+  background: var(--primary-color);
+  color: var(--button-text);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+}
+
+/* Corporate action buttons */
+.corporate-action-buttons {
+  display: flex;
+  gap: var(--font-size-xs);
+  justify-content: flex-end;
+}
+
+.corporate-btn-sm {
+  padding: var(--font-size-xs) var(--font-size-sm);
+  font-size: var(--font-size-button-sm);
+  font-weight: 500;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: var(--card-background);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.corporate-btn-sm:hover {
+  background: var(--hover-bg);
+  border-color: var(--border-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.corporate-btn-sm.primary {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.corporate-btn-sm.primary:hover {
+  background: var(--primary-color);
+  color: var(--button-text);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+}
+
+/* Modal action buttons */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.modal-actions-compact {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  background: var(--card-bg);
+  border-top: 1px solid var(--border-light);
+}
+
+.modal-actions-compact .btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.modal-actions-compact .btn.primary {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.modal-actions-compact .btn.primary:hover {
+  background-color: var(--primary-hover);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+.modal-actions-compact .btn-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Email detail action buttons */
+.email-detail-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-light);
+}
+
+.email-detail-actions .btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: var(--font-size-sm);
+  border-radius: 4px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.email-detail-actions .btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.email-detail-actions .btn.primary {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.email-detail-actions .btn.primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.email-detail-actions .btn.secondary {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+.email-detail-actions .btn.secondary:hover {
+  background-color: var(--bg-hover);
+}
+
+/* Update status button */
+.update-status-btn {
+  padding: 0.375rem 0.75rem;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  border: 1px solid var(--primary-color);
+  border-radius: 4px;
+  background-color: var(--primary-color);
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.update-status-btn:hover {
+  background-color: var(--primary-hover);
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
+}
+
+.update-status-btn:active {
+  transform: translateY(1px);
+}
+
+.update-status-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+}
+
+.dark-mode .update-status-btn {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.dark-mode .update-status-btn:hover {
+  background-color: var(--primary-hover);
+}
+
+.dark-mode .update-status-btn:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+/* Template action buttons */
+.template-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+/* Delete buttons and actions */
+.delete-btn {
+  color: var(--error-color);
+  cursor: pointer;
+  padding: 0.1rem 0.4rem;
+  font-size: calc(var(--font-size-lg) + 2px);
+  line-height: 1;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+
+.delete-btn:hover {
+  opacity: 1;
+}
+
+.task-delete-btn {
+  color: var(--error-color);
+  cursor: pointer;
+  font-size: var(--font-size-lg);
+  padding: 0 0.15rem;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+
+.task-delete-btn:hover {
+  opacity: 1;
+}
+
+.dark-mode .task-delete-btn {
+  color: var(--error-color);
+  opacity: 0.8;
+}
+
+.note-delete-btn {
+  color: var(--error-color);
+  cursor: pointer;
+  font-size: var(--font-size-body);
+  opacity: 0;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.note-item:hover .note-delete-btn {
+  opacity: 0.7;
+}
+
+.note-delete-btn:hover {
+  opacity: 1 !important;
+}
+
+.event-delete-btn {
+  color: var(--error-color);
+  cursor: pointer;
+  font-size: 0.9rem;
+  opacity: 0;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.event-item:hover .event-delete-btn {
+  opacity: 0.7;
+}
+
+.event-delete-btn:hover {
+  opacity: 1 !important;
+}
+
+.vendor-delete-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: var(--font-size-base);
+  font-weight: bold;
+  cursor: pointer;
+  padding: var(--font-size-xs);
+  border-radius: 3px;
+  transition: all 0.2s ease;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vendor-delete-btn:hover {
+  background-color: var(--error-color);
+  color: white;
+}
+
+/* Vendor action buttons */
+.vendor-actions button {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--border-color);
+  background: white;
+  cursor: pointer;
+}
+
+.vendor-actions button:hover {
+  background: var(--bg-hover);
+  border-color: var(--primary-color);
+}
+
+/* Dark mode button adjustments */
+.dark-mode .btn-tool,
+.dark-mode .btn-icon {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+.dark-mode .btn-tool:hover,
+.dark-mode .btn-icon:hover {
+  background-color: var(--bg-hover);
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.dark-mode .modal-actions-compact {
+  background-color: var(--card-bg);
+  border-color: var(--border-light);
+}
+
+/* Responsive button adjustments */
+@media (max-width: 768px) {
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .modal-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .modal-actions-compact {
+    flex-direction: column;
+  }
+
+  .modal-actions-compact .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .email-detail-actions {
+    flex-direction: column;
+  }
+
+  .email-detail-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .corporate-action-buttons {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .corporate-btn-sm {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+}

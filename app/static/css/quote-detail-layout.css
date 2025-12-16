@@ -44,10 +44,10 @@ main, .app-container, .content-area {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--font-size-xs) var(--font-size-base);
+  padding: 2px;
   background: var(--header-bg);
   border-bottom: 1px solid var(--border-color);
-  min-height: calc(var(--font-size-base) * 2.5);
+  min-height: calc(var(--font-size-base) * 1.1);
 }
 
 .compact-title {

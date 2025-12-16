@@ -1,0 +1,246 @@
+/* Header and Navigation Styles */
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  background-color: var(--header-bg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Header sections */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Header title */
+header h1 {
+  font-size: var(--font-size-header-h1);
+  margin: 0;
+}
+
+/* Header status */
+.header-status {
+  display: flex;
+  align-items: center;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  background: var(--bg-hover);
+  border-radius: 20px;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-secondary);
+  transition: all 0.3s ease;
+}
+
+.status-indicator.success .status-dot {
+  background: var(--success-color);
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.status-indicator.warning .status-dot {
+  background: var(--warning-color);
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+}
+
+.status-indicator.info .status-dot {
+  background: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+/* Header actions */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Search bar container */
+.search-container {
+  display: flex;
+  padding: 0.5rem;
+  background-color: var(--card-bg);
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.dark-mode .search-container {
+  background-color: #1a2234;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Search input */
+#searchInput {
+  flex: 1;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.375rem;
+  font-size: var(--font-size-sm);
+  background-color: var(--search-bg);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: var(--text-color);
+}
+
+#searchInput::placeholder {
+  color: var(--text-tertiary);
+}
+
+.dark-mode #searchInput {
+  background-color: #243047;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+}
+
+.dark-mode #searchInput::placeholder {
+  color: #64748b;
+}
+
+#searchInput:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  background-color: var(--bg-color);
+}
+
+.dark-mode #searchInput:focus {
+  background-color: #2a354d;
+}
+
+/* Search buttons */
+#clearSearchBtn {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0 0.5rem;
+  color: var(--text-tertiary);
+}
+
+#clearSearchBtn:hover {
+  color: var(--text-secondary);
+}
+
+.dark-mode #clearSearchBtn {
+  color: #64748b;
+}
+
+.dark-mode #clearSearchBtn:hover {
+  color: #94a3b8;
+}
+
+#newQuoteBtn {
+  margin-left: 0.25rem;
+  background: none;
+  color: var(--primary-color);
+  border: none;
+  padding: 0.375rem;
+}
+
+#newQuoteBtn:hover {
+  background-color: var(--editable-hover-bg);
+  border-radius: 0.25rem;
+}
+
+#newQuoteBtn svg {
+  stroke: var(--primary-color);
+}
+
+/* Quote title */
+.quote-title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.quote-title-main {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.quote-title-description {
+  color: var(--text-secondary);
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  flex: 1;
+}
+
+/* Sales rep dropdown */
+.sales-rep-select {
+  width: 100%;
+  padding: 0.4rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.25rem;
+  font-size: var(--font-size-input);
+  background-color: var(--card-bg);
+  color: var(--text-color);
+}
+
+/* Dark mode header adjustments */
+.dark-mode header,
+.dark-mode .search-container,
+.dark-mode .left-pane,
+.dark-mode .modal-content {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+}
+
+.dark-mode input,
+.dark-mode select,
+.dark-mode textarea {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+.dark-mode input:focus,
+.dark-mode select:focus,
+.dark-mode textarea:focus {
+  background-color: var(--bg-hover);
+  border-color: var(--primary-color);
+}
+
+.dark-mode .btn {
+  background-color: #374151;
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+.dark-mode .btn:hover {
+  background-color: #4b5563;
+}
+
+.dark-mode .btn.primary {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.dark-mode .btn.primary:hover {
+  background-color: var(--primary-hover);
+}

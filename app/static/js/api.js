@@ -145,12 +145,10 @@ const API = {
    * @returns {Promise<Object>} - The created vendor quote
    */
   async createVendorQuote(quoteId, vendorQuoteData) {
-    // Add the quote_id to the data if creating via the general endpoint
-    const data = { ...vendorQuoteData, quote_id: quoteId };
-    
-    return this.fetch(`${this.baseUrl}/vendor-quotes`, {
+    // Use the enhanced endpoint which properly handles quote_date and other fields
+    return this.fetch(`${this.baseUrl}/quotes/${quoteId}/vendor-quotes/enhanced`, {
       method: 'POST',
-      body: JSON.stringify(data)
+      body: JSON.stringify(vendorQuoteData)
     });
   },
 
@@ -385,6 +383,8 @@ const API = {
     if (search) {
       params.append('search', search);
     }
+    // Always request flat format for backward compatibility
+    params.append('flat', 'true');
 
     const url = `${this.baseUrl}/email-templates${params.toString() ? `?${params.toString()}` : ''}`;
     const response = await this.fetch(url);
@@ -437,6 +437,25 @@ const API = {
     return this.fetch(`${this.baseUrl}/email-templates/${templateId}`, {
       method: 'DELETE'
     });
+  },
+
+  /**
+   * Get the default email template
+   * @returns {Promise<Object>} - The default template
+   */
+  async getDefaultEmailTemplate() {
+    const response = await this.fetch(`${this.baseUrl}/email-templates/default`);
+    return response.data;
+  },
+
+  /**
+   * Get the best template for a vendor (vendor-specific or default)
+   * @param {number} vendorId - The vendor ID
+   * @returns {Promise<Object>} - The template object
+   */
+  async getTemplateForVendor(vendorId) {
+    const response = await this.fetch(`${this.baseUrl}/email-templates/for-vendor/${vendorId}`);
+    return response.data;
   },
 
   /**
@@ -513,5 +532,19 @@ const API = {
 
     const url = `${this.baseUrl}/email-history${params.toString() ? `?${params.toString()}` : ''}`;
     return this.fetch(url);
+  },
+
+  /**
+   * Update email status
+   * @param {number} emailId - The email ID
+   * @param {string} emailStatus - New email status ('current' or 'superceded')
+   * @returns {Promise<Object>} - Response data
+   */
+  async updateEmailStatus(emailId, emailStatus) {
+    const response = await this.fetch(`${this.baseUrl}/email-history/${emailId}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ email_status: emailStatus })
+    });
+    return response;
   }
 };

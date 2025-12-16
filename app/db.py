@@ -84,6 +84,7 @@ class DatabaseManager:
                     vendor     TEXT NOT NULL,
                     requested  BOOLEAN DEFAULT 0,
                     entered    BOOLEAN DEFAULT 0,
+                    status     TEXT DEFAULT 'draft',
                     notes      TEXT,
                     date       DATE,
                     FOREIGN KEY(quote_id) REFERENCES quotes(id) ON DELETE CASCADE
@@ -137,16 +138,16 @@ class DatabaseManager:
                 )
                 ''')
 
-                # Create email_templates table
+                # Create sales_reps table
                 cursor.execute('''
-                CREATE TABLE IF NOT EXISTS email_templates (
+                CREATE TABLE IF NOT EXISTS sales_reps (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    vendor_id INTEGER NOT NULL UNIQUE,
-                    subject_template TEXT NOT NULL,
-                    body_template TEXT NOT NULL,
+                    name TEXT NOT NULL UNIQUE,
+                    email TEXT UNIQUE,
+                    phone TEXT,
+                    is_active BOOLEAN DEFAULT 1,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY(vendor_id) REFERENCES vendors(id) ON DELETE CASCADE
+                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
                 )
                 ''')
 
@@ -171,11 +172,176 @@ class DatabaseManager:
                 )
                 ''')
 
+                # Reset email_templates table to specialty-based system
+                cursor.execute("PRAGMA table_info(email_templates)")
+                template_columns = [column[1] for column in cursor.fetchall()]
+
+                # Check if we need to migrate from old vendor-based structure
+                if 'vendor_id' in template_columns:
+                    print("Converting email_templates table to specialty-based system...")
+                    # Drop old table and recreate with new structure
+                    cursor.execute("DROP TABLE IF EXISTS email_templates")
+                    print("Old templates deleted.")
+
+                # Create new specialty-based table (if it doesn't exist)
+                cursor.execute('''
+                CREATE TABLE IF NOT EXISTS email_templates (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    specialty TEXT NOT NULL CHECK(specialty IN ('freight', 'install', 'forward', 'general')),
+                    subject_template TEXT NOT NULL,
+                    body_template TEXT NOT NULL,
+                    is_default BOOLEAN DEFAULT 0,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+                ''')
+
+                # Add email_status column to email_history if it doesn't exist
+                cursor.execute("PRAGMA table_info(email_history)")
+                email_history_columns = [column[1] for column in cursor.fetchall()]
+                if 'email_status' not in email_history_columns:
+                    cursor.execute("ALTER TABLE email_history ADD COLUMN email_status TEXT DEFAULT 'current'")
+
+                # Add cc_emails column to email_history if it doesn't exist
+                if 'cc_emails' not in email_history_columns:
+                    cursor.execute("ALTER TABLE email_history ADD COLUMN cc_emails TEXT DEFAULT '[]'")
+
+                # Add bcc_emails column to email_history if it doesn't exist
+                if 'bcc_emails' not in email_history_columns:
+                    cursor.execute("ALTER TABLE email_history ADD COLUMN bcc_emails TEXT DEFAULT '[]'")
+
+                # Add status column to vendor_quotes if it doesn't exist
+                cursor.execute("PRAGMA table_info(vendor_quotes)")
+                vendor_quotes_columns = [column[1] for column in cursor.fetchall()]
+                if 'status' not in vendor_quotes_columns:
+                    cursor.execute("ALTER TABLE vendor_quotes ADD COLUMN status TEXT DEFAULT 'draft'")
+
+                # Add sales_rep_id column to quotes table if it doesn't exist (for migration)
+                cursor.execute("PRAGMA table_info(quotes)")
+                quotes_columns = [column[1] for column in cursor.fetchall()]
+                if 'sales_rep_id' not in quotes_columns:
+                    cursor.execute("ALTER TABLE quotes ADD COLUMN sales_rep_id INTEGER")
+                    # Add foreign key constraint (will be enforced after data migration)
+                    print("Added sales_rep_id column to quotes table")
+
                 # Create indexes for email tables
-                cursor.execute("CREATE INDEX IF NOT EXISTS idx_email_templates_vendor_id ON email_templates(vendor_id)")
+                cursor.execute("CREATE INDEX IF NOT EXISTS idx_email_templates_specialty ON email_templates(specialty)")
+                cursor.execute("CREATE INDEX IF NOT EXISTS idx_email_templates_is_default ON email_templates(is_default)")
                 cursor.execute("CREATE INDEX IF NOT EXISTS idx_email_history_quote_id ON email_history(quote_id)")
                 cursor.execute("CREATE INDEX IF NOT EXISTS idx_email_history_vendor_id ON email_history(vendor_id)")
                 cursor.execute("CREATE INDEX IF NOT EXISTS idx_email_history_vendor_quote_id ON email_history(vendor_quote_id)")
+                cursor.execute("CREATE INDEX IF NOT EXISTS idx_email_history_email_status ON email_history(email_status)")
+
+                # Create indexes for sales_reps table
+                cursor.execute("CREATE INDEX IF NOT EXISTS idx_sales_reps_name ON sales_reps(name)")
+                cursor.execute("CREATE INDEX IF NOT EXISTS idx_sales_reps_email ON sales_reps(email)")
+                cursor.execute("CREATE INDEX IF NOT EXISTS idx_sales_reps_active ON sales_reps(is_active)")
+
+                # Create default specialty templates if they don't exist
+                cursor.execute("SELECT COUNT(*) FROM email_templates")
+                if cursor.fetchone()[0] == 0:
+                    print("Creating default specialty email templates...")
+
+                    # Default templates for each specialty
+                    default_templates = [
+                        ('General Quote Request', 'general', True,
+                         "Quote Request - {customer} - {quote_no}",
+                         '''Dear {contact_name},
+
+We are requesting a quote for {customer} for the following project:
+
+Project Details:
+• Quote Number: {quote_no}
+• Description: {description}
+• Service Type: {quote_type}
+
+Please provide your best pricing and lead time information for this project. If you need any additional information, please don't hesitate to contact us.
+
+Thank you for your consideration.
+
+Best regards,
+{sales_rep}
+{current_date}'''),
+
+                        ('Freight Quote Request', 'freight', True,
+                         "Freight Quote Request - {customer} - {quote_no}",
+                         '''Dear {contact_name},
+
+We are requesting a freight quote for {customer} for the following project:
+
+Project Details:
+• Quote Number: {quote_no}
+• Description: {description}
+• Pickup Location: {pickup_location}
+• Delivery Location: {delivery_location}
+
+Please provide your best freight pricing including:
+- Transportation costs
+- Insurance options
+- Estimated transit time
+- Any additional fees
+
+Thank you for your consideration.
+
+Best regards,
+{sales_rep}
+{current_date}'''),
+
+                        ('Installation Quote Request', 'install', True,
+                         "Installation Quote Request - {customer} - {quote_no}",
+                         '''Dear {contact_name},
+
+We are requesting an installation quote for {customer} for the following project:
+
+Project Details:
+• Quote Number: {quote_no}
+• Description: {description}
+• Installation Location: {installation_location}
+• Scope of Work: {scope_of_work}
+
+Please provide your best installation pricing including:
+- Labor costs
+- Equipment requirements
+- Timeline for completion
+- Any permits or special requirements
+
+Thank you for your consideration.
+
+Best regards,
+{sales_rep}
+{current_date}'''),
+
+                        ('Forwarding Quote Request', 'forward', True,
+                         "Forwarding Quote Request - {customer} - {quote_no}",
+                         '''Dear {contact_name},
+
+We are requesting a forwarding/consolidation quote for {customer} for the following project:
+
+Project Details:
+• Quote Number: {quote_no}
+• Description: {description}
+• Origin: {origin_location}
+• Destination: {destination_location}
+
+Please provide your best forwarding services pricing including:
+- Consolidation services
+- Documentation handling
+- Customs clearance
+- Warehousing if applicable
+
+Thank you for your consideration.
+
+Best regards,
+{sales_rep}
+{current_date}''')
+                    ]
+
+                    cursor.executemany('''
+                    INSERT INTO email_templates (name, specialty, is_default, subject_template, body_template)
+                    VALUES (?, ?, ?, ?, ?)
+                    ''', default_templates)
+                    print("Default specialty email templates created.")
 
                 # Create default_tasks table
                 cursor.execute('''
