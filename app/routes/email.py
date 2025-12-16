@@ -63,6 +63,35 @@ def validate_cc_bcc_emails(cc_data, bcc_data):
 
     return cc_emails, bcc_emails
 
+def get_auto_cc_recipients(variables, is_test_mode=False):
+    """Extract auto-CC recipients from quote data and configuration"""
+    auto_cc_emails = []
+    config = ConfigService.get_config()
+    auto_cc_config = config.get('auto_cc', {})
+
+    # Check if auto-CC is enabled
+    if not auto_cc_config.get('enabled', True):
+        return auto_cc_emails
+
+    # Skip auto-CC in test mode unless configured otherwise
+    if is_test_mode and not auto_cc_config.get('cc_in_test_mode', False):
+        return auto_cc_emails
+
+    # Add James email if configured
+    james_email = auto_cc_config.get('james_email')
+    if james_email and validate_email(james_email):
+        auto_cc_emails.append(james_email)
+
+    # Add sales rep email if enabled and available
+    if auto_cc_config.get('sales_rep_auto_cc', True):
+        sales_rep_email = variables.get('sales_rep_email')
+        if sales_rep_email and validate_email(sales_rep_email):
+            # Check for duplicates before adding
+            if sales_rep_email not in auto_cc_emails:
+                auto_cc_emails.append(sales_rep_email)
+
+    return auto_cc_emails
+
 # ================== EMAIL TEMPLATES ==================
 
 @email_bp.route('/email-templates/specialties', methods=['GET'])
@@ -373,6 +402,79 @@ def preview_email_template(template_id):
             'error': str(e)
         }), 500
 
+# ================== EMAIL AUTO-CC API ==================
+
+@email_bp.route('/vendor-quotes/<int:vendor_quote_id>/auto-cc-info', methods=['GET'])
+def get_auto_cc_info(vendor_quote_id):
+    """Get auto-CC information for a vendor quote"""
+    try:
+        # Gather variables for the vendor quote
+        variables = _gather_variables_for_vendor_quote(vendor_quote_id)
+
+        # Validate we have the necessary data
+        if not variables.get('quote_id'):
+            return jsonify({
+                'success': False,
+                'error': 'Unable to find vendor quote details'
+            }), 404
+
+        # Get quote information to determine test mode status
+        quote = Quote.get_by_id(variables['quote_id'])
+        if not quote:
+            return jsonify({
+                'success': False,
+                'error': 'Quote not found'
+            }), 404
+
+        # Determine test mode
+        config = ConfigService.get_config()
+        is_test_mode = config.get('email_test_mode', False)
+
+        # Get auto-CC recipients
+        auto_cc_emails = get_auto_cc_recipients(variables, is_test_mode)
+
+        # Build auto-CC recipient information with details
+        auto_cc_recipients = []
+
+        # Add James email info
+        james_email = config.get('auto_cc', {}).get('james_email')
+        if james_email and james_email in auto_cc_emails:
+            auto_cc_recipients.append({
+                'email': james_email,
+                'source_type': 'james_email',
+                'allow_user_override': config.get('auto_cc', {}).get('allow_user_override', True),
+                'include_in_test_mode': config.get('auto_cc', {}).get('cc_in_test_mode', False)
+            })
+
+        # Add sales rep info
+        sales_rep_email = variables.get('sales_rep_email')
+        sales_rep_name = variables.get('sales_rep')
+        if sales_rep_email and sales_rep_email in auto_cc_emails:
+            auto_cc_recipients.append({
+                'email': sales_rep_email,
+                'source_type': 'sales_rep',
+                'allow_user_override': config.get('auto_cc', {}).get('allow_user_override', True),
+                'include_in_test_mode': config.get('auto_cc', {}).get('cc_in_test_mode', False)
+            })
+
+        # Return configuration and recipient info
+        return jsonify({
+            'success': True,
+            'data': {
+                'auto_cc_enabled': config.get('auto_cc', {}).get('enabled', True),
+                'auto_cc_recipients': auto_cc_recipients,
+                'is_test_mode': is_test_mode,
+                'cc_in_test_mode': config.get('auto_cc', {}).get('cc_in_test_mode', False),
+                'allow_user_override': config.get('auto_cc', {}).get('allow_user_override', True)
+            }
+        })
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
 # ================== EMAIL SENDING ==================
 
 @email_bp.route('/vendor-quotes/<int:vendor_quote_id>/send-email', methods=['POST'])
@@ -495,14 +597,25 @@ def send_vendor_email(vendor_quote_id):
                 'error': f'Invalid primary recipient email: {to_email}'
             }), 400
 
+        # Get auto-CC recipients
+        auto_cc_emails = get_auto_cc_recipients(variables, is_test_mode)
+
         # Validate and parse CC/BCC emails
         cc_emails, bcc_emails = validate_cc_bcc_emails(data.get('cc'), data.get('bcc'))
 
-        # Add optional fields
-        if cc_emails:
-            email_data['cc'] = cc_emails
+        # Merge auto-CC with manual CC emails (avoiding duplicates)
+        all_cc_emails = cc_emails.copy()
+        for auto_cc_email in auto_cc_emails:
+            if auto_cc_email not in all_cc_emails:
+                all_cc_emails.append(auto_cc_email)
+
+        # Add optional fields (already validated as strings)
+        if all_cc_emails:
+            # Convert to comma-separated string for Google Apps Script compatibility
+            email_data['cc'] = ', '.join(all_cc_emails) if isinstance(all_cc_emails, list) else all_cc_emails
         if bcc_emails:
-            email_data['bcc'] = bcc_emails
+            # Convert to comma-separated string for Google Apps Script compatibility
+            email_data['bcc'] = ', '.join(bcc_emails) if isinstance(bcc_emails, list) else bcc_emails
         if 'fromName' in data:
             email_data['fromName'] = data['fromName']
         if 'replyTo' in data:
@@ -534,7 +647,7 @@ def send_vendor_email(vendor_quote_id):
             status=status,
             email_status=email_status,
             gas_response=str(gas_response),
-            cc_emails=cc_emails,
+            cc_emails=all_cc_emails,  # Include all CC recipients (auto + manual)
             bcc_emails=bcc_emails
         )
 

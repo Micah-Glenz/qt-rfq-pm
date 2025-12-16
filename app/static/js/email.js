@@ -201,7 +201,10 @@ const EmailModule = (function() {
 
                   <div class="form-group-inline">
                     <label for="emailCc">CC:</label>
-                    <input type="text" id="emailCc" name="cc" placeholder="email1@example.com, email2@example.com" class="form-control">
+                    <div class="cc-input-wrapper">
+                      <input type="text" id="emailCc" name="cc" placeholder="email1@example.com, email2@example.com" class="form-control">
+                      <!-- Auto-CC banner will be inserted here -->
+                    </div>
                   </div>
 
                   <div class="form-group-inline">
@@ -301,23 +304,18 @@ const EmailModule = (function() {
 
     // Set initial body if no template selected
     if (!document.getElementById('emailTemplate').value) {
-      const defaultBody = `Dear ${availableVariables.contact_name || availableVariables.vendor_name || 'Vendor'},\n\n` +
-        `We are requesting a quote for ${availableVariables.customer || 'our current project'}.\n\n` +
-        `Project Details:\n` +
-        `- Quote Number: ${availableVariables.quote_no || 'TBD'}\n` +
-        `${availableVariables.description ? `- Description: ${availableVariables.description}\n` : ''}` +
-        `${availableVariables.quote_type ? `- Service Type: ${availableVariables.quote_type}\n` : ''}` +
-        `\n` +
-        `Please provide your best pricing and lead time information.\n\n` +
-        `Thank you for your consideration.\n\n` +
-        `Best regards,\n` +
-        `${availableVariables.sales_rep || 'Sales Representative'}`;
+      const defaultBody = "Dear ,"
 
       document.getElementById('emailBody').value = defaultBody;
     }
 
     // Populate available variables
     populateVariables();
+
+    // Load auto-CC recipients if we have a vendor quote
+    if (currentVendorQuote && currentVendorQuote.id) {
+      loadAutoCCRecipients(currentVendorQuote.id);
+    }
   }
 
   /**
@@ -381,8 +379,8 @@ const EmailModule = (function() {
     // Character count
     document.getElementById('emailSubject').addEventListener('input', updateCharacterCount);
 
-    // Test mode functionality (now in header)
-    document.getElementById('testMode').addEventListener('change', handleTestModeToggle);
+    // Test mode functionality (now in header) - use auto-CC aware handler
+    document.getElementById('testMode').addEventListener('change', handleTestModeToggleWithAutoCC);
 
     // Close modal on outside click
     modal.addEventListener('click', (e) => {
@@ -746,6 +744,70 @@ const EmailModule = (function() {
     div.textContent = text;
     return div.innerHTML;
   }
+
+  /**
+   * Load auto-CC recipients for a vendor quote
+   * @param {number} vendorQuoteId - The vendor quote ID
+   */
+  async function loadAutoCCRecipients(vendorQuoteId) {
+    try {
+      console.log('Loading auto-CC recipients for vendor quote:', vendorQuoteId);
+      const response = await fetch(`/api/vendor-quotes/${vendorQuoteId}/auto-cc-info`);
+
+      if (!response.ok) {
+        console.warn('Failed to load auto-CC info:', response.status);
+        return;
+      }
+
+      const autoCCData = await response.json();
+      console.log('Auto-CC data received:', autoCCData);
+
+      if (autoCCData.success && autoCCData.data && autoCCData.data.auto_cc_enabled && autoCCData.data.auto_cc_recipients.length > 0) {
+        // Filter recipients based on test mode
+        const recipients = autoCCData.data.auto_cc_recipients;
+        const displayRecipients = autoCCData.data.is_test_mode ?
+          recipients.filter(r => r.include_in_test_mode) :
+          recipients;
+
+        if (displayRecipients.length > 0) {
+          // Extract email addresses
+          const autoCCEmails = displayRecipients.map(r => r.email);
+
+          // Get current CC field
+          const ccField = document.getElementById('emailCc');
+          if (ccField) {
+            // Get existing CC emails
+            const existingCCs = parseEmailList(ccField.value);
+
+            // Merge auto-CC emails (avoiding duplicates)
+            const allCCs = [...autoCCEmails, ...existingCCs.filter(email => !autoCCEmails.includes(email))];
+
+            // Update CC field with auto-CC recipients first, then existing ones
+            ccField.value = allCCs.join(', ');
+            console.log('Auto-CC recipients added to CC field:', allCCs);
+          }
+        }
+      }
+
+    } catch (error) {
+      console.error('Error loading auto-CC recipients:', error);
+    }
+  }
+
+  
+  /**
+   * Handle test mode toggle with auto-CC support
+   */
+  function handleTestModeToggleWithAutoCC() {
+    handleTestModeToggle(); // Call original test mode handler
+
+    // Reload auto-CC recipients for new test mode state
+    if (currentVendorQuote && currentVendorQuote.id) {
+      loadAutoCCRecipients(currentVendorQuote.id);
+    }
+  }
+
+  // Auto-CC recipients are now directly added to CC field - no global functions needed
 
   // Public API
   return {

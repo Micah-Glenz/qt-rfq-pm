@@ -175,9 +175,19 @@ class GASAPI:
 
         # Add optional fields if provided
         if 'cc' in email_data:
-            gas_email_data['cc'] = email_data['cc']
+            # Convert CC array to comma-separated string for Google Apps Script compatibility
+            cc_data = email_data['cc']
+            if isinstance(cc_data, list):
+                gas_email_data['cc'] = ', '.join(cc_data) if cc_data else ''
+            else:
+                gas_email_data['cc'] = cc_data
         if 'bcc' in email_data:
-            gas_email_data['bcc'] = email_data['bcc']
+            # Convert BCC array to comma-separated string for Google Apps Script compatibility
+            bcc_data = email_data['bcc']
+            if isinstance(bcc_data, list):
+                gas_email_data['bcc'] = ', '.join(bcc_data) if bcc_data else ''
+            else:
+                gas_email_data['bcc'] = bcc_data
         if 'fromName' in email_data:
             gas_email_data['fromName'] = email_data['fromName']
         if 'replyTo' in email_data:
