@@ -135,4 +135,3 @@ cython_debug/
 
 # Configuration files (may contain sensitive data)
 config.json
-app/quote_tracker.db

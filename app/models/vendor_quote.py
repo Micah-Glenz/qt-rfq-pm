@@ -102,11 +102,11 @@ class VendorQuote:
     def create(quote_id, type, vendor, requested=False, entered=False, notes=None, date=None):
         """Create a new vendor quote (legacy method for compatibility)"""
         # Convert legacy boolean status to new status system
-        status = 'draft'
+        status = 'Not Started'
         if entered:
-            status = 'received'
+            status = 'Firm'  # Received quotes are now Firm
         elif requested:
-            status = 'requested'
+            status = 'Sent'  # Requested quotes are now Sent
 
         # Find or create vendor
         vendor_data = Vendor.get_all()

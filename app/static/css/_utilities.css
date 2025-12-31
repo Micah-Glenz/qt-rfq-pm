@@ -293,6 +293,43 @@
   color: var(--text-secondary);
 }
 
+/* Form layout utilities */
+.form-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.form-row-between {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.form-flex {
+  flex: 1;
+}
+
+.form-full-width {
+  width: 100%;
+}
+
+.form-margin-top {
+  margin-top: 0.5rem;
+}
+
+/* Loading state utilities */
+.loading-hidden {
+  display: none;
+}
+
+/* Template filter styling */
+.template-filter-select {
+  min-width: 150px;
+}
+
 /* Responsive utilities */
 @media (max-width: 768px) {
   .hide-on-mobile {
@@ -317,4 +354,43 @@
   transition: opacity 0.2s;
   border-bottom-left-radius: 4px;
   border-bottom-right-radius: 4px;
+}
+
+/* Email template dropdown specialty indicators */
+#emailTemplate option[data-is-vendor-specialty="true"] {
+  font-weight: 600;
+  color: var(--success-color, #10b981);
+}
+
+#emailTemplate option[data-is-general="true"] {
+  color: var(--text-secondary, #666);
+  font-style: italic;
+}
+
+#emailTemplate option[data-is-vendor-specialty="false"][data-is-general="false"] {
+  color: var(--warning-color, #f59e0b);
+  opacity: 0.85;
+}
+
+#emailTemplate option[data-is-default="true"] {
+  font-weight: 700;
+  border-left: 3px solid var(--primary-color, #2563eb);
+  padding-left: 8px;
+}
+
+#emailTemplate option[data-is-vendor-specialty="true"][data-is-default="true"] {
+  border-left-color: var(--success-color, #10b981);
+}
+
+/* Dark mode adjustments for template indicators */
+.dark-mode #emailTemplate option[data-is-vendor-specialty="true"] {
+  color: #34d399;
+}
+
+.dark-mode #emailTemplate option[data-is-general="true"] {
+  color: #9ca3af;
+}
+
+.dark-mode #emailTemplate option[data-is-vendor-specialty="false"][data-is-general="false"] {
+  color: #fbbf24;
 }

@@ -113,7 +113,8 @@ const EmailModule = (function() {
   }
 
   /**
-   * Load vendor-specific email templates using specialty-based system
+   * Load vendor-specific email templates using enhanced specialty-based system
+   * Shows ALL templates ordered by relevance with visual indicators for non-matching specialties
    * @param {number} vendorId - The vendor ID
    */
   async function loadVendorTemplates(vendorId) {
@@ -124,21 +125,39 @@ const EmailModule = (function() {
       const vendor = await API.getVendor(vendorId);
       const vendorSpecialization = vendor?.specialization || 'general';
 
-      // Get default template for vendor's specialization
-      const defaultTemplate = templates.find(t => t.specialty === vendorSpecialization && t.is_default);
+      // Define specialty priority order
+      const specialtyPriority = {
+        [vendorSpecialization]: 0,  // Highest priority for vendor's specialty
+        'general': 1,               // Second priority (general works for everyone)
+        'freight': 2,
+        'install': 3,
+        'forward': 4
+      };
 
-      // Get templates that match vendor's specialization
-      const specialtyTemplates = templates.filter(t => t.specialty === vendorSpecialization);
+      // Sort all templates by specialty priority and default status
+      const sortedTemplates = templates.sort((a, b) => {
+        // First, compare specialty priority
+        const aPriority = specialtyPriority[a.specialty] || 999;
+        const bPriority = specialtyPriority[b.specialty] || 999;
 
-      // Include general templates as fallbacks
-      const generalTemplates = templates.filter(t => t.specialty === 'general');
+        if (aPriority !== bPriority) {
+          return aPriority - bPriority;
+        }
 
-      // Combine templates: default → specialty (non-default) → general (non-default)
-      currentVendorTemplates = [
-        ...(defaultTemplate ? [defaultTemplate] : []),
-        ...specialtyTemplates.filter(t => !t.is_default),
-        ...generalTemplates.filter(t => !t.is_default)
-      ];
+        // Within same specialty, prioritize default templates
+        if (a.is_default && !b.is_default) return -1;
+        if (!a.is_default && b.is_default) return 1;
+
+        // Then by name
+        return (a.name || '').localeCompare(b.name || '');
+      });
+
+      // Add metadata to each template for display
+      currentVendorTemplates = sortedTemplates.map(template => ({
+        ...template,
+        isVendorSpecialty: template.specialty === vendorSpecialization,
+        isGeneral: template.specialty === 'general'
+      }));
 
       console.log(`Loaded ${currentVendorTemplates.length} templates for vendor ${vendorId} (${vendorSpecialization})`);
     } catch (error) {
@@ -407,7 +426,8 @@ const EmailModule = (function() {
   }
 
   /**
-   * Populate template dropdown with specialty-based templates
+   * Populate template dropdown with enhanced specialty indicators
+   * Shows all templates ordered by relevance with visual indicators for non-matching specialties
    */
   function populateTemplateDropdown() {
     const select = document.getElementById('emailTemplate');
@@ -421,18 +441,7 @@ const EmailModule = (function() {
       return;
     }
 
-    // Group templates by specialty
-    const templatesBySpecialty = {};
-    currentVendorTemplates.forEach(template => {
-      const specialty = template.specialty || 'general';
-      if (!templatesBySpecialty[specialty]) {
-        templatesBySpecialty[specialty] = [];
-      }
-      templatesBySpecialty[specialty].push(template);
-    });
-
-    // Define specialty display order
-    const specialtyOrder = ['freight', 'install', 'forward', 'general'];
+    // Define specialty labels for display
     const specialtyLabels = {
       'freight': 'Freight',
       'install': 'Install',
@@ -440,31 +449,49 @@ const EmailModule = (function() {
       'general': 'General'
     };
 
-    // Add templates grouped by specialty
-    specialtyOrder.forEach(specialty => {
-      const templates = templatesBySpecialty[specialty];
-      if (templates && templates.length > 0) {
-        const defaultTemplate = templates.find(t => t.is_default);
-        const nonDefaultTemplates = templates.filter(t => !t.is_default);
+    // Add all templates in their sorted order with visual indicators
+    currentVendorTemplates.forEach(template => {
+      const option = document.createElement('option');
+      option.value = template.id;
 
-        // Add default template first if it exists
-        if (defaultTemplate) {
-          const defaultOption = document.createElement('option');
-          defaultOption.value = defaultTemplate.id;
-          defaultOption.textContent = `${defaultTemplate.name || 'Default Template'} (Default)`;
-          defaultOption.title = `Default ${specialtyLabels[specialty]} template`;
-          select.appendChild(defaultOption);
+      let displayText = template.name || 'Template';
+      let titleText = '';
+
+      // Add visual indicators and build tooltip
+      if (template.isVendorSpecialty) {
+        // Vendor's specialty - no indicator needed, but mark as preferred
+        titleText = `✓ ${specialtyLabels[template.specialty]} specialty - Preferred for this vendor`;
+        if (template.is_default) {
+          displayText += ' (Default)';
+          titleText += ' - Default template';
         }
-
-        // Add non-default templates
-        nonDefaultTemplates.forEach(template => {
-          const option = document.createElement('option');
-          option.value = template.id;
-          option.textContent = template.name || 'Template';
-          option.title = `${specialtyLabels[specialty]} template: ${template.subject_template || 'No subject'}`;
-          select.appendChild(option);
-        });
+      } else if (template.isGeneral) {
+        // General templates are universally applicable
+        displayText += ' (General)';
+        titleText = `🌐 ${specialtyLabels[template.specialty]} template - Works with all vendors`;
+        if (template.is_default) {
+          displayText += ' (Default)';
+          titleText += ' - Default template';
+        }
+      } else {
+        // Different specialty - add asterisk to indicate it's not ideal
+        displayText += ' *';
+        titleText = `⚠️ ${specialtyLabels[template.specialty]} specialty - Not designed for this vendor type`;
+        if (template.is_default) {
+          titleText += ' - Default template for its specialty';
+        }
       }
+
+      option.textContent = displayText;
+      option.title = titleText + `\nSubject: ${template.subject_template || 'No subject'}`;
+
+      // Add data attributes for potential styling
+      option.setAttribute('data-specialty', template.specialty);
+      option.setAttribute('data-is-vendor-specialty', template.isVendorSpecialty);
+      option.setAttribute('data-is-general', template.isGeneral);
+      option.setAttribute('data-is-default', template.is_default);
+
+      select.appendChild(option);
     });
   }
 

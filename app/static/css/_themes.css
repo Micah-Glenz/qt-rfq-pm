@@ -45,6 +45,30 @@
   --toast-bg: #1f2937;
   --tab-header-bg: var(--bg-hover);
 
+  /* Status colors - Dark mode adjustments */
+  --status-not-started-bg: rgba(239, 68, 68, 0.2);
+  --status-not-started-text: #F87171;
+  --status-not-started-border: #EF4444;
+  --status-wip-bg: rgba(249, 115, 22, 0.2);
+  --status-wip-text: #FB923C;
+  --status-wip-border: #F97316;
+  --status-blocked-bg: rgba(234, 179, 8, 0.2);
+  --status-blocked-text: #FACC15;
+  --status-blocked-border: #EAB308;
+  --status-frt-bg: rgba(236, 72, 153, 0.2);
+  --status-frt-text: #F472B6;
+  --status-frt-border: #EC4899;
+  --status-done-bg: rgba(34, 197, 94, 0.2);
+  --status-done-text: #4ADE80;
+  --status-done-border: #22C55E;
+
+  /* Status card backgrounds (muted versions for quote cards) */
+  --status-not-started-card-bg: rgba(239, 68, 68, 0.08);
+  --status-wip-card-bg: rgba(249, 115, 22, 0.08);
+  --status-blocked-card-bg: rgba(234, 179, 8, 0.08);
+  --status-frt-card-bg: rgba(236, 72, 153, 0.08);
+  --status-done-card-bg: rgba(34, 197, 94, 0.08);
+
   /* Extended theming variables for quote detail layout */
   --card-background: #1f2937;
   --text-primary: #e5e7eb;
@@ -100,6 +124,30 @@
   --empty-state-color: #6D4C41;
   --toast-bg: #FFFDF7;
   --tab-header-bg: #EFEBE9;
+
+  /* Status colors - Chill Coffee theme */
+  --status-not-started-bg: #FFEBEE;
+  --status-not-started-text: #C62828;
+  --status-not-started-border: #D32F2F;
+  --status-wip-bg: #FFE0B2;
+  --status-wip-text: #E65100;
+  --status-wip-border: #F57C00;
+  --status-blocked-bg: #FFF9C4;
+  --status-blocked-text: #F57F17;
+  --status-blocked-border: #F9A825;
+  --status-frt-bg: #FCE4EC;
+  --status-frt-text: #C2185B;
+  --status-frt-border: #D81B60;
+  --status-done-bg: #E8F5E9;
+  --status-done-text: #2E7D32;
+  --status-done-border: #43A047;
+
+  /* Status card backgrounds (muted versions for quote cards) */
+  --status-not-started-card-bg: rgba(211, 47, 47, 0.06);
+  --status-wip-card-bg: rgba(245, 124, 0, 0.06);
+  --status-blocked-card-bg: rgba(249, 168, 37, 0.06);
+  --status-frt-card-bg: rgba(216, 27, 96, 0.06);
+  --status-done-card-bg: rgba(67, 160, 71, 0.06);
 
   /* Extended theming variables for quote detail layout */
   --card-background: #FFFDF7;
@@ -157,6 +205,30 @@
   --toast-bg: #F5FBFF;
   --tab-header-bg: #CDEAFF;
 
+  /* Status colors - Ocean Breeze theme */
+  --status-not-started-bg: #FFCDD2;
+  --status-not-started-text: #C62828;
+  --status-not-started-border: #E53935;
+  --status-wip-bg: #FFE0B2;
+  --status-wip-text: #EF6C00;
+  --status-wip-border: #FF9800;
+  --status-blocked-bg: #FFF9C4;
+  --status-blocked-text: #F9A825;
+  --status-blocked-border: #FFEB3B;
+  --status-frt-bg: #F8BBD0;
+  --status-frt-text: #C2185B;
+  --status-frt-border: #E91E63;
+  --status-done-bg: #C8E6C9;
+  --status-done-text: #2E7D32;
+  --status-done-border: #4CAF50;
+
+  /* Status card backgrounds (muted versions for quote cards) */
+  --status-not-started-card-bg: rgba(229, 57, 53, 0.06);
+  --status-wip-card-bg: rgba(255, 152, 0, 0.06);
+  --status-blocked-card-bg: rgba(255, 235, 59, 0.06);
+  --status-frt-card-bg: rgba(233, 30, 99, 0.06);
+  --status-done-card-bg: rgba(76, 175, 80, 0.06);
+
   /* Extended theming variables for quote detail layout */
   --card-background: #F5FBFF;
   --text-primary: #263238;
@@ -212,6 +284,30 @@
   --empty-state-color: #7D5040;
   --toast-bg: #FFFBF7;
   --tab-header-bg: #FFE0CC;
+
+  /* Status colors - Sunset Glow theme */
+  --status-not-started-bg: #FFEBEE;
+  --status-not-started-text: #C62828;
+  --status-not-started-border: #D32F2F;
+  --status-wip-bg: #FFE0B2;
+  --status-wip-text: #E65100;
+  --status-wip-border: #FF9800;
+  --status-blocked-bg: #FFFDE7;
+  --status-blocked-text: #F57F17;
+  --status-blocked-border: #FBC02D;
+  --status-frt-bg: #FCE4EC;
+  --status-frt-text: #AD1457;
+  --status-frt-border: #C2185B;
+  --status-done-bg: #E8F5E9;
+  --status-done-text: #2E7D32;
+  --status-done-border: #43A047;
+
+  /* Status card backgrounds (muted versions for quote cards) */
+  --status-not-started-card-bg: rgba(211, 47, 47, 0.06);
+  --status-wip-card-bg: rgba(255, 152, 0, 0.06);
+  --status-blocked-card-bg: rgba(251, 192, 45, 0.06);
+  --status-frt-card-bg: rgba(194, 24, 91, 0.06);
+  --status-done-card-bg: rgba(67, 160, 71, 0.06);
 
   /* Extended theming variables for quote detail layout */
   --card-background: #FFFBF7;
@@ -269,6 +365,30 @@
   --toast-bg: #F9FBF5;
   --tab-header-bg: #DCEDC8;
 
+  /* Status colors - Forest Mist theme */
+  --status-not-started-bg: #FFCDD2;
+  --status-not-started-text: #B71C1C;
+  --status-not-started-border: #D32F2F;
+  --status-wip-bg: #FFE0B2;
+  --status-wip-text: #E65100;
+  --status-wip-border: #F57C00;
+  --status-blocked-bg: #FFF9C4;
+  --status-blocked-text: #F57F17;
+  --status-blocked-border: #F9A825;
+  --status-frt-bg: #F8BBD0;
+  --status-frt-text: #880E4F;
+  --status-frt-border: #AD1457;
+  --status-done-bg: #C8E6C9;
+  --status-done-text: #1B5E20;
+  --status-done-border: #388E3C;
+
+  /* Status card backgrounds (muted versions for quote cards) */
+  --status-not-started-card-bg: rgba(211, 47, 47, 0.06);
+  --status-wip-card-bg: rgba(245, 124, 0, 0.06);
+  --status-blocked-card-bg: rgba(249, 168, 37, 0.06);
+  --status-frt-card-bg: rgba(173, 20, 87, 0.06);
+  --status-done-card-bg: rgba(56, 142, 60, 0.06);
+
   /* Extended theming variables for quote detail layout */
   --card-background: #F9FBF5;
   --text-primary: #1B3021;
@@ -324,6 +444,30 @@
   --empty-state-color: #795548;
   --toast-bg: #FFFBFF;
   --tab-header-bg: #FFD6E8;
+
+  /* Status colors - Cherry Blossom theme */
+  --status-not-started-bg: #FFEBEE;
+  --status-not-started-text: #C62828;
+  --status-not-started-border: #E91E63;
+  --status-wip-bg: #FFE0B2;
+  --status-wip-text: #EF6C00;
+  --status-wip-border: #FF9800;
+  --status-blocked-bg: #FFF9C4;
+  --status-blocked-text: #F57F17;
+  --status-blocked-border: #FFEB3B;
+  --status-frt-bg: #FCE4EC;
+  --status-frt-text: #880E4F;
+  --status-frt-border: #C2185B;
+  --status-done-bg: #E8F5E9;
+  --status-done-text: #2E7D32;
+  --status-done-border: #4CAF50;
+
+  /* Status card backgrounds (muted versions for quote cards) */
+  --status-not-started-card-bg: rgba(233, 30, 99, 0.06);
+  --status-wip-card-bg: rgba(255, 152, 0, 0.06);
+  --status-blocked-card-bg: rgba(255, 235, 59, 0.06);
+  --status-frt-card-bg: rgba(194, 24, 91, 0.06);
+  --status-done-card-bg: rgba(76, 175, 80, 0.06);
 
   /* Extended theming variables for quote detail layout */
   --card-background: #FFFBFF;
@@ -381,6 +525,30 @@
   --toast-bg: #311B92;
   --tab-header-bg: #311B92;
 
+  /* Status colors - Midnight Purple theme */
+  --status-not-started-bg: rgba(255, 23, 68, 0.2);
+  --status-not-started-text: #FF8A80;
+  --status-not-started-border: #FF5252;
+  --status-wip-bg: rgba(255, 152, 0, 0.2);
+  --status-wip-text: #FFD180;
+  --status-wip-border: #FFAB40;
+  --status-blocked-bg: rgba(255, 235, 59, 0.2);
+  --status-blocked-text: #FFFF8D;
+  --status-blocked-border: #FFEE58;
+  --status-frt-bg: rgba(233, 30, 99, 0.2);
+  --status-frt-text: #F48FB1;
+  --status-frt-border: #F06292;
+  --status-done-bg: rgba(76, 175, 80, 0.2);
+  --status-done-text: #81C784;
+  --status-done-border: #66BB6A;
+
+  /* Status card backgrounds (muted versions for quote cards) */
+  --status-not-started-card-bg: rgba(255, 82, 82, 0.08);
+  --status-wip-card-bg: rgba(255, 171, 64, 0.08);
+  --status-blocked-card-bg: rgba(255, 238, 88, 0.08);
+  --status-frt-card-bg: rgba(240, 98, 146, 0.08);
+  --status-done-card-bg: rgba(102, 187, 106, 0.08);
+
   /* Extended theming variables for quote detail layout */
   --card-background: #211640;
   --text-primary: #E1BEE7;
@@ -432,6 +600,30 @@
   --toast-bg: #111111;
   --tab-header-bg: #0A0A0A;
 
+  /* Status colors - Cyberpunk theme (neon style) */
+  --status-not-started-bg: rgba(255, 0, 128, 0.3);
+  --status-not-started-text: #FF0080;
+  --status-not-started-border: #FF0080;
+  --status-wip-bg: rgba(255, 165, 0, 0.3);
+  --status-wip-text: #FFA500;
+  --status-wip-border: #FFA500;
+  --status-blocked-bg: rgba(255, 255, 0, 0.3);
+  --status-blocked-text: #FFFF00;
+  --status-blocked-border: #FFFF00;
+  --status-frt-bg: rgba(255, 0, 255, 0.3);
+  --status-frt-text: #FF00FF;
+  --status-frt-border: #FF00FF;
+  --status-done-bg: rgba(0, 255, 0, 0.3);
+  --status-done-text: #00FF00;
+  --status-done-border: #00FF00;
+
+  /* Status card backgrounds (muted versions for quote cards) */
+  --status-not-started-card-bg: rgba(255, 0, 128, 0.08);
+  --status-wip-card-bg: rgba(255, 165, 0, 0.08);
+  --status-blocked-card-bg: rgba(255, 255, 0, 0.08);
+  --status-frt-card-bg: rgba(255, 0, 255, 0.08);
+  --status-done-card-bg: rgba(0, 255, 0, 0.08);
+
   /* Extended theming variables for quote detail layout */
   --card-background: #111111;
   --text-primary: #FFFFFF;
@@ -443,6 +635,86 @@
   --button-bg: #1A1A1A;
   --button-border: #00FFFF;
   --button-text: #000000;
+}
+
+/* GitHub Dark Theme */
+.github-dark {
+  /* Scrollbar colors */
+  --scrollbar-thumb-bg: rgba(139, 148, 158, 0.3);
+  --scrollbar-thumb-hover-bg: rgba(139, 148, 158, 0.4);
+  --scrollbar-thumb-active-bg: rgba(139, 148, 158, 0.5);
+
+  --primary-color: #58a6ff;
+  --primary-hover: #1f6feb;
+  --text-color: #c9d1d9;
+  --text-secondary: #8b949e;
+  --text-tertiary: #6e7681;
+  --border-color: #30363d;
+  --bg-color: #010409;
+  --bg-hover: #0d1117;
+  --card-bg: #0d1117;
+  --list-bg: #0d1117;
+  --search-bg: #21262d;
+  --success-color: #3fb950;
+  --error-color: #f85149;
+  --warning-color: #d29922;
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --modal-overlay: rgba(0, 0, 0, 0.8);
+  --freight-color: #8b949e;
+  --install-color: #8b949e;
+  --forward-color: #8b949e;
+
+  /* Additional semantic colors */
+  --header-bg: #0d1117;
+  --resizer-color: #30363d;
+  --quote-number-color: #58a6ff;
+  --sales-rep-color: #8b949e;
+  --icon-color: #6e7681;
+  --separator-bg: #21262d;
+  --separator-text: #8b949e;
+  --checkbox-unchecked-bg: rgba(248, 81, 73, 0.2);
+  --checkbox-checked-bg: #3fb950;
+  --editable-hover-bg: rgba(88, 166, 255, 0.1);
+  --note-date-color: #8b949e;
+  --empty-state-color: #8b949e;
+  --toast-bg: #0d1117;
+  --tab-header-bg: #21262d;
+
+  /* Status colors - GitHub Dark theme */
+  --status-not-started-bg: rgba(248, 81, 73, 0.15);
+  --status-not-started-text: #FF7B72;
+  --status-not-started-border: #DA3633;
+  --status-wip-bg: rgba(210, 153, 34, 0.15);
+  --status-wip-text: #D29922;
+  --status-wip-border: #9A6700;
+  --status-blocked-bg: rgba(210, 153, 34, 0.15);
+  --status-blocked-text: #E3B341;
+  --status-blocked-border: #D29922;
+  --status-frt-bg: rgba(238, 102, 255, 0.15);
+  --status-frt-text: #D2A8FF;
+  --status-frt-border: #A371F7;
+  --status-done-bg: rgba(63, 185, 80, 0.15);
+  --status-done-text: #7EE787;
+  --status-done-border: #3FB950;
+
+  /* Status card backgrounds (muted versions for quote cards) */
+  --status-not-started-card-bg: rgba(248, 81, 73, 0.08);
+  --status-wip-card-bg: rgba(210, 153, 34, 0.08);
+  --status-blocked-card-bg: rgba(210, 153, 34, 0.08);
+  --status-frt-card-bg: rgba(238, 102, 255, 0.08);
+  --status-done-card-bg: rgba(63, 185, 80, 0.08);
+
+  /* Extended theming variables for quote detail layout */
+  --card-background: #0d1117;
+  --text-primary: #c9d1d9;
+  --text-secondary: #8b949e;
+  --text-muted: #6e7681;
+  --border-light: #21262d;
+  --border-dark: #30363d;
+  --hover-bg: #161b22;
+  --button-bg: #21262d;
+  --button-border: #30363d;
+  --button-text: #c9d1d9;
 }
 
 /* Dingy Dank Theme */
@@ -487,6 +759,30 @@
   --empty-state-color: #AED581;
   --toast-bg: #212821;
   --tab-header-bg: #263026;
+
+  /* Status colors - Dingy Dank theme */
+  --status-not-started-bg: rgba(248, 81, 73, 0.2);
+  --status-not-started-text: #FF6B6B;
+  --status-not-started-border: #E53935;
+  --status-wip-bg: rgba(255, 152, 0, 0.2);
+  --status-wip-text: #FFB74D;
+  --status-wip-border: #FF9800;
+  --status-blocked-bg: rgba(255, 193, 7, 0.2);
+  --status-blocked-text: #FFF176;
+  --status-blocked-border: #FFEB3B;
+  --status-frt-bg: rgba(240, 98, 146, 0.2);
+  --status-frt-text: #F06292;
+  --status-frt-border: #E91E63;
+  --status-done-bg: rgba(102, 187, 106, 0.2);
+  --status-done-text: #81C784;
+  --status-done-border: #4CAF50;
+
+  /* Status card backgrounds (muted versions for quote cards) */
+  --status-not-started-card-bg: rgba(248, 81, 73, 0.08);
+  --status-wip-card-bg: rgba(255, 152, 0, 0.08);
+  --status-blocked-card-bg: rgba(255, 193, 7, 0.08);
+  --status-frt-card-bg: rgba(240, 98, 146, 0.08);
+  --status-done-card-bg: rgba(102, 187, 106, 0.08);
 
   /* Extended theming variables for quote detail layout */
   --card-background: #212821;

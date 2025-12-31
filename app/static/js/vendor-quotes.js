@@ -61,6 +61,9 @@ const VendorQuotesModule = (function() {
       const notes = vq.notes || '';
       const quoteDate = vq.quote_date || vq.date || '';
 
+      // Convert status to CSS class (lowercase, replace spaces with hyphens)
+      const statusClass = status.toLowerCase().replace(/\s+/g, '-');
+
       // Format dates
       let formattedQuoteDate = '';
       if (quoteDate) {
@@ -76,7 +79,7 @@ const VendorQuotesModule = (function() {
       const formattedCost = cost ? `$${parseFloat(cost).toFixed(2)}` : '—';
 
       html += `
-        <tr data-id="${vq.id}" class="vendor-quote-row">
+        <tr data-id="${vq.id}" data-status="${status}" class="vendor-quote-row">
           <td>
             <span class="corporate-vendor-type">${vq.type}</span>
           </td>
@@ -87,7 +90,7 @@ const VendorQuotesModule = (function() {
             </div>
           </td>
           <td>
-            <span class="corporate-status-badge ${status}">${status}</span>
+            <span class="corporate-status-badge ${statusClass}">${status}</span>
           </td>
           <td style="color: #6b7280; font-size: 13px;">${formattedQuoteDate}</td>
           <td class="corporate-vendor-cost">${formattedCost}</td>
@@ -129,9 +132,9 @@ const VendorQuotesModule = (function() {
    * @returns {string} - Status string
    */
   function getStatusFromLegacy(vq) {
-    if (vq.entered) return 'received';
-    if (vq.requested) return 'requested';
-    return 'draft';
+    if (vq.entered) return 'Firm';  // Received quotes are now Firm
+    if (vq.requested) return 'Sent';  // Requested quotes are now Sent
+    return 'Not Started';  // Default to Not Started
   }
   
   /**
@@ -454,9 +457,6 @@ const VendorQuotesModule = (function() {
     // Create vendor dropdown HTML
     const vendorDropdown = createVendorDropdown(vendors, selectedVendorId);
 
-    // Determine if new vendor input should be shown
-    const showNewVendorInput = !selectedVendorId && vendorQuote?.vendor && vendorQuote.vendor !== 'No vendor';
-
     // Create modal HTML with enhanced fields
     const modalHtml = `
       <div id="vendorQuoteModal" class="modal">
@@ -479,20 +479,15 @@ const VendorQuotesModule = (function() {
                 <label for="vendorSelect">Vendor</label>
                 ${vendorDropdown}
               </div>
-              <div class="form-group" id="newVendorGroup" style="display: ${showNewVendorInput ? 'block' : 'none'};">
-                <label for="newVendorName">New Vendor Name</label>
-                <input type="text" id="newVendorName" name="new_vendor" placeholder="Enter new vendor name" value="${showNewVendorInput ? (vendorQuote?.vendor || '') : ''}">
-              </div>
               <div class="form-group">
                 <label for="vendorQuoteStatus">Status</label>
                 <select id="vendorQuoteStatus" name="status">
-                  <option value="draft">Draft</option>
-                  <option value="requested">Requested</option>
-                  <option value="received">Received</option>
-                  <option value="reviewing">Reviewing</option>
-                  <option value="selected">Selected</option>
-                  <option value="rejected">Rejected</option>
-                  <option value="expired">Expired</option>
+                  <option value="Not Started">Not Started</option>
+                  <option value="Not Sent">Not Sent</option>
+                  <option value="Sent">Sent</option>
+                  <option value="Blocked">Blocked</option>
+                  <option value="Invalid">Invalid</option>
+                  <option value="Firm">Firm</option>
                 </select>
               </div>
               <div class="form-group">
@@ -563,20 +558,6 @@ const VendorQuotesModule = (function() {
     const form = document.getElementById('vendorQuoteForm');
     form.onsubmit = e => handleVendorQuoteSubmit(e, quoteId, vendorQuote?.id);
 
-    // Add vendor selection change handler
-    const vendorSelect = document.getElementById('vendorSelect');
-    const newVendorGroup = document.getElementById('newVendorGroup');
-
-    vendorSelect.addEventListener('change', function() {
-      if (this.value === '') {
-        // If "No vendor selected" is chosen, show new vendor input
-        newVendorGroup.style.display = 'block';
-      } else {
-        // Hide new vendor input when a vendor is selected
-        newVendorGroup.style.display = 'none';
-      }
-    });
-
     // Reset form and show modal
     if (!isEditing) {
       document.getElementById('vendorQuoteForm').reset();
@@ -606,38 +587,22 @@ const VendorQuotesModule = (function() {
     event.preventDefault();
 
     const vendorSelect = document.getElementById('vendorSelect');
-    const newVendorName = document.getElementById('newVendorName');
 
-    let vendorId = vendorSelect.value;
-    let vendorName = '';
+    const vendorId = vendorSelect.value;
 
-    // Handle vendor selection
-    if (vendorId === '' && newVendorName.value.trim()) {
-      // Creating a new vendor
-      vendorName = newVendorName.value.trim();
-      try {
-        // Create the new vendor
-        const newVendor = await API.createVendor({
-          name: vendorName,
-          specialization: document.getElementById('vendorQuoteType').value
-        });
-        vendorId = newVendor.id;
-      } catch (error) {
-        showToast(`Failed to create new vendor: ${error.message}`, 'error');
-        return;
-      }
-    } else if (vendorId !== '') {
-      // Using existing vendor
-      const selectedOption = vendorSelect.options[vendorSelect.selectedIndex];
-      vendorName = selectedOption.text.split(' (')[0]; // Remove specialization if present
-    } else {
-      // No vendor selected
-      vendorName = 'No vendor';
+    // Vendor selection is now required
+    if (!vendorId) {
+      showToast('Please select a vendor', 'error');
+      return;
     }
+
+    // Get vendor name from selected option
+    const selectedOption = vendorSelect.options[vendorSelect.selectedIndex];
+    const vendorName = selectedOption.text.split(' (')[0]; // Remove specialization if present
 
     const formData = {
       type: document.getElementById('vendorQuoteType').value,
-      vendor_id: vendorId || null,
+      vendor_id: vendorId,
       vendor: vendorName,
       status: document.getElementById('vendorQuoteStatus').value,
       cost: parseFloat(document.getElementById('vendorQuoteCost').value) || null,

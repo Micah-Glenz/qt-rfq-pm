@@ -18,6 +18,7 @@
 @import url('_cards.css');
 
 /* Import feature-specific components */
+@import url('_status.css');
 @import url('_quotes.css');
 @import url('_tasks.css');
 @import url('_vendor-quotes.css');

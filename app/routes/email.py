@@ -603,11 +603,27 @@ def send_vendor_email(vendor_quote_id):
         # Validate and parse CC/BCC emails
         cc_emails, bcc_emails = validate_cc_bcc_emails(data.get('cc'), data.get('bcc'))
 
-        # Merge auto-CC with manual CC emails (avoiding duplicates)
-        all_cc_emails = cc_emails.copy()
-        for auto_cc_email in auto_cc_emails:
-            if auto_cc_email not in all_cc_emails:
-                all_cc_emails.append(auto_cc_email)
+        # Check if user overrides are allowed
+        config = ConfigService.get_config()
+        allow_user_override = config.get('auto_cc', {}).get('allow_user_override', True)
+
+        # Handle CC merging based on user override setting
+        if allow_user_override:
+            # User overrides allowed - intelligently determine user intent
+            # If user provided CC emails, use those as the base and add any auto-CC not already present
+            # If user provided no CC emails, use auto-CC as the base
+            all_cc_emails = cc_emails.copy() if cc_emails else auto_cc_emails.copy()
+
+            # Add any missing auto-CC emails (this handles cases where user added some CC but didn't include all auto-CC)
+            for auto_cc_email in auto_cc_emails:
+                if auto_cc_email not in all_cc_emails:
+                    all_cc_emails.append(auto_cc_email)
+        else:
+            # User overrides not allowed - always merge auto-CC with manual CC
+            all_cc_emails = cc_emails.copy()
+            for auto_cc_email in auto_cc_emails:
+                if auto_cc_email not in all_cc_emails:
+                    all_cc_emails.append(auto_cc_email)
 
         # Add optional fields (already validated as strings)
         if all_cc_emails:
@@ -651,7 +667,7 @@ def send_vendor_email(vendor_quote_id):
             bcc_emails=bcc_emails
         )
 
-        # Update vendor quote status to 'sent' when email is successfully sent
+        # Update vendor quote status to 'Sent' when email is successfully sent
         if gas_response and not is_test_mode:
             try:
                 from app.db import DatabaseContext
@@ -659,11 +675,11 @@ def send_vendor_email(vendor_quote_id):
                     cursor = conn.cursor()
                     cursor.execute('''
                         UPDATE vendor_quotes
-                        SET status = 'sent'
+                        SET status = 'Sent'
                         WHERE id = ?
                     ''', (vendor_quote_id,))
                     conn.commit()
-                    print(f"Updated vendor quote {vendor_quote_id} status to 'sent'")
+                    print(f"Updated vendor quote {vendor_quote_id} status to 'Sent'")
             except Exception as update_error:
                 print(f"Warning: Failed to update vendor quote status: {update_error}")
 

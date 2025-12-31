@@ -43,6 +43,9 @@ const QuotesModule = (function() {
     document.querySelectorAll('.close-modal, .cancel-modal').forEach(el => {
       el.addEventListener('click', closeModals);
     });
+
+    // Add validation to prevent line breaks in description fields
+    addSingleLineValidation();
   }
   
   /**
@@ -124,6 +127,22 @@ const QuotesModule = (function() {
   }
 
   /**
+   * Get status CSS class based on status value
+   * @param {string} status - The status value
+   * @returns {string} - CSS class name
+   */
+  function getStatusClass(status) {
+    const statusMap = {
+      'Not Started': 'status-not-started',
+      'WIP': 'status-wip',
+      'Blocked': 'status-blocked',
+      '31% FRT': 'status-frt',
+      'Done': 'status-done'
+    };
+    return statusMap[status] || 'status-not-started';
+  }
+
+  /**
    * Render the quotes list
    */
   function renderQuotesList() {
@@ -132,26 +151,31 @@ const QuotesModule = (function() {
       updateHeaderStatus();
       return;
     }
-    
+
     elements.quotesList.innerHTML = quotesList.map(quote => {
       // Determine task completion status
       const hasAllTasksCompleted = quote.task_count > 0 && quote.completed_tasks === quote.task_count;
       const hasAnyTasks = quote.task_count > 0;
-      
+
       // Determine vendor quote completion status
       const hasAllVendorQuotesCompleted = quote.vendor_quote_count > 0 && quote.completed_vendor_quotes === quote.vendor_quote_count;
       const hasAnyVendorQuotes = quote.vendor_quote_count > 0;
-      
+
       // Overall completion: all tasks AND all vendor quotes must be complete
-      const isFullyComplete = (hasAnyTasks || hasAnyVendorQuotes) && 
-                              (!hasAnyTasks || hasAllTasksCompleted) && 
+      const isFullyComplete = (hasAnyTasks || hasAnyVendorQuotes) &&
+                              (!hasAnyTasks || hasAllTasksCompleted) &&
                               (!hasAnyVendorQuotes || hasAllVendorQuotesCompleted);
-      
+
+      // Get status class
+      const statusClass = getStatusClass(quote.status);
+
       return `
       <div class="quote-item ${currentQuote && quote.id === currentQuote.id ? 'selected' : ''} ${quote.hidden ? 'hidden' : ''}"
-           data-id="${quote.id}">
+           data-id="${quote.id}"
+           data-status="${quote.status}">
         <div class="quote-customer-row">
           <div class="quote-line-1">${quote.customer}</div>
+          <span class="quote-status-compact ${statusClass}">${quote.status}</span>
         </div>
         <div class="quote-line-2">
           <span class="quote-number">${quote.quote_no}</span>
@@ -192,7 +216,7 @@ const QuotesModule = (function() {
       </div>
     `;
     }).join('');
-    
+
     // Add click event listeners
     document.querySelectorAll('.quote-item').forEach(item => {
       item.addEventListener('click', () => {
@@ -200,7 +224,7 @@ const QuotesModule = (function() {
         loadQuoteDetail(parseInt(item.dataset.id, 10));
       });
     });
-    
+
     // Update header status
     updateHeaderStatus();
   }
@@ -578,6 +602,22 @@ const QuotesModule = (function() {
                 <div class="compact-info-value editable clickable-copy" data-field="description" data-original="${currentQuote.description || ''}" title="Click to copy">${currentQuote.description || 'No description'}</div>
               </div>
               <div class="compact-info-group">
+                <div class="compact-info-label">Status</div>
+                <div class="compact-info-value status-display">
+                  <select id="statusSelect" class="status-select">
+                    <option value="Not Started" ${currentQuote.status === 'Not Started' ? 'selected' : ''}>Not Started</option>
+                    <option value="WIP" ${currentQuote.status === 'WIP' ? 'selected' : ''}>WIP</option>
+                    <option value="Blocked" ${currentQuote.status === 'Blocked' ? 'selected' : ''}>Blocked</option>
+                    <option value="31% FRT" ${currentQuote.status === '31% FRT' ? 'selected' : ''}>31% FRT</option>
+                    <option value="Done" ${currentQuote.status === 'Done' ? 'selected' : ''}>Done</option>
+                  </select>
+                  <span class="status-badge ${getStatusClass(currentQuote.status)}" id="statusBadge" style="display: none;">
+                    <span class="status-indicator-dot"></span>
+                    <span class="status-text">${currentQuote.status}</span>
+                  </span>
+                </div>
+              </div>
+              <div class="compact-info-group">
                 <div class="compact-info-label">Created</div>
                 <div class="compact-info-value">${formatDate(currentQuote.created_at)}</div>
               </div>
@@ -644,6 +684,18 @@ const QuotesModule = (function() {
     document.getElementById('cancelEditBtn').addEventListener('click', cancelEditMode);
     document.getElementById('addNoteBtn').addEventListener('click', () => NotesModule.openAddNoteModal(currentQuote.id));
     document.getElementById('deleteVendorQuoteBtn').addEventListener('click', handleDeleteVendorQuoteFromHeader);
+
+    // Add status change listener
+    const statusSelect = document.getElementById('statusSelect');
+    if (statusSelect) {
+      statusSelect.addEventListener('change', handleStatusChange);
+
+      // Initialize status badge display
+      const statusBadge = document.getElementById('statusBadge');
+      if (statusBadge) {
+        statusBadge.style.display = 'inline-flex';
+      }
+    }
     
     // Add click-to-copy functionality for view mode
     document.querySelectorAll('.clickable-copy').forEach(element => {
@@ -676,7 +728,7 @@ const QuotesModule = (function() {
    */
   async function handleSalesRepChange(event) {
     const salesRep = event.target.value;
-    
+
     try {
       await API.updateQuote(currentQuote.id, {
         customer: currentQuote.customer,
@@ -684,26 +736,68 @@ const QuotesModule = (function() {
         description: currentQuote.description,
         sales_rep: salesRep
       });
-      
+
       // Update current quote object
       currentQuote.sales_rep = salesRep;
-      
+
       // Update the quote in the quotes list
       const quoteIndex = quotesList.findIndex(q => q.id === currentQuote.id);
       if (quoteIndex !== -1) {
         quotesList[quoteIndex].sales_rep = salesRep;
         renderQuotesList();
       }
-      
+
       showToast('Sales rep updated successfully', 'success');
     } catch (error) {
       showToast(`Failed to update sales rep: ${error.message}`, 'error');
-      
+
       // Reset to previous value
       document.getElementById('salesRepSelect').value = currentQuote.sales_rep || '';
     }
   }
-  
+
+  /**
+   * Handle status change
+   * @param {Event} event - Change event
+   */
+  async function handleStatusChange(event) {
+    const newStatus = event.target.value;
+
+    try {
+      await API.updateQuote(currentQuote.id, {
+        customer: currentQuote.customer,
+        quote_no: currentQuote.quote_no,
+        description: currentQuote.description,
+        sales_rep: currentQuote.sales_rep,
+        status: newStatus
+      });
+
+      // Update current quote object
+      currentQuote.status = newStatus;
+
+      // Update the status badge display
+      const statusBadge = document.getElementById('statusBadge');
+      if (statusBadge) {
+        statusBadge.className = `status-badge ${getStatusClass(newStatus)}`;
+        statusBadge.querySelector('.status-text').textContent = newStatus;
+      }
+
+      // Update the quote in the quotes list
+      const quoteIndex = quotesList.findIndex(q => q.id === currentQuote.id);
+      if (quoteIndex !== -1) {
+        quotesList[quoteIndex].status = newStatus;
+        renderQuotesList();
+      }
+
+      showToast(`Status updated to "${newStatus}"`, 'success');
+    } catch (error) {
+      showToast(`Failed to update status: ${error.message}`, 'error');
+
+      // Reset to previous value
+      document.getElementById('statusSelect').value = currentQuote.status || 'Not Started';
+    }
+  }
+
   /**
    * Toggle quote hidden status
    */
@@ -1305,6 +1399,100 @@ const QuotesModule = (function() {
         showToast(`Failed to delete vendor quote: ${error.message}`, 'error');
       }
     }
+  }
+
+  /**
+   * Add single-line validation to description fields
+   */
+  function addSingleLineValidation() {
+    // Function to prevent line breaks in an input field
+    function preventLineBreaks(inputElement) {
+      inputElement.addEventListener('keydown', function(e) {
+        // Prevent Enter key from creating new lines
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          return false;
+        }
+      });
+
+      // Prevent paste events that contain line breaks
+      inputElement.addEventListener('paste', function(e) {
+        e.preventDefault();
+
+        // Get pasted data and remove line breaks
+        const pastedData = (e.clipboardData || window.clipboardData).getData('text');
+        const singleLineData = pastedData.replace(/[\r\n]+/g, ' ').trim();
+
+        // Insert cleaned data at cursor position
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        const currentValue = this.value;
+
+        this.value = currentValue.substring(0, start) + singleLineData + currentValue.substring(end);
+
+        // Restore cursor position
+        const newCursorPos = start + singleLineData.length;
+        this.setSelectionRange(newCursorPos, newCursorPos);
+
+        // Trigger input event for any listeners
+        this.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+
+      // Prevent drop events that might contain line breaks
+      inputElement.addEventListener('drop', function(e) {
+        e.preventDefault();
+
+        // Get dropped data and remove line breaks
+        const droppedData = e.dataTransfer.getData('text');
+        const singleLineData = droppedData.replace(/[\r\n]+/g, ' ').trim();
+
+        // Insert cleaned data at cursor position
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        const currentValue = this.value;
+
+        this.value = currentValue.substring(0, start) + singleLineData + currentValue.substring(end);
+
+        // Restore cursor position
+        const newCursorPos = start + singleLineData.length;
+        this.setSelectionRange(newCursorPos, newCursorPos);
+
+        // Trigger input event for any listeners
+        this.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+    }
+
+    // Apply validation to description fields when they exist
+    const descriptionFields = ['description', 'editDescription'];
+    descriptionFields.forEach(fieldId => {
+      const field = document.getElementById(fieldId);
+      if (field) {
+        preventLineBreaks(field);
+      }
+    });
+
+    // Also watch for dynamically created modals
+    const observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        mutation.addedNodes.forEach(function(node) {
+          if (node.nodeType === 1) { // Element node
+            descriptionFields.forEach(fieldId => {
+              const field = node.querySelector ? node.querySelector(`#${fieldId}`) : null;
+              if (field && !field.hasAttribute('data-singleline-validated')) {
+                preventLineBreaks(field);
+                field.setAttribute('data-singleline-validated', 'true');
+              }
+            });
+          }
+        });
+      });
+    });
+
+    // Start observing the document body for dynamically added elements
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
   }
 
   // Public API

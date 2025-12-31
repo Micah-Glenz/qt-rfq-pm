@@ -135,7 +135,7 @@ def create_enhanced_vendor_quote(quote_id):
         if type_ not in ['freight', 'install', 'forward']:
             return jsonify({'error': 'Type must be either "freight", "install", or "forward"'}), 400
 
-        valid_statuses = ['draft', 'requested', 'received', 'reviewing', 'selected', 'rejected', 'expired']
+        valid_statuses = ['Not Started', 'Not Sent', 'Sent', 'Blocked', 'Invalid', 'Firm']
         if status not in valid_statuses:
             return jsonify({'error': f'Status must be one of: {", ".join(valid_statuses)}'}), 400
 
@@ -183,7 +183,7 @@ def update_enhanced_vendor_quote(vendor_quote_id):
         notes = data.get('notes')
 
         if status is not None:
-            valid_statuses = ['draft', 'requested', 'received', 'reviewing', 'selected', 'rejected', 'expired']
+            valid_statuses = ['Not Started', 'Not Sent', 'Sent', 'Blocked', 'Invalid', 'Firm']
             if status not in valid_statuses:
                 return jsonify({'error': f'Status must be one of: {", ".join(valid_statuses)}'}), 400
 

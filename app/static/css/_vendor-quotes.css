@@ -265,11 +265,44 @@
 /* Corporate table body */
 .corporate-vendor-quotes-table tbody tr {
   border-bottom: 1px solid var(--border-light);
-  transition: background-color 0.15s ease;
+  border-left: 3px solid transparent;
+  transition: background-color 0.15s ease, border-left-color 0.2s ease;
+}
+
+/* Vendor Quote Status Theming - Row Backgrounds */
+.corporate-vendor-quotes-table tbody tr[data-status="Not Started"] {
+  border-left-color: var(--vq-not-started-border);
+  background-color: var(--vq-not-started-card-bg);
+}
+
+.corporate-vendor-quotes-table tbody tr[data-status="Not Sent"] {
+  border-left-color: var(--vq-not-sent-border);
+  background-color: var(--vq-not-sent-card-bg);
+}
+
+.corporate-vendor-quotes-table tbody tr[data-status="Sent"] {
+  border-left-color: var(--vq-sent-border);
+  background-color: var(--vq-sent-card-bg);
+}
+
+.corporate-vendor-quotes-table tbody tr[data-status="Blocked"] {
+  border-left-color: var(--vq-blocked-border);
+  background-color: var(--vq-blocked-card-bg);
+}
+
+.corporate-vendor-quotes-table tbody tr[data-status="Invalid"] {
+  border-left-color: var(--vq-invalid-border);
+  background-color: var(--vq-invalid-card-bg);
+}
+
+.corporate-vendor-quotes-table tbody tr[data-status="Firm"] {
+  border-left-color: var(--vq-firm-border);
+  background-color: var(--vq-firm-card-bg);
 }
 
 .corporate-vendor-quotes-table tbody tr:hover {
   background-color: var(--hover-bg);
+  filter: brightness(0.98);
 }
 
 .corporate-vendor-quotes-table tbody tr:last-child {
