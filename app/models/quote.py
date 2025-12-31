@@ -7,7 +7,8 @@ import json
 class Quote:
     def __init__(self, id=None, customer=None, quote_no=None, description=None,
                  sales_rep=None, mpsf_link=None,
-                 folder_link=None, method_link=None, hidden=False, created_at=None, updated_at=None):
+                 folder_link=None, method_link=None, hidden=False, status='Not Started',
+                 created_at=None, updated_at=None):
         self.id = id
         self.customer = customer
         self.quote_no = quote_no
@@ -17,6 +18,7 @@ class Quote:
         self.folder_link = folder_link
         self.method_link = method_link
         self.hidden = hidden
+        self.status = status
         self.created_at = created_at
         self.updated_at = updated_at
     
@@ -72,7 +74,7 @@ class Quote:
             cursor = conn.cursor()
             cursor.execute('''
                 SELECT q.id, q.customer, q.quote_no, q.description, q.sales_rep, q.sales_rep_id,
-                       q.mpsf_link, q.folder_link, q.method_link, q.hidden,
+                       q.mpsf_link, q.folder_link, q.method_link, q.hidden, q.status,
                        q.created_at, q.updated_at,
                        sr.name as sales_rep_name, sr.email as sales_rep_email, sr.phone as sales_rep_phone
                 FROM quotes q
@@ -102,6 +104,7 @@ class Quote:
                     'folder_link': row['folder_link'],
                     'method_link': row['method_link'],
                     'hidden': row['hidden'],
+                    'status': row['status'] if 'status' in row.keys() else 'Not Started',  # Default if not present
                     'created_at': row['created_at'],
                     'updated_at': row['updated_at']
                 }
@@ -117,7 +120,7 @@ class Quote:
             # Base query without task references (tasks table has been removed)
             base_query = '''
                 SELECT q.id, q.customer, q.quote_no, q.description, q.sales_rep,
-                       q.hidden, q.created_at, q.updated_at,
+                       q.hidden, q.status, q.created_at, q.updated_at,
                        0 AS task_count,
                        0 AS completed_tasks,
                        COALESCE(vendor_stats.vendor_quote_count, 0) AS vendor_quote_count,
@@ -176,6 +179,7 @@ class Quote:
                     'description': row['description'],
                     'sales_rep': row['sales_rep'],
                     'hidden': row['hidden'],
+                    'status': row['status'] if 'status' in row.keys() else 'Not Started',  # Default if not present
                     'created_at': row['created_at'],
                     'updated_at': row['updated_at'],
                     'task_count': 0,  # Tasks table has been removed
@@ -190,53 +194,67 @@ class Quote:
     
     @staticmethod
     def update(quote_id, customer, quote_no, description, sales_rep=None,
-               mpsf_link=None, folder_link=None, method_link=None, hidden=None, sales_rep_id=None):
-        """Update a quote and log changes as an event"""
+               mpsf_link=None, folder_link=None, method_link=None, hidden=None, sales_rep_id=None, status=None):
+        """Update a quote and log changes as an event.
+
+        Uses partial update pattern - only updates fields that are explicitly provided (not None).
+        This prevents unintended deletion of data when only some fields are being updated.
+        """
         old_quote = Quote.get_by_id(quote_id)
+        if not old_quote:
+            return False
 
         with DatabaseContext() as conn:
             cursor = conn.cursor()
 
-            # Handle both legacy sales_rep and new sales_rep_id
-            if hidden is None:
-                if sales_rep_id is not None:
-                    # New system: update only sales_rep_id
-                    cursor.execute('''
-                        UPDATE quotes
-                        SET customer = ?, quote_no = ?, description = ?, sales_rep_id = ?,
-                            mpsf_link = ?, folder_link = ?, method_link = ?, updated_at = CURRENT_TIMESTAMP
-                        WHERE id = ?
-                    ''', (customer, quote_no, description, sales_rep_id,
-                          mpsf_link, folder_link, method_link, quote_id))
-                else:
-                    # Legacy system: update only sales_rep string
-                    cursor.execute('''
-                        UPDATE quotes
-                        SET customer = ?, quote_no = ?, description = ?, sales_rep = ?,
-                            mpsf_link = ?, folder_link = ?, method_link = ?, updated_at = CURRENT_TIMESTAMP
-                        WHERE id = ?
-                    ''', (customer, quote_no, description, sales_rep,
-                          mpsf_link, folder_link, method_link, quote_id))
-            else:
-                if sales_rep_id is not None:
-                    # New system: update both sales_rep_id and hidden
-                    cursor.execute('''
-                        UPDATE quotes
-                        SET customer = ?, quote_no = ?, description = ?, sales_rep_id = ?, hidden = ?,
-                            mpsf_link = ?, folder_link = ?, method_link = ?, updated_at = CURRENT_TIMESTAMP
-                        WHERE id = ?
-                    ''', (customer, quote_no, description, sales_rep_id, hidden,
-                          mpsf_link, folder_link, method_link, quote_id))
-                else:
-                    # Legacy system: update both sales_rep and hidden
-                    cursor.execute('''
-                        UPDATE quotes
-                        SET customer = ?, quote_no = ?, description = ?, sales_rep = ?, hidden = ?,
-                            mpsf_link = ?, folder_link = ?, method_link = ?, updated_at = CURRENT_TIMESTAMP
-                        WHERE id = ?
-                    ''', (customer, quote_no, description, sales_rep, hidden,
-                          mpsf_link, folder_link, method_link, quote_id))
+            # Build UPDATE query dynamically - only include fields that are not None
+            query_parts = []
+            params = []
 
+            # Always include these core fields (they're required)
+            query_parts.append("customer = ?")
+            params.append(customer)
+            query_parts.append("quote_no = ?")
+            params.append(quote_no)
+            query_parts.append("description = ?")
+            params.append(description)
+
+            # Optional fields - only add if provided
+            if sales_rep_id is not None:
+                query_parts.append("sales_rep_id = ?")
+                params.append(sales_rep_id)
+            elif sales_rep is not None:
+                query_parts.append("sales_rep = ?")
+                params.append(sales_rep)
+
+            if mpsf_link is not None:
+                query_parts.append("mpsf_link = ?")
+                params.append(mpsf_link)
+
+            if folder_link is not None:
+                query_parts.append("folder_link = ?")
+                params.append(folder_link)
+
+            if method_link is not None:
+                query_parts.append("method_link = ?")
+                params.append(method_link)
+
+            if hidden is not None:
+                query_parts.append("hidden = ?")
+                params.append(hidden)
+
+            if status is not None:
+                query_parts.append("status = ?")
+                params.append(status)
+
+            # Add updated_at timestamp
+            query_parts.append("updated_at = CURRENT_TIMESTAMP")
+
+            # Build and execute query
+            query = f"UPDATE quotes SET {', '.join(query_parts)} WHERE id = ?"
+            params.append(quote_id)
+
+            cursor.execute(query, params)
             conn.commit()
             success = cursor.rowcount > 0
 
@@ -244,35 +262,50 @@ class Quote:
             old_values = {}
             new_values = {}
 
-            # Determine what changed for event logging
-            fields = [
-                ('customer', customer),
-                ('quote_no', quote_no),
-                ('description', description),
-                ('mpsf_link', mpsf_link),
-                ('folder_link', folder_link),
-                ('method_link', method_link)
-            ]
+            # Check customer, quote_no, description (always provided)
+            if old_quote.get('customer') != customer:
+                old_values['customer'] = old_quote.get('customer')
+                new_values['customer'] = customer
 
-            # Handle sales rep changes
-            if sales_rep_id is not None:
-                if old_quote.get('sales_rep_id') != sales_rep_id:
-                    old_values['sales_rep_id'] = old_quote.get('sales_rep_id')
-                    new_values['sales_rep_id'] = sales_rep_id
-            elif sales_rep is not None:
-                if old_quote.get('sales_rep') != sales_rep:
-                    old_values['sales_rep'] = old_quote.get('sales_rep')
-                    new_values['sales_rep'] = sales_rep
+            if old_quote.get('quote_no') != quote_no:
+                old_values['quote_no'] = old_quote.get('quote_no')
+                new_values['quote_no'] = quote_no
 
-            for field, new_val in fields:
-                if old_quote.get(field) != new_val:
-                    old_values[field] = old_quote.get(field)
-                    new_values[field] = new_val
+            if old_quote.get('description') != description:
+                old_values['description'] = old_quote.get('description')
+                new_values['description'] = description
 
+            # Check sales rep changes (only if provided)
+            if sales_rep_id is not None and old_quote.get('sales_rep_id') != sales_rep_id:
+                old_values['sales_rep_id'] = old_quote.get('sales_rep_id')
+                new_values['sales_rep_id'] = sales_rep_id
+            elif sales_rep is not None and old_quote.get('sales_rep') != sales_rep:
+                old_values['sales_rep'] = old_quote.get('sales_rep')
+                new_values['sales_rep'] = sales_rep
+
+            # Check link fields (only if provided)
+            if mpsf_link is not None and old_quote.get('mpsf_link') != mpsf_link:
+                old_values['mpsf_link'] = old_quote.get('mpsf_link')
+                new_values['mpsf_link'] = mpsf_link
+
+            if folder_link is not None and old_quote.get('folder_link') != folder_link:
+                old_values['folder_link'] = old_quote.get('folder_link')
+                new_values['folder_link'] = folder_link
+
+            if method_link is not None and old_quote.get('method_link') != method_link:
+                old_values['method_link'] = old_quote.get('method_link')
+                new_values['method_link'] = method_link
+
+            # Check hidden and status (only if provided)
             if hidden is not None and old_quote.get('hidden') != hidden:
                 old_values['hidden'] = old_quote.get('hidden')
                 new_values['hidden'] = hidden
 
+            if status is not None and old_quote.get('status') != status:
+                old_values['status'] = old_quote.get('status')
+                new_values['status'] = status
+
+            # Only create event if something actually changed
             if old_values:
                 Event.create(
                     quote_id,
