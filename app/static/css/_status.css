@@ -1,0 +1,238 @@
+/* Status Badge Styles */
+
+/* Status badge base styles */
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  border: 1px solid;
+  transition: all 0.2s ease;
+}
+
+/* Status indicator for quote cards */
+.status-indicator-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 0.375rem;
+  border: 2px solid;
+}
+
+/* Status: Not Started (RED) */
+.status-not-started {
+  background-color: var(--status-not-started-bg);
+  color: var(--status-not-started-text);
+  border-color: var(--status-not-started-border);
+}
+
+.status-not-started .status-indicator-dot {
+  background-color: var(--status-not-started-border);
+  border-color: var(--status-not-started-text);
+}
+
+/* Status: Not Sent (GRAY) */
+.status-not-sent {
+  background-color: #f3f4f6;
+  color: #4b5563;
+  border-color: #9ca3af;
+}
+
+.status-not-sent .status-indicator-dot {
+  background-color: #9ca3af;
+  border-color: #4b5563;
+}
+
+/* Status: Sent (BLUE) */
+.status-sent {
+  background-color: #dbeafe;
+  color: #1e40af;
+  border-color: #3b82f6;
+}
+
+.status-sent .status-indicator-dot {
+  background-color: #3b82f6;
+  border-color: #1e40af;
+}
+
+/* Status: Blocked (YELLOW) - already defined above */
+
+/* Status: Invalid (PURPLE/RED) */
+.status-invalid {
+  background-color: #fef2f2;
+  color: #991b1b;
+  border-color: #dc2626;
+}
+
+.status-invalid .status-indicator-dot {
+  background-color: #dc2626;
+  border-color: #991b1b;
+}
+
+/* Status: Firm (GREEN) */
+.status-firm {
+  background-color: #d1fae5;
+  color: #065f46;
+  border-color: #10b981;
+}
+
+.status-firm .status-indicator-dot {
+  background-color: #10b981;
+  border-color: #065f46;
+}
+
+/* Status: WIP (ORANGE) */
+.status-wip {
+  background-color: var(--status-wip-bg);
+  color: var(--status-wip-text);
+  border-color: var(--status-wip-border);
+}
+
+.status-wip .status-indicator-dot {
+  background-color: var(--status-wip-border);
+  border-color: var(--status-wip-text);
+}
+
+/* Status: Blocked (YELLOW) */
+.status-blocked {
+  background-color: var(--status-blocked-bg);
+  color: var(--status-blocked-text);
+  border-color: var(--status-blocked-border);
+}
+
+.status-blocked .status-indicator-dot {
+  background-color: var(--status-blocked-border);
+  border-color: var(--status-blocked-text);
+}
+
+/* Status: 31% FRT (MAGENTA) */
+.status-frt {
+  background-color: var(--status-frt-bg);
+  color: var(--status-frt-text);
+  border-color: var(--status-frt-border);
+}
+
+.status-frt .status-indicator-dot {
+  background-color: var(--status-frt-border);
+  border-color: var(--status-frt-text);
+}
+
+/* Status: Done (GREEN) */
+.status-done {
+  background-color: var(--status-done-bg);
+  color: var(--status-done-text);
+  border-color: var(--status-done-border);
+}
+
+.status-done .status-indicator-dot {
+  background-color: var(--status-done-border);
+  border-color: var(--status-done-text);
+}
+
+/* Status select styling */
+.status-select {
+  flex: 1;
+  max-width: 150px;
+  padding: 0.375rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: var(--font-size-sm);
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.status-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  background-color: var(--bg-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Quote card status integration */
+.quote-item {
+  position: relative;
+  padding-left: 0.5rem;
+  border-left: 3px solid transparent;
+  transition: border-left-color 0.2s ease, background-color 0.2s ease;
+}
+
+.quote-item[data-status="Not Started"] {
+  border-left-color: var(--status-not-started-border);
+  background-color: var(--status-not-started-card-bg);
+}
+
+.quote-item[data-status="WIP"] {
+  border-left-color: var(--status-wip-border);
+  background-color: var(--status-wip-card-bg);
+}
+
+.quote-item[data-status="Blocked"] {
+  border-left-color: var(--status-blocked-border);
+  background-color: var(--status-blocked-card-bg);
+}
+
+.quote-item[data-status="31% FRT"] {
+  border-left-color: var(--status-frt-border);
+  background-color: var(--status-frt-card-bg);
+}
+
+.quote-item[data-status="Done"] {
+  border-left-color: var(--status-done-border);
+  background-color: var(--status-done-card-bg);
+}
+
+/* Status badge in quote list */
+.quote-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  margin-left: 0.5rem;
+  text-transform: uppercase;
+}
+
+/* Quote details status display */
+.status-display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-display .status-badge {
+  margin: 0;
+}
+
+/* Compact status display for quote cards */
+.quote-status-compact {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0.125rem 0.375rem;
+  border-radius: 3px;
+  display: inline-block;
+  margin-left: auto;
+}
+
+/* Hover effects for status badges */
+.status-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Accessibility - reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .status-badge,
+  .quote-item,
+  .status-badge:hover {
+    transition: none;
+    transform: none;
+  }
+}

@@ -1,0 +1,130 @@
+/* Design Tokens - CSS Custom Properties */
+:root {
+  /* Font size system */
+  --font-size-base: 14px;  /* Base font size - adjust this to scale everything */
+  --font-size-xs: calc(var(--font-size-base) - 4px);   /* 10px at base 14px */
+  --font-size-sm: calc(var(--font-size-base) - 2px);   /* 12px at base 14px */
+  --font-size-md: var(--font-size-base);               /* 14px at base 14px */
+  --font-size-lg: calc(var(--font-size-base) + 2px);   /* 16px at base 14px */
+  --font-size-xl: calc(var(--font-size-base) + 4px);   /* 18px at base 14px */
+  --font-size-2xl: calc(var(--font-size-base) + 8px);  /* 22px at base 14px */
+  --font-size-3xl: calc(var(--font-size-base) + 14px); /* 28px at base 14px */
+
+  /* Specific font sizes */
+  --font-size-header-h1: var(--font-size-2xl);
+  --font-size-header-h2: var(--font-size-xl);
+  --font-size-header-h3: var(--font-size-lg);
+  --font-size-label: var(--font-size-xs);
+  --font-size-button: var(--font-size-sm);
+  --font-size-button-sm: var(--font-size-xs);
+  --font-size-input: var(--font-size-sm);
+  --font-size-body: var(--font-size-md);
+  --font-size-small: var(--font-size-sm);
+  --font-size-tiny: var(--font-size-xs);
+
+  /* Default theme colors */
+  --primary-color: #2563eb;
+  --primary-hover: #1d4ed8;
+  --text-color: #333;
+  --text-secondary: #666;
+  --text-tertiary: #999;
+  --border-color: #e5e7eb;
+  --bg-color: #f9fafb;
+  --bg-hover: #f3f4f6;
+  --card-bg: white;
+  --list-bg: #f8f9fa;
+  --search-bg: #f3f4f6;
+  --success-color: #10b981;
+  --error-color: #ef4444;
+  --warning-color: #f59e0b;
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --modal-overlay: rgba(0, 0, 0, 0.5);
+  --freight-color: #374151;
+  --install-color: #374151;
+  --forward-color: #374151;
+
+  /* Additional semantic colors */
+  --header-bg: white;
+  --resizer-color: #e5e7eb;
+  --quote-number-color: #2563eb;
+  --sales-rep-color: #6b7280;
+  --icon-color: #4b5563;
+  --separator-bg: var(--bg-hover);
+  --separator-text: #666;
+  --checkbox-unchecked-bg: rgba(239, 68, 68, 0.15);
+  --checkbox-checked-bg: var(--success-color);
+  --editable-hover-bg: rgba(37, 99, 235, 0.1);
+  --note-date-color: #999;
+  --empty-state-color: #666;
+  --toast-bg: white;
+  --tab-header-bg: var(--bg-hover);
+
+  /* Status colors */
+  --status-not-started-bg: #FEE2E2;
+  --status-not-started-text: #DC2626;
+  --status-not-started-border: #EF4444;
+  --status-wip-bg: #FFEDD5;
+  --status-wip-text: #EA580C;
+  --status-wip-border: #F97316;
+  --status-blocked-bg: #FEFCE8;
+  --status-blocked-text: #CA8A04;
+  --status-blocked-border: #EAB308;
+  --status-frt-bg: #FDF2F8;
+  --status-frt-text: #DB2777;
+  --status-frt-border: #EC4899;
+  --status-done-bg: #DCFCE7;
+  --status-done-text: #16A34A;
+  --status-done-border: #22C55E;
+
+  /* Status card backgrounds (muted versions for quote cards) */
+  --status-not-started-card-bg: rgba(239, 68, 68, 0.05);
+  --status-wip-card-bg: rgba(249, 115, 22, 0.05);
+  --status-blocked-card-bg: rgba(234, 179, 8, 0.05);
+  --status-frt-card-bg: rgba(236, 72, 153, 0.05);
+  --status-done-card-bg: rgba(34, 197, 94, 0.05);
+
+  /* Vendor Quote Status Colors */
+  --vq-not-started-bg: #FEE2E2;
+  --vq-not-started-text: #DC2626;
+  --vq-not-started-border: #EF4444;
+
+  --vq-not-sent-bg: #F3F4F6;
+  --vq-not-sent-text: #4B5563;
+  --vq-not-sent-border: #9CA3AF;
+
+  --vq-sent-bg: #DBEAFE;
+  --vq-sent-text: #1E40AF;
+  --vq-sent-border: #3B82F6;
+
+  --vq-blocked-bg: #FEFCE8;
+  --vq-blocked-text: #CA8A04;
+  --vq-blocked-border: #EAB308;
+
+  --vq-invalid-bg: #FEF2F2;
+  --vq-invalid-text: #991B1B;
+  --vq-invalid-border: #DC2626;
+
+  --vq-firm-bg: #D1FAE5;
+  --vq-firm-text: #065F46;
+  --vq-firm-border: #10B981;
+
+  /* Vendor Quote Status Card Backgrounds (muted) */
+  --vq-not-started-card-bg: rgba(239, 68, 68, 0.05);
+  --vq-not-sent-card-bg: rgba(156, 163, 175, 0.05);
+  --vq-sent-card-bg: rgba(59, 130, 246, 0.05);
+  --vq-blocked-card-bg: rgba(234, 179, 8, 0.05);
+  --vq-invalid-card-bg: rgba(220, 38, 38, 0.05);
+  --vq-firm-card-bg: rgba(16, 185, 129, 0.05);
+
+  /* Extended theming variables for quote detail layout */
+  --card-background: white;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  --border-light: #f3f4f6;
+  --border-dark: #9ca3af;
+  --hover-bg: #f9fafb;
+  --button-bg: #f0f9ff;
+  --button-border: #bfdbfe;
+  --button-text: white;
+}
